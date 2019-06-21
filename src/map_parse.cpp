@@ -18,7 +18,7 @@ const bool comp_traj(const Trajectory &t1, const Trajectory &t2){
 
 // 経路の価値の比較。評価関数に相当する
 bool overwrite(const Trajectory &before, const Trajectory after){
-  return comp_traj(before, after); // とりあえず距離が短いほうが偉いとする
+  return comp_traj(after, before); // とりあえず距離が短いほうが偉いとする
 }
 
 void set_traj(Trajectory &traj, const Point from_in, const Point to_in, const int distance_in, const bool use_dig, const std::vector<Direction> path_in){
@@ -31,17 +31,18 @@ void set_traj(Trajectory &traj, const Point from_in, const Point to_in, const in
 
 
 Trajectory map_parse::find_trajectory(const Game &game, const Point from, const Point to, const int max_dist){
-  Trajectory traj_map[MAP_XMAX][MAP_YMAX];
+  const int xmax = game.map[0].length();
+  const int ymax = game.map.size();
+  Trajectory traj_map[MAP_YMAX][MAP_XMAX];
   std::priority_queue<Trajectory, std::vector<Trajectory>, decltype(&comp_traj)> que(&comp_traj);
-  set_traj(traj_map[from.x][from.y], from, from, 0, false, std::vector<Direction>(0));
+  set_traj(traj_map[from.y][from.x], from, from, 0, false, std::vector<Direction>(0));
 
-  que.push(traj_map[from.x][from.y]);
+  que.push(traj_map[from.y][from.x]);
   while(1){
     if (que.empty()){
       break;
     }
     Trajectory traj = que.top();
-    std::cout<<traj<<std::endl; // logging
     que.pop();
     if(traj.distance > max_dist){
       continue;
@@ -51,10 +52,10 @@ Trajectory map_parse::find_trajectory(const Game &game, const Point from, const 
       const int x_try =  (dir == Direction(W) || dir == Direction(S)) ? traj.to.x : dir == Direction(A) ? traj.to.x - 1 : traj.to.x + 1;
       const int y_try =  (dir == Direction(A) || dir == Direction(D)) ? traj.to.y : dir == Direction(W) ? traj.to.y - 1 : traj.to.y + 1;
 
-      if(x_try > MAP_XMAX -1 || x_try < 0 || y_try > MAP_YMAX -1 || y_try < 0){
+      if(x_try > xmax -1 || x_try < 0 || y_try > ymax -1 || y_try < 0){
 	return;
       }
-      if(game.map[x_try][y_try] == '#'){
+      if(game.map[y_try][x_try] == '#'){
 	// todo write drill
 	return;
       }
@@ -63,8 +64,8 @@ Trajectory map_parse::find_trajectory(const Game &game, const Point from, const 
       traj_try.path.push_back(dir);
       traj_try.distance += 1;
       traj_try.to = {x_try, y_try};
-      if(overwrite(traj_map[x_try][y_try], traj_try)){
-	traj_map[x_try][y_try] = traj_try;
+      if(overwrite(traj_map[y_try][x_try], traj_try)){
+	traj_map[y_try][x_try] = traj_try;
 	que.push(traj_try);
       }
     };
@@ -75,14 +76,16 @@ Trajectory map_parse::find_trajectory(const Game &game, const Point from, const 
     try_expand(Direction(D));
   }
 
-  return traj_map[to.x][to.y];
+  return traj_map[to.y][to.x];
 }
 
 Trajectory map_parse::find_nearest_unwrapped(const Game &game, const Point from, const int max_dist){
-  Trajectory traj_map[MAP_XMAX][MAP_YMAX];
+  const int xmax = game.map[0].length();
+  const int ymax = game.map.size();
+  Trajectory traj_map[MAP_YMAX][MAP_XMAX];
   std::priority_queue<Trajectory, std::vector<Trajectory>, decltype(&comp_traj)> que(&comp_traj);
-  set_traj(traj_map[from.x][from.y], from, from, 0, false, std::vector<Direction>(0));
-
+  set_traj(traj_map[from.y][from.x], from, from, 0, false, std::vector<Direction>(0));
+  que.push(traj_map[from.y][from.x]);
   int nearest = DISTANCE_INF;
   Point nearest_point = {-1, -1};
   
@@ -92,7 +95,6 @@ Trajectory map_parse::find_nearest_unwrapped(const Game &game, const Point from,
     }
     Trajectory traj = que.top();
     que.pop();
-    std::cout<<traj<<std::endl; // logging
     if(traj.distance > max_dist || traj.distance > nearest){
       continue;
     }
@@ -101,10 +103,10 @@ Trajectory map_parse::find_nearest_unwrapped(const Game &game, const Point from,
       const int x_try =  (dir == Direction(W) || dir == Direction(S)) ? traj.to.x : dir == Direction(A) ? traj.to.x - 1 : traj.to.x + 1;
       const int y_try =  (dir == Direction(A) || dir == Direction(D)) ? traj.to.y : dir == Direction(W) ? traj.to.y - 1 : traj.to.y + 1;
       
-      if(x_try > MAP_XMAX -1 || x_try < 0 || y_try > MAP_YMAX -1 || y_try < 0){
+      if(x_try > xmax -1 || x_try < 0 || y_try > ymax -1 || y_try < 0){
 	return;
       }
-      if(game.map[x_try][y_try] == '#'){
+      if(game.map[y_try][x_try] == '#'){
 	// todo write drill
 	return;
       }
@@ -112,9 +114,9 @@ Trajectory map_parse::find_nearest_unwrapped(const Game &game, const Point from,
       traj_try.path.push_back(dir);
       traj_try.distance += 1;
       traj_try.to = {x_try, y_try};
-      if(overwrite(traj_map[x_try][y_try], traj_try)){
-	traj_map[x_try][y_try] = traj_try;
-	if(game.map[x_try][y_try] == '.' && traj_try.distance < nearest){
+      if(overwrite(traj_map[y_try][x_try], traj_try)){
+	traj_map[y_try][x_try] = traj_try;
+	if(game.map[y_try][x_try] == '.' && traj_try.distance < nearest){
 	  nearest_point = {x_try, y_try};
 	}else{
 	  que.push(traj_try);
