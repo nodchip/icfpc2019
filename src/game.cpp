@@ -1,5 +1,6 @@
-#include "map.h"
+#include "game.h"
 
+#include <ostream>
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -7,9 +8,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
-using Point = std::pair<int, int>;
-using Booster = std::pair<char, Point>;
 
 namespace {
 
@@ -76,28 +74,76 @@ Point FindPoint(const std::vector<std::string>& map) {
 
 }  // namespace
 
-Map::Map(const std::string& task) {
+Game::Game(const std::string& task) {
   char* p = const_cast<char*>(task.data());
 
   std::vector<Point> map_pos { ParseMap(p) };
   assert (*p == '#');
-  wrappy_point = ParsePoint(++p);
+  wrappy = ParsePoint(++p);
   assert (*p == '#');
   std::vector<std::vector<Point>> obstacles { ParseObstacles(++p) };
   assert (*p == '#');
   std::vector<Booster> boosters { ParseBoosters(++p) };
+
+  manipulators.push_back(Point {1, 0});
+  manipulators.push_back(Point {1, 1});
+  manipulators.push_back(Point {1, -1});
 }
 
-Map::Map(const std::vector<std::string>& mp)
+Game::Game(const std::vector<std::string>& mp)
   : map(mp) {
   std::reverse(map.begin(), map.end());
-  wrappy_point = FindPoint(map);
+  wrappy = FindPoint(map);
+
+  manipulators.push_back(Point {1, 0});
+  manipulators.push_back(Point {1, 1});
+  manipulators.push_back(Point {1, -1});
 }
 
-std::ostream& operator<<(std::ostream& os, const Map& map) {
-  const auto& m = map.map;
-  os << "Time: " << map.time << "\n";
-  for (int i = m.size() - 1; i >= 0; --i)
-    os << m[i] << "\n";
+// static const char UP = 'W';
+// static const char DOWN = 'S';
+// static const char LEFT = 'A';
+// static const char RIGHT = 'D';
+void Game::move(char c) {
+  command.push_back(c);
+}
+
+void Game::nop() {
+  command.push_back('Z');
+}
+
+// static const char CW = 'E';  // Clockwise
+// static const char CCW = 'Q';  // Counterclockwise
+void Game::turn(char c) {
+  command.push_back(c);
+}
+
+void Game::addManipulate(const Point& p) {
+  std::ostringstream oss;
+  oss << "B(" << p.first << "," << p.second << ")";
+  command += oss.str();
+}
+
+// static const char FAST = 'F';
+// static const char DRILL = 'L';
+void Game::useBooster(char c) {
+  command.push_back(c);
+}
+
+std::ostream& operator<<(std::ostream& os, const Game& game) {
+  os << "Time: " << game.time << "\n";
+  for (int i = game.map.size() - 1; i >= 0; --i)
+    os << game.map[i] << "\n";
+
+  os << "Boosters: B(" << game.num_manipulators << ") "
+     << "F(" << game.fast_wheels << ") "
+     << "L(" << game.drills << ")\n";
+  if (game.time_fast_wheels > 0) {
+    os << " Speedup (" << game.time_fast_wheels << ")\n";
+  }
+  if (game.time_drill > 0) {
+    os << " Drill (" << game.time_drill << ")\n";
+  }
+
   return os;
 }

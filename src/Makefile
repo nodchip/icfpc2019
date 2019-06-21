@@ -4,7 +4,7 @@ CXXFLAGS+=-pg
 
 LDFLAGS=
 
-SRCS=map.cpp wrappy.cpp map_parse.cpp
+SRCS=base.cpp game.cpp map_parse.cpp
 
 BUILD_PATH=build
 OBJS=$(SRCS:%.cpp=$(BUILD_PATH)/%.o)
