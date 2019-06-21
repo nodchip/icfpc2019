@@ -15,9 +15,9 @@ namespace {
 Point ParsePoint(char*& p) {
   assert (*p == '(');
   Point pos;
-  int x = std::strtol(p, &p, 10);
+  int x = std::strtol(++p, &p, 10);
   assert (*p == ',');
-  int y = std::strtol(p, &p, 10);
+  int y = std::strtol(++p, &p, 10);
   assert (*p == ')');
   ++p;
 
@@ -74,5 +74,5 @@ Map::Map(const std::string& task) {
   assert (*p == '#');
   std::vector<std::vector<Point>> obstacles { ParseObstacles(++p) };
   assert (*p == '#');
-  std::vector<Booster> { ParseBoosters(++p) };
+  std::vector<Booster> boosters { ParseBoosters(++p) };
 }
