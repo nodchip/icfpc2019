@@ -33,9 +33,9 @@ void set_traj(Trajectory &traj, const Point from_in, const Point to_in, const in
 Trajectory map_parse::find_trajectory(const Game &game, const Point from, const Point to, const int max_dist){
   Trajectory traj_map[MAP_XMAX][MAP_YMAX];
   std::priority_queue<Trajectory, std::vector<Trajectory>, decltype(&comp_traj)> que(&comp_traj);
-  set_traj(traj_map[from.first][from.second], from, from, 0, false, std::vector<Direction>(0));
+  set_traj(traj_map[from.x][from.y], from, from, 0, false, std::vector<Direction>(0));
 
-  que.push(traj_map[from.first][from.second]);
+  que.push(traj_map[from.x][from.y]);
   while(1){
     if (que.empty()){
       break;
@@ -48,8 +48,8 @@ Trajectory map_parse::find_trajectory(const Game &game, const Point from, const 
     }
     
     auto try_expand = [&](Direction dir){
-      const int x_try =  (dir == Direction(W) || dir == Direction(S)) ? traj.to.first : dir == Direction(A) ? traj.to.first - 1 : traj.to.first + 1;
-      const int y_try =  (dir == Direction(A) || dir == Direction(D)) ? traj.to.second : dir == Direction(W) ? traj.to.second - 1 : traj.to.second + 1;
+      const int x_try =  (dir == Direction(W) || dir == Direction(S)) ? traj.to.x : dir == Direction(A) ? traj.to.x - 1 : traj.to.x + 1;
+      const int y_try =  (dir == Direction(A) || dir == Direction(D)) ? traj.to.y : dir == Direction(W) ? traj.to.y - 1 : traj.to.y + 1;
 
       if(x_try > MAP_XMAX -1 || x_try < 0 || y_try > MAP_YMAX -1 || y_try < 0){
 	return;
@@ -75,13 +75,13 @@ Trajectory map_parse::find_trajectory(const Game &game, const Point from, const 
     try_expand(Direction(D));
   }
 
-  return traj_map[to.first][to.second];
+  return traj_map[to.x][to.y];
 }
 
 Trajectory map_parse::find_nearest_unwrapped(const Game &game, const Point from, const int max_dist){
   Trajectory traj_map[MAP_XMAX][MAP_YMAX];
   std::priority_queue<Trajectory, std::vector<Trajectory>, decltype(&comp_traj)> que(&comp_traj);
-  set_traj(traj_map[from.first][from.second], from, from, 0, false, std::vector<Direction>(0));
+  set_traj(traj_map[from.x][from.y], from, from, 0, false, std::vector<Direction>(0));
 
   int nearest = DISTANCE_INF;
   Point nearest_point = {-1, -1};
@@ -98,8 +98,8 @@ Trajectory map_parse::find_nearest_unwrapped(const Game &game, const Point from,
     }
     
     auto try_expand = [&](Direction dir){
-      const int x_try =  (dir == Direction(W) || dir == Direction(S)) ? traj.to.first : dir == Direction(A) ? traj.to.first - 1 : traj.to.first + 1;
-      const int y_try =  (dir == Direction(A) || dir == Direction(D)) ? traj.to.second : dir == Direction(W) ? traj.to.second - 1 : traj.to.second + 1;
+      const int x_try =  (dir == Direction(W) || dir == Direction(S)) ? traj.to.x : dir == Direction(A) ? traj.to.x - 1 : traj.to.x + 1;
+      const int y_try =  (dir == Direction(A) || dir == Direction(D)) ? traj.to.y : dir == Direction(W) ? traj.to.y - 1 : traj.to.y + 1;
       
       if(x_try > MAP_XMAX -1 || x_try < 0 || y_try > MAP_YMAX -1 || y_try < 0){
 	return;
@@ -128,5 +128,5 @@ Trajectory map_parse::find_nearest_unwrapped(const Game &game, const Point from,
     try_expand(Direction(D));
   }
 
-  return traj_map[nearest_point.first][nearest_point.second];
+  return traj_map[nearest_point.x][nearest_point.y];
 }

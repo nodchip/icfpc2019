@@ -16,5 +16,4 @@ std::vector<VerticalLine> EnumerateIntersectionsToHorizontalLine(int line_y, con
 }
 
 // set map[y][x] := value inside the polygon = [(x0, y1), ..]
-// if the polygon exceeds the size of map, fail to return false.
 bool FillPolygon(Map2D& map, const Polygon& polygon, int value);

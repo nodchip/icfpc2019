@@ -3,7 +3,13 @@
 #include <ostream>
 #include <vector>
 
-using Point = std::pair<int, int>;
+struct Point {
+    int x = 0;
+    int y = 0;
+    Point() = default;
+    Point(int x_, int y_) : x(x_), y(y_) {}
+};
+
 using Polygon = std::vector<Point>;
 
 struct Map2D {

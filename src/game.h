@@ -4,7 +4,8 @@
 #include <string>
 #include <vector>
 
-using Point = std::pair<int, int>;
+#include "base.h"
+
 using Booster = std::pair<char, Point>;
 
 struct Game {

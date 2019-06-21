@@ -9,17 +9,17 @@ std::vector<VerticalLine> EnumerateIntersectionsToHorizontalLine(int line_y, con
     std::vector<VerticalLine> res;
     for (size_t i = 0; i < polygon.size(); ++i) {
         const size_t j = (i + polygon.size() + 1) % polygon.size();
-        if (polygon[i].first == polygon[j].first) {
-            assert(polygon[i].second != polygon[j].second); // rectilinear lines
+        if (polygon[i].x == polygon[j].x) {
+            assert(polygon[i].y != polygon[j].y); // rectilinear lines
             VerticalLine line;
-            line.x = polygon[i].first;
-            line.y0 = std::min(polygon[i].second, polygon[j].second);
-            line.y1 = std::max(polygon[i].second, polygon[j].second);
+            line.x = polygon[i].x;
+            line.y0 = std::min(polygon[i].y, polygon[j].y);
+            line.y1 = std::max(polygon[i].y, polygon[j].y);
             if (line.y0 <= line_y && line_y < line.y1) {
                 res.push_back(line);
             }
         } else {
-            assert(polygon[i].second == polygon[j].second); // rectilinear lines
+            assert(polygon[i].y == polygon[j].y); // rectilinear lines
         }
     }
     return res;
