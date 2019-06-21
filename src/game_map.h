@@ -70,8 +70,13 @@ struct ParsedMap {
 };
 // parse *.desc string to construct Map2D and obtain other info.
 ParsedMap parseDescString(std::string desc_string);
+
 // parse *.map string to construct Map2D and obtain other info.
 // map_strings_top_to_bottom[H - 1 - y] corresponds to the y-line.
 ParsedMap parseMapString(std::vector<std::string> map_strings_top_to_bottom);
+
+// dump map string for display. the first row corresponds to the highest y.
+// do not contain line terminator at the end of lines.
+std::vector<std::string> dumpMapString(const Map2D& map2d, Point wrappy);
 
 std::ostream& operator<<(std::ostream&, const Map2D&);

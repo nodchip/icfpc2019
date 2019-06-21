@@ -143,37 +143,6 @@ void Game::useBooster(char c) {
 
   behave(c);
 }
-
-
-std::vector<std::string> Game::createMap() const {
-  std::vector<std::vector<char>> charmap;
-
-  for (int y = 0; y < map2d.H; ++y) {
-    std::vector<char> line(map2d.W, WALL);
-    for (int x = 0; x < map2d.W; ++x) {
-      char c = NON_WRAPPED;
-      if (map2d(x, y) & CellType::kWrappedBit) { c = WRAPPED; }
-      if (map2d(x, y) & CellType::kBoosterManipulatorBit) { c = BOOSTER_MANIPULATOR; }
-      if (map2d(x, y) & CellType::kBoosterFastWheelBit) { c = BOOSTER_FAST_WHEEL; }
-      if (map2d(x, y) & CellType::kBoosterDrillBit) { c = BOOSTER_DRILL; }
-      if (map2d(x, y) & CellType::kBoosterUnknownXBit) { c = UNKNOWN; }
-      if (map2d(x, y) & CellType::kBoosterTeleportBit) { c = BOOSTER_TELEPORT; }
-      if (map2d(x, y) & CellType::kObstacleBit) { c = WALL; } // highest priority
-      line[x] = c;
-    }
-    charmap.push_back(line);
-  }
-
-  charmap[wrappy.y][wrappy.x] = WRAPPY;
-
-  std::vector<std::string> result;
-  for (auto& line : charmap) {
-    line.push_back('\0');
-    result.push_back(std::string(line.begin(), line.end()));
-  }
-  return result;
-}
-
 void Game::behave(const char c) {
   behave(std::string(1, c));
 }
@@ -186,10 +155,10 @@ void Game::behave(const std::string& behavior) {
 }
 
 std::ostream& operator<<(std::ostream& os, const Game& game) {
-  auto map = game.createMap();
   os << "Time: " << game.time << "\n";
-  for (int i = map.size() - 1; i >= 0; --i)
-    os << map[i] << "\n";
+  for (auto& line : dumpMapString(game.map2d, game.wrappy)) {
+    os << line << "\n";
+  }
 
   os << "Boosters: B(" << game.num_manipulators << ") "
      << "F(" << game.fast_wheels << ") "

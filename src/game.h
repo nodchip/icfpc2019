@@ -49,7 +49,6 @@ struct Game {
   // remained time of 'L'. While this is >0, wrappy can go through obstacles.
   int time_drill = 0;
 
-  std::vector<std::string> createMap() const;
 private:
   void behave(const char c);
   void behave(const std::string& behavior);
