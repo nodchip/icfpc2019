@@ -72,6 +72,7 @@ Trajectory map_parse::find_trajectory(const Game &game, const Point from, const 
     try_expand(Direction(S));
     try_expand(Direction(D));
   }
+
   return traj_map[to.first][to.second];
 }
 
@@ -123,20 +124,7 @@ Trajectory map_parse::find_nearest_unwrapped(const Game &game, const Point from,
     try_expand(Direction(A));
     try_expand(Direction(S));
     try_expand(Direction(D));
-
   }
-  return traj_map[nearest_point.first][nearest_point.second];
-}
 
-void map_parse::test_map_parse(){
-  std::vector<std::string> test_map;
-  test_map.resize(5);
-  test_map[0] = ". . ..";
-  test_map[1] = "###. .";
-  test_map[2] = "... ##";
-  test_map[3] = " #  #.";
-  test_map[4] = "..#   ";
-  Game game(test_map);
-  Trajectory traj = map_parse::find_trajectory(game, {0,0}, {3,0}, DISTANCE_INF);
-  Trajectory traj2 = map_parse::find_nearest_unwrapped(game, {4,3}, DISTANCE_INF);
+  return traj_map[nearest_point.first][nearest_point.second];
 }
