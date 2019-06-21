@@ -35,7 +35,7 @@ TrajectoryMap generateTrajectoryMap(const Game &game,
   TrajectoryMap traj_map(kYMax, std::vector<Trajectory>(kXMax));
   std::priority_queue<Trajectory> que;
   traj_map[from.y][from.x] =
-      Trajectory{from, from, 0, false, std::vector<Direction>(0)};
+    Trajectory{from, from, 0};
 
   que.push(traj_map[from.y][from.x]);
   while (!que.empty()) {
@@ -50,10 +50,10 @@ TrajectoryMap generateTrajectoryMap(const Game &game,
       int x_try = traj.to.x;
       int y_try = traj.to.y;
       switch (dir) {
-      case W: ++y_try; break;
-      case S: --y_try; break;
-      case D: ++x_try; break;
-      case A: --x_try; break;
+      case Direction::W: ++y_try; break;
+      case Direction::S: --y_try; break;
+      case Direction::D: ++x_try; break;
+      case Direction::A: --x_try; break;
       }
 
       if (x_try > kXMax - 1 || x_try < 0 || y_try > kYMax - 1 || y_try < 0) {
@@ -74,10 +74,10 @@ TrajectoryMap generateTrajectoryMap(const Game &game,
       }
     };
 
-    try_expand(Direction(W));
-    try_expand(Direction(A));
-    try_expand(Direction(S));
-    try_expand(Direction(D));
+    try_expand(Direction::W);
+    try_expand(Direction::A);
+    try_expand(Direction::S);
+    try_expand(Direction::D);
   }
 
   return traj_map;
