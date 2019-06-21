@@ -49,14 +49,14 @@ std::vector<std::vector<Point>> ParseObstacles(char*& p) {
 }
 
 Booster ParseBooster(char*& p) {
-  assert (std::strchr("BFLX", *p) != nullptr);
+  assert (std::strchr("BFLXR", *p) != nullptr);
   char code = *p;
   Point point { ParsePoint(++p) };
   return {code, point};
 }
 
 std::vector<Booster> ParseBoosters(char*& p) {
-  assert (std::strchr("BFLX", *p) != nullptr);
+  assert (std::strchr("BFLXR", *p) != nullptr);
   std::vector<Booster> boosters;
   boosters.emplace_back(ParseBooster(p));
   while (*p == ';') {
