@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "base.h"
+#include "game_map.h"
 
 namespace detail {
 struct VerticalLine {
