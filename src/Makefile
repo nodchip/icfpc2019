@@ -1,26 +1,24 @@
 LIB_PATH=../libs
+BUILD_PATH=build
+GTEST_DIR=$(LIB_PATH)/googletest/googletest
+
 CXXFLAGS=-O2 -Wall -Wno-sign-compare -std=c++14
-CXXFLAGS+=-I .
+CXXFLAGS+=-I. -I$(GTEST_DIR) -I$(GTEST_DIR)/include
 CXXFLAGS+=-pg
 
 LDFLAGS=
 
 SRCS=base.cpp game.cpp map_parse.cpp fill_polygon.cpp
-
-BUILD_PATH=build
 OBJS=$(SRCS:%.cpp=$(BUILD_PATH)/%.o)
 
+GTEST_SRCS=$(GTEST_DIR)/src/gtest-all.cc $(GTEST_DIR)/src/gtest_main.cc
 TEST_BUILD_PATH=build/tests
-TEST_CXXFLAGS=$(CXXFLAGS) \
-	-I$(LIB_PATH)/googletest/googletest \
-	-I$(LIB_PATH)/googletest/googletest/include
-TEST_LDFLAGS=$(LDFLAGS) \
-	-lpthread
-TEST_SRCS=$(LIB_PATH)/googletest/googletest/src/gtest-all.cc
-TEST_SRCS+=$(wildcard tests/*.cpp)
+TEST_LDFLAGS=$(LDFLAGS) -lpthread
+TEST_SRCS=$(wildcard tests/*.cpp)
 TEST_OBJS=$(TEST_SRCS:%.cpp=$(BUILD_PATH)/%.o)
 
 TARGETS=solver test
+
 .PHONY: all
 all: dirs $(TARGETS)
 
@@ -36,11 +34,11 @@ $(BUILD_PATH)/%.o: %.cpp %.h
 
 .PHONY: clean
 clean:
-	rm -f $(OBJS) $(TARGETS)
+	rm -fr $(BUILD_PATH) $(TARGETS)
 
 .PHONY: test
-test: $(TEST_OBJS) $(OBJS)
-	$(CXX) $(TEST_CXXFLAGS) -Wall $^ -o $@ $(TEST_LDFLAGS)
+test: $(GTEST_SRCS) $(TEST_OBJS) $(OBJS)
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(TEST_LDFLAGS)
 
 $(BUILD_PATH)/%.o: %.cpp
-	$(CXX) $(TEST_CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
