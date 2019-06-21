@@ -109,32 +109,32 @@ void Game::move(char c) {
   Point p {wrappy};
   switch (c) {
   case UP:
-    p.second += speed;
+    p.y += speed;
     break;
   case DOWN:
-    p.second -= speed;
+    p.y -= speed;
     break;
   case LEFT:
-    p.first -= speed;
+    p.x -= speed;
     break;
   case RIGHT:
-    p.first += speed;
+    p.x += speed;
     break;
   }
 
-  if (p.first < 0)
-    p.first = 0;
-  else if (p.first >= map[0].size())
-    p.first = map[0].size() - 1;
-  else if (p.second < 0)
-    p.second = 0;
-  else if (p.second >= map.size())
-    p.second = map.size() - 1;
+  if (p.x < 0)
+    p.x = 0;
+  else if (p.x >= map[0].size())
+    p.x = map[0].size() - 1;
+  else if (p.y < 0)
+    p.y = 0;
+  else if (p.y >= map.size())
+    p.y = map.size() - 1;
 
   // Update |map|. Need to simulate manipulators' behavior.
-  map[wrappy.second][wrappy.first] = WRAPPED;
+  map[wrappy.y][wrappy.x] = WRAPPED;
   wrappy = p;
-  map[wrappy.second][wrappy.first] = WRAPPY;
+  map[wrappy.y][wrappy.x] = WRAPPY;
 
   behave(c);
 }
@@ -149,14 +149,14 @@ void Game::turn(char c) {
   if (c == CW) {
     for (auto& manip : manipulators) {
       auto orig(manip);
-      manip.first = orig.second;
-      manip.second = -orig.first;
+      manip.x = orig.y;
+      manip.y = -orig.x;
     }
   } else {
     for (auto& manip : manipulators) {
       auto orig(manip);
-      manip.first = -orig.second;
-      manip.second = orig.first;
+      manip.x = -orig.y;
+      manip.y = orig.x;
     }
   }
 
@@ -170,7 +170,7 @@ void Game::addManipulate(const Point& p) {
   --num_manipulators;
 
   std::ostringstream oss;
-  oss << "B(" << p.first << "," << p.second << ")";
+  oss << "B(" << p.x << "," << p.y << ")";
   behave(oss.str());
 }
 
