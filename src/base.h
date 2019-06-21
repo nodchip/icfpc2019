@@ -9,7 +9,12 @@ struct Point {
     int y = 0;
     Point() = default;
     Point(int x_, int y_) : x(x_), y(y_) {}
+    bool operator==(const Point& rhs) const { return x == rhs.x && y == rhs.y; }
+    bool operator!=(const Point& rhs) const { return !operator==(rhs); }
+    Point operator+(const Point& rhs) const { return Point(x + rhs.x, y + rhs.y); }
+    Point operator-(const Point& rhs) const { return Point(x - rhs.x, y - rhs.y); }
 };
+std::ostream& operator<<(std::ostream&, const Point&);
 
 using Polygon = std::vector<Point>;
 
