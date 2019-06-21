@@ -22,13 +22,17 @@ bool operator<(const Trajectory &t1, const Trajectory &t2) {
   return std::less<Trajectory>()(t1, t2);
 }
 
-Trajectory findTrajectory(const Game &game, const Point &from, const Point &to,
-                          const int max_dist) {
+using TrajectoryMap = std::vector<std::vector<Trajectory>>;
+using UpdateCallback = std::function<bool(Trajectory&, Trajectory&)>;
+
+TrajectoryMap generateTrajectoryMap(const Game &game,
+                                    const Point &from,
+                                    const int max_dist,
+                                    const UpdateCallback& update_callback) {
   const int kXMax = game.map2d.W;
   const int kYMax = game.map2d.H;
 
-  std::vector<std::vector<Trajectory>> traj_map(kYMax,
-                                                std::vector<Trajectory>(kXMax));
+  TrajectoryMap traj_map(kYMax, std::vector<Trajectory>(kXMax));
   std::priority_queue<Trajectory> que;
   traj_map[from.y][from.x] =
       Trajectory{from, from, 0, false, std::vector<Direction>(0)};
@@ -65,8 +69,7 @@ Trajectory findTrajectory(const Game &game, const Point &from, const Point &to,
       traj_try.distance += 1;
       traj_try.from = traj_try.to;
       traj_try.to = {x_try, y_try};
-      if (traj_try < traj_map[y_try][x_try]) {
-        traj_map[y_try][x_try] = traj_try;
+      if (update_callback(traj_try, traj_map[y_try][x_try])) {
         que.push(traj_try);
       }
     };
@@ -76,6 +79,20 @@ Trajectory findTrajectory(const Game &game, const Point &from, const Point &to,
     try_expand(Direction(S));
     try_expand(Direction(D));
   }
+
+  return traj_map;
+}
+
+Trajectory findTrajectory(const Game &game, const Point &from, const Point &to,
+                          const int max_dist) {
+  TrajectoryMap traj_map = generateTrajectoryMap(game, from, max_dist,
+                                                 [](Trajectory& traj_new, Trajectory& traj_orig) {
+                                                   if (traj_new < traj_orig) {
+                                                     traj_orig = traj_new;
+                                                     return true;
+                                                   }
+                                                   return false;
+                                                 });
 
   return traj_map[to.y][to.x];
 }
