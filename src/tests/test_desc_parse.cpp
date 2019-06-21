@@ -20,8 +20,11 @@ TEST(desc_parse, Game_parse_desc) {
     0, 0, 0, 0, 2, 2, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 2, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    3, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   });
   EXPECT_EQ(game.map2d, ground_truth);
+
   //std::cout << game.map2d << std::endl;
+  //std::cout << game.map2d.W << "x" << game.map2d.H << std::endl;
+  std::cout << game << std::endl;
 }

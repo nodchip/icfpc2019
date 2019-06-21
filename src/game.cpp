@@ -98,15 +98,74 @@ Game::Game(const std::string& task) {
     FillPolygon(map2d, obstacle, CellType::kObstacle);
   }
 
+  for (auto booster : boosters) {
+    switch (booster.first) {
+      case BOOSTER_MANIPULATOR:
+        placed_booster_manipulators.push_back(booster.second);
+        break;
+      case BOOSTER_FAST_WHEEL:
+        placed_booster_fast_wheels.push_back(booster.second);
+        break;
+      case BOOSTER_DRILL:
+        placed_booster_drills.push_back(booster.second);
+        break;
+      case UNKNOWN:
+        // actually not a booster but a part of the map.
+        map2d(booster.second.x, booster.second.y) = CellType::kUnknownX;
+    }
+  }
+
   manipulators.push_back(Point {1, 0});
   manipulators.push_back(Point {1, 1});
   manipulators.push_back(Point {1, -1});
 }
 
-Game::Game(const std::vector<std::string>& mp)
-  : map(mp) {
-  std::reverse(map.begin(), map.end());
-  wrappy = FindPoint(map);
+Game::Game(const std::vector<std::string>& mp) {
+  std::vector<std::string> maplines = mp;
+  
+  std::reverse(maplines.begin(), maplines.end());
+  wrappy = FindPoint(maplines);
+
+  int H = maplines.size();
+  int W = maplines[0].size();
+  map2d = Map2D(W, H, CellType::kObstacle);
+  for (int y = 0; y < H; ++y) {
+    for (int x = 0; x < W; ++x) {
+      switch (maplines[y][x]) {
+        case NON_WRAPPED:
+          map2d(x, y) = CellType::kEmpty;
+          break;
+        case WRAPPED:
+          map2d(x, y) = CellType::kWrapped;
+          break;
+        case WRAPPY:
+          map2d(x, y) = CellType::kEmpty;
+          wrappy = {x, y};
+          break;
+        case BOOSTER_MANIPULATOR:
+          map2d(x, y) = CellType::kEmpty;
+          placed_booster_manipulators.push_back({x, y});
+          break;
+        case BOOSTER_FAST_WHEEL:
+          map2d(x, y) = CellType::kEmpty;
+          placed_booster_fast_wheels.push_back({x, y});
+          break;
+        case BOOSTER_DRILL:
+          map2d(x, y) = CellType::kEmpty;
+          placed_booster_drills.push_back({x, y});
+          break;
+        case WALL:
+          map2d(x, y) = CellType::kObstacle;
+          break;
+        case UNKNOWN:
+          map2d(x, y) = CellType::kUnknownX;
+          break;
+        default:
+          assert(false);
+          break;
+      }
+    }
+  }
 
   manipulators.push_back(Point {1, 0});
   manipulators.push_back(Point {1, 1});
@@ -137,17 +196,18 @@ void Game::move(char c) {
 
   if (p.x < 0)
     p.x = 0;
-  else if (p.x >= map[0].size())
-    p.x = map[0].size() - 1;
+  else if (p.x >= map2d.W)
+    p.x = map2d.W - 1;
   else if (p.y < 0)
     p.y = 0;
-  else if (p.y >= map.size())
-    p.y = map.size() - 1;
+  else if (p.y >= map2d.H)
+    p.y = map2d.H - 1;
 
-  // Update |map|. Need to simulate manipulators' behavior.
-  map[wrappy.y][wrappy.x] = WRAPPED;
-  wrappy = p;
-  map[wrappy.y][wrappy.x] = WRAPPY;
+  // no more required.
+  // // Update |map|. Need to simulate manipulators' behavior.
+  // map[wrappy.y][wrappy.x] = WRAPPED;
+  // wrappy = p;
+  // map[wrappy.y][wrappy.x] = WRAPPY;
 
   behave(c);
 }
@@ -207,6 +267,54 @@ void Game::useBooster(char c) {
   behave(c);
 }
 
+
+std::vector<std::string> Game::createMap() const {
+  std::vector<std::vector<char>> charmap;
+
+  for (int y = 0; y < map2d.H; ++y) {
+    std::vector<char> line(map2d.W, WALL);
+    for (int x = 0; x < map2d.W; ++x) {
+      switch (map2d(x, y)) {
+        case CellType::kEmpty:
+          line[x] = NON_WRAPPED;
+          break;
+        case CellType::kWrapped:
+          line[x] = WRAPPED;
+          break;
+        case CellType::kObstacle:
+          line[x] = WALL;
+          break;
+        case CellType::kUnknownX:
+          line[x] = UNKNOWN;
+          break;
+        default:
+          line[x] = '?';
+          break;
+      }
+    }
+    charmap.push_back(line);
+  }
+
+  for (auto& B : placed_booster_manipulators) {
+    charmap[B.y][B.x] = BOOSTER_MANIPULATOR;
+  }
+  for (auto& F : placed_booster_fast_wheels) {
+    charmap[F.y][F.x] = BOOSTER_FAST_WHEEL;
+  }
+  for (auto& L : placed_booster_drills) {
+    charmap[L.y][L.x] = BOOSTER_DRILL;
+  }
+
+  charmap[wrappy.y][wrappy.x] = WRAPPY;
+
+  std::vector<std::string> result;
+  for (auto& line : charmap) {
+    line.push_back('\0');
+    result.push_back(std::string(line.begin(), line.end()));
+  }
+  return result;
+}
+
 void Game::behave(const char c) {
   behave(std::string(1, c));
 }
@@ -219,9 +327,10 @@ void Game::behave(const std::string& behavior) {
 }
 
 std::ostream& operator<<(std::ostream& os, const Game& game) {
+  auto map = game.createMap();
   os << "Time: " << game.time << "\n";
-  for (int i = game.map.size() - 1; i >= 0; --i)
-    os << game.map[i] << "\n";
+  for (int i = map.size() - 1; i >= 0; --i)
+    os << map[i] << "\n";
 
   os << "Boosters: B(" << game.num_manipulators << ") "
      << "F(" << game.fast_wheels << ") "
