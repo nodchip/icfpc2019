@@ -39,7 +39,7 @@ clean:
 	rm -f $(OBJS) $(TARGETS)
 
 .PHONY: test
-test: $(TEST_OBJS)
+test: $(TEST_OBJS) $(OBJS)
 	$(CXX) $(TEST_CXXFLAGS) -Wall $^ -o $@ $(TEST_LDFLAGS)
 
 $(BUILD_PATH)/%.o: %.cpp
