@@ -5,20 +5,9 @@
 #include <vector>
 
 #include "base.h"
+#include "game_map.h"
 
 using Booster = std::pair<char, Point>;
-
-namespace CellType {
-  static constexpr int kEmpty = 0;
-  static constexpr int kWrappedBit = 1 << 0;
-  static constexpr int kObstacleBit = 1 << 1;
-  static constexpr int kBoosterManipulatorBit = 1 << 2; // B
-  static constexpr int kBoosterFastWheelBit = 1 << 3; // F
-  static constexpr int kBoosterDrillBit = 1 << 4; // L
-  static constexpr int kBoosterUnknownXBit = 1 << 5; // X
-  static constexpr int kBoosterTeleportBit = 1 << 6; // R
-  static constexpr int kTeleportTargetBit = 1 << 7; // installed teleport target
-};
 
 struct Game {
   Game() = default;
