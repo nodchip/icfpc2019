@@ -4,6 +4,7 @@
 #include <ostream>
 #include <string>
 #include <vector>
+#include <cassert>
 
 #include "base.h"
 
@@ -41,7 +42,7 @@ struct Map2D {
         data.assign(W * H, value);
     }
     Map2D(int W_, int H_, std::initializer_list<int> vals) : Map2D(W_, H_) {
-        //assert (vals.size() == W * H);
+        assert (vals.size() == W * H);
         auto it = vals.begin();
         for (int y = 0; y < H; ++y) {
             for (int x = 0; x < W; ++x, ++it) {
