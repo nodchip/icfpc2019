@@ -1,7 +1,7 @@
 #include "manipulator_reach.h"
 #include <iostream>
 
-std::vector<Point> RequiredClearance(Point offset) {
+std::vector<Point> requiredClearance(Point offset) {
   std::vector<Point> res;
   int dx = std::abs(offset.x);
   int dy = std::abs(offset.y);
@@ -31,13 +31,13 @@ std::vector<Point> RequiredClearance(Point offset) {
   return res;
 }
 
-std::vector<Point> AbsolutePositionOfReachableManipulators(
+std::vector<Point> absolutePositionOfReachableManipulators(
   const Map2D& map2d, Point wrappy_pos, const std::vector<Point>& relative_manipulator_offsets) {
 
   std::vector<Point> reachables;
   for (auto& manipulator : relative_manipulator_offsets) {
     bool blocked = false;
-    for (auto& p : RequiredClearance(manipulator)) {
+    for (auto& p : requiredClearance(manipulator)) {
       auto test_pos = wrappy_pos + p;
       if (!map2d.isInside(test_pos) || (map2d(test_pos) & CellType::kObstacleBit) != 0) {
         //std::cout << "Clearance " << p << " test " << test_pos << " blocked" << std::endl;

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <gtest/gtest.h>
 
-TEST(manipulator_reach, RequiredClearance) {
+TEST(manipulator_reach, requiredClearance) {
   // exact diagonal.
   for (int i = -1; i <= 1; i += 2) {
     for (int j = -1; j <= 1; j += 2) {
@@ -12,7 +12,7 @@ TEST(manipulator_reach, RequiredClearance) {
         // . . *
         // . * .
         // * . .
-        auto res = RequiredClearance({i * 2, j * 2});
+        auto res = requiredClearance({i * 2, j * 2});
         // for (auto p : res) { std::cout << p << std::endl; }
         ASSERT_EQ(res.size(), 3);
         EXPECT_EQ(res[0], Point(i * 0, j * 0));
@@ -22,7 +22,7 @@ TEST(manipulator_reach, RequiredClearance) {
       {
         // . . * *
         // * * . .
-        auto res = RequiredClearance({i * 3, j * 1});
+        auto res = requiredClearance({i * 3, j * 1});
         // for (auto p : res) { std::cout << p << std::endl; }
         ASSERT_EQ(res.size(), 4);
         EXPECT_EQ(res[0], Point(i * 0, j * 0));
@@ -38,7 +38,7 @@ TEST(manipulator_reach, RequiredClearance) {
   // * * .
   for (int i = -1; i <= 1; i += 2) {
     for (int j = -1; j <= 1; j += 2) {
-      auto res = RequiredClearance({i * 2, j * 1});
+      auto res = requiredClearance({i * 2, j * 1});
       // for (auto p : res) { std::cout << p << std::endl; }
       ASSERT_EQ(res.size(), 4);
       EXPECT_EQ(res[0], Point(i * 0, j * 0));
@@ -49,7 +49,7 @@ TEST(manipulator_reach, RequiredClearance) {
   }
 }
 
-TEST(manipulator_reach, AbsolutePositionOfReachableManipulators) {
+TEST(manipulator_reach, absolutePositionOfReachableManipulators) {
   // Y^ 
   //  |
   //  -----------
@@ -74,7 +74,7 @@ TEST(manipulator_reach, AbsolutePositionOfReachableManipulators) {
   };
   for (auto test : manipulators) {
     //std::cout << "Test: " <<  test.first << std::endl;
-    auto res = AbsolutePositionOfReachableManipulators(map, wrappy, {test.first});
+    auto res = absolutePositionOfReachableManipulators(map, wrappy, {test.first});
     if (test.second) {
       EXPECT_EQ(res.size(), 1ull);
       if (res.size() == 1) {
