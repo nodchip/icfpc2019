@@ -61,6 +61,12 @@ struct Map2D {
     bool operator==(const Map2D& rhs) const {
         return W == rhs.W && H == rhs.H && data == rhs.data;
     }
+    bool isInside(int x, int y) const {
+        return 0 <= x && x < W && 0 <= y && y < H;
+    }
+    bool isInside(Point p) const {
+        return isInside(p.x, p.y);
+    }
 };
 
 using Booster = std::pair<char, Point>;
