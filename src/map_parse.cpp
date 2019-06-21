@@ -18,6 +18,10 @@ template <> struct less<Trajectory> {
 
 namespace map_parse {
 
+bool operator<(const Trajectory &t1, const Trajectory &t2) {
+  return std::less<Trajectory>()(t1, t2);
+}
+
 Trajectory findTrajectory(const Game &game, const Point &from, const Point &to,
                           const int max_dist) {
   const int kXMax = game.map2d.W;
@@ -61,7 +65,7 @@ Trajectory findTrajectory(const Game &game, const Point &from, const Point &to,
       traj_try.distance += 1;
       traj_try.from = traj_try.to;
       traj_try.to = {x_try, y_try};
-      if (std::less<Trajectory>()(traj_try, traj_map[y_try][x_try])) {
+      if (traj_try < traj_map[y_try][x_try]) {
         traj_map[y_try][x_try] = traj_try;
         que.push(traj_try);
       }
@@ -119,7 +123,7 @@ Trajectory findNearestUnwrapped(const Game &game, const Point& from, const int m
       traj_try.distance += 1;
       traj_try.from = traj_try.to;
       traj_try.to = {x_try, y_try};
-      if (std::less<Trajectory>()(traj_try, traj_map[y_try][x_try])) {
+      if (traj_try < traj_map[y_try][x_try]) {
         traj_map[y_try][x_try] = traj_try;
         if (game.map2d(x_try, y_try) == CellType::kEmpty &&
             traj_try.distance < nearest) {
