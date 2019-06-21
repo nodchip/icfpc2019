@@ -92,26 +92,26 @@ Game::Game(const std::string& task) {
   assert (map_bbox.lower.x >= 0);
   assert (map_bbox.lower.y >= 0);
   assert (map_bbox.isValid());
-  map2d = Map2D(map_bbox.upper.x, map_bbox.upper.y, CellType::kObstacle);
+  map2d = Map2D(map_bbox.upper.x, map_bbox.upper.y, CellType::kObstacleBit);
   FillPolygon(map2d, map_pos, CellType::kEmpty);
   for (const auto& obstacle : obstacles) {
-    FillPolygon(map2d, obstacle, CellType::kObstacle);
+    FillPolygon(map2d, obstacle, CellType::kObstacleBit);
   }
 
   for (auto booster : boosters) {
     switch (booster.first) {
       case BOOSTER_MANIPULATOR:
-        placed_booster_manipulators.push_back(booster.second);
+        map2d(booster.second) |= CellType::kBoosterManipulatorBit;
         break;
       case BOOSTER_FAST_WHEEL:
-        placed_booster_fast_wheels.push_back(booster.second);
+        map2d(booster.second) |= CellType::kBoosterFastWheelBit;
         break;
       case BOOSTER_DRILL:
-        placed_booster_drills.push_back(booster.second);
+        map2d(booster.second) |= CellType::kBoosterDrillBit;
         break;
       case UNKNOWN:
-        // actually not a booster but a part of the map.
-        map2d(booster.second.x, booster.second.y) = CellType::kUnknownX;
+        map2d(booster.second) |= CellType::kBoosterUnknownXBit;
+        break;
     }
   }
 
@@ -128,7 +128,7 @@ Game::Game(const std::vector<std::string>& mp) {
 
   int H = maplines.size();
   int W = maplines[0].size();
-  map2d = Map2D(W, H, CellType::kObstacle);
+  map2d = Map2D(W, H, CellType::kEmpty);
   for (int y = 0; y < H; ++y) {
     for (int x = 0; x < W; ++x) {
       switch (maplines[y][x]) {
@@ -136,29 +136,26 @@ Game::Game(const std::vector<std::string>& mp) {
           map2d(x, y) = CellType::kEmpty;
           break;
         case WRAPPED:
-          map2d(x, y) = CellType::kWrapped;
+          map2d(x, y) = CellType::kWrappedBit;
           break;
         case WRAPPY:
           map2d(x, y) = CellType::kEmpty;
           wrappy = {x, y};
           break;
         case BOOSTER_MANIPULATOR:
-          map2d(x, y) = CellType::kEmpty;
-          placed_booster_manipulators.push_back({x, y});
+          map2d(x, y) = CellType::kBoosterManipulatorBit;
           break;
         case BOOSTER_FAST_WHEEL:
-          map2d(x, y) = CellType::kEmpty;
-          placed_booster_fast_wheels.push_back({x, y});
+          map2d(x, y) = CellType::kBoosterFastWheelBit;
           break;
         case BOOSTER_DRILL:
-          map2d(x, y) = CellType::kEmpty;
-          placed_booster_drills.push_back({x, y});
+          map2d(x, y) = CellType::kBoosterDrillBit;
           break;
         case WALL:
-          map2d(x, y) = CellType::kObstacle;
+          map2d(x, y) = CellType::kObstacleBit;
           break;
         case UNKNOWN:
-          map2d(x, y) = CellType::kUnknownX;
+          map2d(x, y) = CellType::kBoosterUnknownXBit;
           break;
         default:
           assert(false);
@@ -274,35 +271,17 @@ std::vector<std::string> Game::createMap() const {
   for (int y = 0; y < map2d.H; ++y) {
     std::vector<char> line(map2d.W, WALL);
     for (int x = 0; x < map2d.W; ++x) {
-      switch (map2d(x, y)) {
-        case CellType::kEmpty:
-          line[x] = NON_WRAPPED;
-          break;
-        case CellType::kWrapped:
-          line[x] = WRAPPED;
-          break;
-        case CellType::kObstacle:
-          line[x] = WALL;
-          break;
-        case CellType::kUnknownX:
-          line[x] = UNKNOWN;
-          break;
-        default:
-          line[x] = '?';
-          break;
-      }
+      char c = NON_WRAPPED;
+      if (map2d(x, y) & CellType::kWrappedBit) { c = WRAPPED; }
+      if (map2d(x, y) & CellType::kBoosterManipulatorBit) { c = BOOSTER_MANIPULATOR; }
+      if (map2d(x, y) & CellType::kBoosterFastWheelBit) { c = BOOSTER_FAST_WHEEL; }
+      if (map2d(x, y) & CellType::kBoosterDrillBit) { c = BOOSTER_DRILL; }
+      if (map2d(x, y) & CellType::kBoosterUnknownXBit) { c = UNKNOWN; }
+      if (map2d(x, y) & CellType::kBoosterTeleportBit) { c = BOOSTER_TELEPORT; }
+      if (map2d(x, y) & CellType::kObstacleBit) { c = WALL; } // highest priority
+      line[x] = c;
     }
     charmap.push_back(line);
-  }
-
-  for (auto& B : placed_booster_manipulators) {
-    charmap[B.y][B.x] = BOOSTER_MANIPULATOR;
-  }
-  for (auto& F : placed_booster_fast_wheels) {
-    charmap[F.y][F.x] = BOOSTER_FAST_WHEEL;
-  }
-  for (auto& L : placed_booster_drills) {
-    charmap[L.y][L.x] = BOOSTER_DRILL;
   }
 
   charmap[wrappy.y][wrappy.x] = WRAPPY;

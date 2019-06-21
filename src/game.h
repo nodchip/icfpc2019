@@ -8,11 +8,15 @@
 
 using Booster = std::pair<char, Point>;
 
-struct CellType {
+namespace CellType {
   static constexpr int kEmpty = 0;
-  static constexpr int kWrapped = 1;
-  static constexpr int kObstacle = 2;
-  static constexpr int kUnknownX = 3;
+  static constexpr int kWrappedBit = 1 << 0;
+  static constexpr int kObstacleBit = 1 << 1;
+  static constexpr int kBoosterManipulatorBit = 1 << 2;
+  static constexpr int kBoosterFastWheelBit = 1 << 3;
+  static constexpr int kBoosterDrillBit = 1 << 4;
+  static constexpr int kBoosterUnknownXBit = 1 << 5;
+  static constexpr int kBoosterTeleportBit = 1 << 6;
 };
 
 struct Game {
@@ -45,18 +49,12 @@ struct Game {
   static const char BOOSTER_MANIPULATOR = 'B';
   static const char BOOSTER_FAST_WHEEL = 'F';
   static const char BOOSTER_DRILL = 'L';
+  static const char BOOSTER_TELEPORT = 'R';
   static const char WALL = '#';
   static const char UNKNOWN = 'X';
 
   // refactored map representation
   Map2D map2d;
-  std::vector<Point> placed_booster_manipulators;
-  std::vector<Point> placed_booster_fast_wheels;
-  std::vector<Point> placed_booster_drills;
-
-  // To display a map, use ostream::operator<<.
-  // Y direction maybe wrong.
-  //std::vector<std::string> map;
 
   // State of Wrappy ===================================
   Point wrappy;
