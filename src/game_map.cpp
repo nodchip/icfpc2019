@@ -174,24 +174,23 @@ std::vector<std::string> dumpMapString(const Map2D& map2d, Point wrappy) {
     }
     charmap.push_back(line);
   }
-  charmap[wrappy.y][wrappy.x] = WRAPPY;
+  if (map2d.isInside(wrappy)) {
+    charmap[wrappy.y][wrappy.x] = WRAPPY;
+  }
 
   std::reverse(charmap.begin(), charmap.end()); // now charmap[0] is the highest y.
 
   std::vector<std::string> result;
   for (auto& line : charmap) {
-    line.push_back('\0');
+    //line.push_back('\0');
     result.push_back(std::string(line.begin(), line.end()));
   }
   return result;
 }
 
 std::ostream& operator<<(std::ostream& os, const Map2D& map) {
-    for (int y = 0; y < map.H; ++y) {
-        for (int x = 0; x < map.W; ++x) {
-            std::cout << map(x, y);
-        }
-        std::cout << std::endl;
-    }
-    return os;
+  for (auto line : dumpMapString(map, {-1, -1})) {
+    os << line << std::endl;
+  }
+  return os;
 }
