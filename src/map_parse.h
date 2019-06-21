@@ -3,10 +3,10 @@
 #include <vector>
 
 #include "trajectory.h"
-#include "map.h"
+#include "game.h"
 
 namespace map_parse{
-  std::vector<Trajectory> find_trajectory(const Map &map, const Point from, const Point to);
-  std::vector<Trajectory> find_nearest_unwrapped(const Map &map, const Point from, const int max_dist);
+  std::vector<Trajectory> find_trajectory(const Game &game, const Point from, const Point to);
+  std::vector<Trajectory> find_nearest_unwrapped(const Game &game, const Point from, const int max_dist);
   
 }
