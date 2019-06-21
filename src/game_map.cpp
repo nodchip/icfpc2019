@@ -174,8 +174,9 @@ std::vector<std::string> dumpMapString(const Map2D& map2d, Point wrappy) {
     }
     charmap.push_back(line);
   }
-
   charmap[wrappy.y][wrappy.x] = WRAPPY;
+
+  std::reverse(charmap.begin(), charmap.end()); // now charmap[0] is the highest y.
 
   std::vector<std::string> result;
   for (auto& line : charmap) {
