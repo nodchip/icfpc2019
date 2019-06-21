@@ -12,7 +12,8 @@ Wrappy::Wrappy(Map& mp)
 
 std::ostream& operator<<(std::ostream& os, const Wrappy& wrap) {
   os << wrap.map << "\n"
-     << "Boosters: F(" << wrap.fast_wheels << ") "
+     << "Boosters: B(" << wrap.num_manipulators << ") "
+     << "F(" << wrap.fast_wheels << ") "
      << "L(" << wrap.drills << ")\n";
   if (wrap.time_fast_wheels > 0) {
     os << " Speedup (" << wrap.time_fast_wheels << ")\n";

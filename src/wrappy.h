@@ -8,6 +8,7 @@
 
 struct Wrappy {
   explicit Wrappy(Map& map);
+
   void move(char);  // input: WSAD
   void nop();  // input: Z
   void turn(char);  // input: EQ
@@ -16,7 +17,10 @@ struct Wrappy {
 
   Point point;
   std::vector<Point> manipulators;
-  int fast_wheels = 0; // Increase if take 'F'
+
+  // Boosters
+  int num_manipulators = 0;  // number of unused manipulators
+  int fast_wheels = 0;  // Increase if take 'F'
   int drills = 0;  // Increase if take 'L'
   // remained time of 'F'. While this is >0, speed becomes 2.
   int time_fast_wheels = 0;
