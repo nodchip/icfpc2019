@@ -2,17 +2,14 @@
 
 #include <vector>
 
-#include "trajectory.h"
 #include "game.h"
+#include "trajectory.h"
 
-const int MAP_XMAX = 256;
-const int MAP_YMAX = 256;
+namespace map_parse {
 
-struct traj_evaluator{
-  static bool comp_traj(const Trajectory &t1, const Trajectory &t2);
-};
+Trajectory findTrajectory(const Game &game, const Point &from, const Point &to,
+                          const int max_dist);
+Trajectory findNearestUnwrapped(const Game &game, const Point &from,
+                                const int max_dist);
 
-namespace map_parse{
-  Trajectory find_trajectory(const Game &game, const Point from, const Point to, const int max_dist);
-  Trajectory find_nearest_unwrapped(const Game &game, const Point from, const int max_dist);
-}
+} // namepsace map_parse
