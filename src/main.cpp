@@ -2,8 +2,7 @@
 #include <vector>
 #include <string>
 
-#include "map.h"
-#include "wrappy.h"
+#include "game.h"
 
 int main(int argc, char* argv[]) {
 
@@ -12,13 +11,12 @@ int main(int argc, char* argv[]) {
   std::vector<std::string> input;
   for (std::string l; std::getline(std::cin, l);)
     input.emplace_back(l);
-  Map mp(input);
-  Wrappy wrappy(mp);
+  Game game(input);
 
-  // Do something with using |wrappy|
+  // Do something
 
   // Test output
-  std::cout << wrappy << "\n";
+  std::cout << game << "\n";
 
   return 0;
 }

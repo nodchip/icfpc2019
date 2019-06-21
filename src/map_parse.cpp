@@ -2,8 +2,9 @@
 
 #include "map_parse.h"
 
+
 // 経路の価値の比較。評価関数に相当する
-const bool traj_evaluator::comp_traj(const Trajectory &t1, const Trajectory &t2){
+bool traj_evaluator::comp_traj(const Trajectory &t1, const Trajectory &t2){
   return t1.distance < t2.distance;
 }
 
@@ -27,7 +28,7 @@ void set_traj(Trajectory &traj, const Point from_in, const Point to_in, const in
 }
 
 
-Trajectory map_parse::find_trajectory(const Map &mp, const Point from, const Point to, const int max_dist){
+Trajectory map_parse::find_trajectory(const Game &game, const Point from, const Point to, const int max_dist){
   Trajectory traj_map[MAP_XMAX][MAP_YMAX];
   std::priority_queue<Trajectory, std::vector<Trajectory>, decltype(&comp_traj)> que(&comp_traj);
   set_traj(traj_map[from.first][from.second], from, from, 0, false, std::vector<Direction>(0));
@@ -47,7 +48,7 @@ Trajectory map_parse::find_trajectory(const Map &mp, const Point from, const Poi
       const int x_try = 0;
       const int y_try = 0;
       
-      if(mp.map[x_try][y_try] == '#'){
+      if(game.map[x_try][y_try] == '#'){
 	// todo write drill
 	continue;
       }
@@ -66,7 +67,7 @@ Trajectory map_parse::find_trajectory(const Map &mp, const Point from, const Poi
   return traj_map[to.first][to.second];
 }
 
-Trajectory map_parse::find_nearest_unwrapped(const Map &mp, const Point from, const int max_dist){
+Trajectory map_parse::find_nearest_unwrapped(const Game &game, const Point from, const int max_dist){
   Trajectory traj_map[MAP_XMAX][MAP_YMAX];
   std::priority_queue<Trajectory, std::vector<Trajectory>, decltype(&comp_traj)> que(&comp_traj);
   set_traj(traj_map[from.first][from.second], from, from, 0, false, std::vector<Direction>(0));
@@ -88,7 +89,7 @@ Trajectory map_parse::find_nearest_unwrapped(const Map &mp, const Point from, co
       const int x_try = 0;
       const int y_try = 0;
       
-      if(mp.map[x_try][y_try] == '#'){
+      if(game.map[x_try][y_try] == '#'){
 	// todo write drill
 	continue;
       }
@@ -100,7 +101,7 @@ Trajectory map_parse::find_nearest_unwrapped(const Map &mp, const Point from, co
       traj_try.to = {x_try, y_try};
       if(overwrite(traj_map[x_try][y_try], traj_try)){
 	traj_map[x_try][y_try] = traj_try;
-	if(mp.map[x_try][y_try] == '.' && traj_try.distance < nearest){
+	if(game.map[x_try][y_try] == '.' && traj_try.distance < nearest){
 	  nearest_point = {x_try, y_try};
 	}else{
 	  que.push(traj_try);
@@ -119,7 +120,7 @@ void map_parse::test_map_parse(){
   test_map[2] = "... ##";
   test_map[3] = " #  #.";
   test_map[4] = "..#   ";
-  Map mp(test_map);
-  Trajectory traj = map_parse::find_trajectory(mp, {0,0}, {3,0}, DISTANCE_INF);
-  Trajectory traj2 = map_parse::find_nearest_unwrapped(mp, {4,3}, DISTANCE_INF);
+  Game game(test_map);
+  Trajectory traj = map_parse::find_trajectory(game, {0,0}, {3,0}, DISTANCE_INF);
+  Trajectory traj2 = map_parse::find_nearest_unwrapped(game, {4,3}, DISTANCE_INF);
 }
