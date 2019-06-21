@@ -1,4 +1,5 @@
 #include <queue>
+#include <iostream>
 
 #include "map_parse.h"
 
@@ -40,6 +41,7 @@ Trajectory map_parse::find_trajectory(const Game &game, const Point from, const 
       break;
     }
     Trajectory traj = que.top();
+    std::cout<<traj<<std::endl; // logging
     que.pop();
     if(traj.distance > max_dist){
       continue;
@@ -90,7 +92,7 @@ Trajectory map_parse::find_nearest_unwrapped(const Game &game, const Point from,
     }
     Trajectory traj = que.top();
     que.pop();
-    
+    std::cout<<traj<<std::endl; // logging
     if(traj.distance > max_dist || traj.distance > nearest){
       continue;
     }

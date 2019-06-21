@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <ostream>
 
 #include "base.h"
 
@@ -25,3 +26,5 @@ struct Trajectory{
   bool use_dig;
   std::vector<Direction> path; // 最短で到達できるtraj  
 };
+
+std::ostream& operator<<(std::ostream&, const Trajectory&);

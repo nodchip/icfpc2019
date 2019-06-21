@@ -8,7 +8,7 @@ CXXFLAGS+=-pg
 
 LDFLAGS=
 
-SRCS=base.cpp game.cpp map_parse.cpp fill_polygon.cpp
+SRCS=base.cpp game.cpp map_parse.cpp fill_polygon.cpp trajectory.cpp
 OBJS=$(SRCS:%.cpp=$(BUILD_PATH)/%.o)
 
 GTEST_SRCS=$(GTEST_DIR)/src/gtest-all.cc $(GTEST_DIR)/src/gtest_main.cc
