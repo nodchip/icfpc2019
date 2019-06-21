@@ -2,6 +2,7 @@
 
 #include <ostream>
 #include <vector>
+#include <limits>
 
 struct Point {
     int x = 0;
@@ -12,14 +13,24 @@ struct Point {
 
 using Polygon = std::vector<Point>;
 
+struct BoundingBox {
+    Point lower { std::numeric_limits<int>::max(), std::numeric_limits<int>::max() };
+    Point upper { std::numeric_limits<int>::min(), std::numeric_limits<int>::min() };
+    bool isValid() const {
+        return lower.x < upper.x && lower.y < upper.y;
+    }
+};
+BoundingBox calcBoundingBox(const std::vector<Point>& points);
+
 struct Map2D {
     using T = int;
     int W = 0;
     int H = 0;
     std::vector<T> data;
 
-    Map2D(int W_, int H_) : W(std::max(W_, 0)), H(std::max(H_, 0)) {
-        data.assign(W * H, 0);
+    Map2D() : Map2D(0, 0) {}
+    Map2D(int W_, int H_, int value = 0) : W(std::max(W_, 0)), H(std::max(H_, 0)) {
+        data.assign(W * H, value);
     }
     Map2D(int W_, int H_, std::initializer_list<int> vals) : Map2D(W_, H_) {
         //assert (vals.size() == W * H);

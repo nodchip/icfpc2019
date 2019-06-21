@@ -8,9 +8,15 @@
 
 using Booster = std::pair<char, Point>;
 
+struct CellType {
+  static constexpr int kEmpty = 0;
+  static constexpr int kWrapped = 1;
+  static constexpr int kObstacle = 2;
+};
+
 struct Game {
-  Game(const std::string& desc);
-  Game(const std::vector<std::string>& map);
+  Game(const std::string& desc); // initialize using a task description string from *.desc file.
+  Game(const std::vector<std::string>& map); // initialize by a raster *.map file.
 
   // Control Wrappy
   static const char UP = 'W';
@@ -43,6 +49,7 @@ struct Game {
 
   // To display a map, use ostream::operator<<.
   // Y direction maybe wrong.
+  Map2D map2d;
   std::vector<std::string> map;
 
   // State of Wrappy ===================================
