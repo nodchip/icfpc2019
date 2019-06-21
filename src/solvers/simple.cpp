@@ -2,7 +2,7 @@
 
 std::string simpleSolver(Game game) {
     game.move(Game::UP);
-    return game.command;
+    return game.getCommand();
 }
 
 REGISTER_SOLVER("simple", simpleSolver);

@@ -28,6 +28,8 @@ TEST(actions, Game_test_actions) {
     0, 0, 0, 0, 0, W, 0, 0, 0, 0,
     X, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   });
+  std::cout << game.map2d << std::endl;
+  std::cout << ground_truth << std::endl;
   EXPECT_EQ(game.map2d, ground_truth);
 
   game.move(Game::UP);
@@ -39,7 +41,9 @@ TEST(actions, Game_test_actions) {
   game.move(Game::UP);
   game.move(Game::UP);
   game.move(Game::UP); // on X
-  game.move(Game::LEFT);
+  game.move(Game::RIGHT);
+  game.move(Game::RIGHT);
+  game.move(Game::RIGHT);
   game.move(Game::DOWN);
   game.turn(Game::CW);
   game.turn(Game::CCW);

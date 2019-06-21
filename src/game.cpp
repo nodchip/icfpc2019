@@ -74,6 +74,7 @@ void Game::move(char c) {
       p.y = map2d.H - 1;
 
     // paint & move
+    assert (map2d.isInside(p));
     wrappy = p;
     if ((map2d(p) & CellType::kWrappedBit) == 0) {
       map2d(p) |= CellType::kWrappedBit;
@@ -112,16 +113,13 @@ void Game::move(char c) {
   }
 
   a.new_position = wrappy;
-  actions.push_back(a);
-
-  behave(c);
+  doAction(a);
 }
 
 void Game::nop() {
   Action a = getScaffoldAction();
   a.command = "Z";
-  actions.push_back(a);
-  behave('Z');
+  doAction(a);
 }
 
 // static const char CW = 'E';  // Clockwise
@@ -145,8 +143,7 @@ void Game::turn(char c) {
   }
 
   a.new_manipulator_offsets = manipulators;
-  actions.push_back(a);
-  behave(c);
+  doAction(a);
 }
 
 void Game::addManipulate(const Point& p) {
@@ -162,7 +159,7 @@ void Game::addManipulate(const Point& p) {
   a.use_manipulator += 1;
   a.new_manipulator_offsets = manipulators;
   a.command = oss.str();
-  behave(oss.str());
+  doAction(a);
 }
 
 // static const char FAST = 'F';
@@ -187,10 +184,10 @@ void Game::useBooster(char c) {
   }
   }
 
-  behave(c);
+  doAction(a);
 }
 
-bool Game::undo() {
+bool Game::undoAction() {
   assert (!actions.empty());
   if (actions.empty()) return false;
 
@@ -241,12 +238,16 @@ bool Game::undo() {
   return true;
 }
 
-void Game::behave(const char c) {
-  behave(std::string(1, c));
+std::string Game::getCommand() const {
+  std::ostringstream oss;
+  for (auto& a : actions) {
+    oss << a.command;
+  }
+  return oss.str();
 }
 
-void Game::behave(const std::string& behavior) {
-  command += behavior;
+void Game::doAction(Action a) {
+  actions.push_back(a);
   ++time;
   if (time_fast_wheels > 0) --time_fast_wheels;
   if (time_drill > 0) --time_drill;

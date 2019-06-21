@@ -62,12 +62,11 @@ struct Game {
   static const char DRILL = 'L';
   void useBooster(char);  // input: FL
 
-  Action getScaffoldAction();
-  bool undo(); // if no actions are stacked, fail and return false.
+  bool undoAction(); // if no actions are stacked, fail and return false.
+  std::string getCommand() const;
 
   // State of Game
   std::vector<Action> actions;
-  std::string command;
   int time = 0;
 
 
@@ -89,8 +88,8 @@ struct Game {
   int time_drill = 0;
 
 private:
-  void behave(const char c);
-  void behave(const std::string& behavior);
+  Action getScaffoldAction();
+  void doAction(Action a);
 };
 
 // Outputs game status
