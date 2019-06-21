@@ -2,12 +2,15 @@
 
 #include <ostream>
 #include <algorithm>
+#include <limits>
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
 #include <sstream>
 #include <string>
 #include <vector>
+
+#include "fill_polygon.h"
 
 namespace {
 
@@ -84,6 +87,16 @@ Game::Game(const std::string& task) {
   std::vector<std::vector<Point>> obstacles { ParseObstacles(++p) };
   assert (*p == '#');
   std::vector<Booster> boosters { ParseBoosters(++p) };
+
+  BoundingBox map_bbox = calcBoundingBox(map_pos);
+  assert (map_bbox.lower.x >= 0);
+  assert (map_bbox.lower.y >= 0);
+  assert (map_bbox.isValid());
+  map2d = Map2D(map_bbox.upper.x, map_bbox.upper.y, CellType::kObstacle);
+  FillPolygon(map2d, map_pos, CellType::kEmpty);
+  for (const auto& obstacle : obstacles) {
+    FillPolygon(map2d, obstacle, CellType::kObstacle);
+  }
 
   manipulators.push_back(Point {1, 0});
   manipulators.push_back(Point {1, 1});
