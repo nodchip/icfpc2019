@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 
-GTEST(MapParseTest, TrajectoryTest) {
+TEST(MapParseTest, TrajectoryTest) {
   std::vector<std::string> test_map {
     ". . ..", 
     "###. .",
