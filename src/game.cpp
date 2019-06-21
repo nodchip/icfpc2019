@@ -149,7 +149,7 @@ std::vector<std::string> Game::createMap() const {
   std::vector<std::vector<char>> charmap;
 
   for (int y = 0; y < map2d.H; ++y) {
-    std::vector<char> line(map2d.W, WALL);
+    std::vector<char> line(map2d.W, '#');
     for (int x = 0; x < map2d.W; ++x) {
       char c = NON_WRAPPED;
       if (map2d(x, y) & CellType::kWrappedBit) { c = WRAPPED; }
