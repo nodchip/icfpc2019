@@ -6,7 +6,7 @@
 
 #include "base.h"
 
-const int DISTANCE_INF = 11451;
+const int DISTANCE_INF = 32767;
 
 enum Direction{
   W = 0,

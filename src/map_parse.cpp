@@ -50,7 +50,7 @@ Trajectory map_parse::find_trajectory(const Game &game, const Point from, const 
     
     auto try_expand = [&](Direction dir){
       const int x_try =  (dir == Direction(W) || dir == Direction(S)) ? traj.to.x : dir == Direction(A) ? traj.to.x - 1 : traj.to.x + 1;
-      const int y_try =  (dir == Direction(A) || dir == Direction(D)) ? traj.to.y : dir == Direction(W) ? traj.to.y - 1 : traj.to.y + 1;
+      const int y_try =  (dir == Direction(A) || dir == Direction(D)) ? traj.to.y : dir == Direction(W) ? traj.to.y + 1 : traj.to.y - 1;
 
       if(x_try > xmax -1 || x_try < 0 || y_try > ymax -1 || y_try < 0){
 	return;
@@ -88,20 +88,27 @@ Trajectory map_parse::find_nearest_unwrapped(const Game &game, const Point from,
   que.push(traj_map[from.y][from.x]);
   int nearest = DISTANCE_INF;
   Point nearest_point = {-1, -1};
-  
+
+  /*
+  for(auto m : game.map){
+    std::cout<<m<<std::endl;
+  }
+  */
+
   while(1){
     if (que.empty()){
       break;
     }
     Trajectory traj = que.top();
     que.pop();
+    //std::cout<<"pop "<<traj<<std::endl;
     if(traj.distance > max_dist || traj.distance > nearest){
       continue;
     }
     
     auto try_expand = [&](Direction dir){
       const int x_try =  (dir == Direction(W) || dir == Direction(S)) ? traj.to.x : dir == Direction(A) ? traj.to.x - 1 : traj.to.x + 1;
-      const int y_try =  (dir == Direction(A) || dir == Direction(D)) ? traj.to.y : dir == Direction(W) ? traj.to.y - 1 : traj.to.y + 1;
+      const int y_try =  (dir == Direction(A) || dir == Direction(D)) ? traj.to.y : dir == Direction(W) ? traj.to.y + 1 : traj.to.y - 1;
       
       if(x_try > xmax -1 || x_try < 0 || y_try > ymax -1 || y_try < 0){
 	return;
@@ -114,10 +121,12 @@ Trajectory map_parse::find_nearest_unwrapped(const Game &game, const Point from,
       traj_try.path.push_back(dir);
       traj_try.distance += 1;
       traj_try.to = {x_try, y_try};
+      //std::cout<<traj_try<<std::endl;
       if(overwrite(traj_map[y_try][x_try], traj_try)){
 	traj_map[y_try][x_try] = traj_try;
 	if(game.map2d(x_try, y_try) == CellType::kEmpty && traj_try.distance < nearest){
 	  nearest_point = {x_try, y_try};
+	  nearest = traj_try.distance;
 	}else{
 	  que.push(traj_try);
 	}
@@ -130,5 +139,5 @@ Trajectory map_parse::find_nearest_unwrapped(const Game &game, const Point from,
     try_expand(Direction(D));
   }
 
-  return traj_map[nearest_point.x][nearest_point.y];
+  return traj_map[nearest_point.y][nearest_point.x];
 }
