@@ -21,6 +21,7 @@ namespace CellType {
 };
 
 struct Game {
+  Game() = default;
   Game(const std::string& desc); // initialize using a task description string from *.desc file.
   Game(const std::vector<std::string>& map); // initialize by a raster *.map file.
 

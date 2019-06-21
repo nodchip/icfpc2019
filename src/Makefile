@@ -3,10 +3,10 @@ BUILD_PATH=build
 GTEST_DIR=$(LIB_PATH)/googletest/googletest
 
 CXXFLAGS=-O2 -Wall -Wno-sign-compare -std=c++14
-CXXFLAGS+=-I. -I$(GTEST_DIR) -I$(GTEST_DIR)/include
+CXXFLAGS+=-I. -I$(GTEST_DIR) -I$(GTEST_DIR)/include -I$(LIB_PATH)/CLI11/include
 CXXFLAGS+=-pg
 
-LDFLAGS=
+LDFLAGS=-lstdc++fs
 
 SRCS=base.cpp game.cpp map_parse.cpp fill_polygon.cpp trajectory.cpp
 OBJS=$(SRCS:%.cpp=$(BUILD_PATH)/%.o)
