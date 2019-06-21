@@ -1,5 +1,6 @@
 #include "map.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
@@ -89,6 +90,7 @@ Map::Map(const std::string& task) {
 
 Map::Map(const std::vector<std::string>& mp)
   : map(mp) {
+  std::reverse(map.begin(), map.end());
   wrappy_point = FindPoint(map);
 }
 
