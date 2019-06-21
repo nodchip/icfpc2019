@@ -55,7 +55,7 @@ Trajectory map_parse::find_trajectory(const Game &game, const Point from, const 
       if(x_try > xmax -1 || x_try < 0 || y_try > ymax -1 || y_try < 0){
 	return;
       }
-      if(game.map2d(x_try, y_try) == CellType::kObstacle){
+      if(game.map2d(x_try, y_try) & CellType::kObstacleBit){
 	// todo write drill
 	return;
       }
@@ -113,7 +113,7 @@ Trajectory map_parse::find_nearest_unwrapped(const Game &game, const Point from,
       if(x_try > xmax -1 || x_try < 0 || y_try > ymax -1 || y_try < 0){
 	return;
       }
-      if(game.map2d(x_try, y_try) == CellType::kObstacle){
+      if(game.map2d(x_try, y_try) & CellType::kObstacleBit){
 	// todo write drill
 	return;
       }
