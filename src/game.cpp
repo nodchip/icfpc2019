@@ -105,29 +105,104 @@ Game::Game(const std::vector<std::string>& mp)
 // static const char LEFT = 'A';
 // static const char RIGHT = 'D';
 void Game::move(char c) {
-  command.push_back(c);
+  int speed = (time_fast_wheels > 0) ? 2 : 1;
+  Point p {wrappy};
+  switch (c) {
+  case UP:
+    p.second += speed;
+    break;
+  case DOWN:
+    p.second -= speed;
+    break;
+  case LEFT:
+    p.first -= speed;
+    break;
+  case RIGHT:
+    p.first += speed;
+    break;
+  }
+
+  if (p.first < 0)
+    p.first = 0;
+  else if (p.first >= map[0].size())
+    p.first = map[0].size() - 1;
+  else if (p.second < 0)
+    p.second = 0;
+  else if (p.second >= map.size())
+    p.second = map.size() - 1;
+
+  // Update |map|. Need to simulate manipulators' behavior.
+  map[wrappy.second][wrappy.first] = WRAPPED;
+  wrappy = p;
+  map[wrappy.second][wrappy.first] = WRAPPY;
+
+  behave(c);
 }
 
 void Game::nop() {
-  command.push_back('Z');
+  behave('Z');
 }
 
 // static const char CW = 'E';  // Clockwise
 // static const char CCW = 'Q';  // Counterclockwise
 void Game::turn(char c) {
-  command.push_back(c);
+  if (c == CW) {
+    for (auto& manip : manipulators) {
+      auto orig(manip);
+      manip.first = orig.second;
+      manip.second = -orig.first;
+    }
+  } else {
+    for (auto& manip : manipulators) {
+      auto orig(manip);
+      manip.first = -orig.second;
+      manip.second = orig.first;
+    }
+  }
+
+  behave(c);
 }
 
 void Game::addManipulate(const Point& p) {
+  assert (num_manipulators > 0);
+
+  manipulators.push_back(p);
+  --num_manipulators;
+
   std::ostringstream oss;
   oss << "B(" << p.first << "," << p.second << ")";
-  command += oss.str();
+  behave(oss.str());
 }
 
 // static const char FAST = 'F';
 // static const char DRILL = 'L';
 void Game::useBooster(char c) {
-  command.push_back(c);
+  switch (c) {
+  case FAST: {
+    assert (fast_wheels > 0);
+    --fast_wheels;
+    time_fast_wheels = 50;
+    break;
+  }
+  case DRILL: {
+    --drills;
+    time_drill = 30;
+    break;
+  }
+  }
+
+  behave(c);
+}
+
+void Game::behave(const char c) {
+  behave(std::string(1, c));
+}
+
+void Game::behave(const std::string& behavior) {
+  command += behavior;
+  ++time;
+  if (time_fast_wheels > 0) --time_fast_wheels;
+  if (time_drill > 0) --time_drill;
 }
 
 std::ostream& operator<<(std::ostream& os, const Game& game) {

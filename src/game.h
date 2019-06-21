@@ -26,23 +26,22 @@ struct Game {
   static const char DRILL = 'L';
   void useBooster(char);  // input: FL
 
-
   // State of Game
   std::string command;
   int time = 0;
 
   // State of Map ======================================
+  static const char NON_WRAPPED = '.';
+  static const char WRAPPED = ' ';
+  static const char WRAPPY = '@';
+  static const char BOOSTER_MANIPULATOR = 'B';
+  static const char BOOSTER_FAST_WHEEL = 'F';
+  static const char BOOSTER_DRILL = 'L';
+  static const char WALL = '#';
+  // static const char UNKNOWN = 'X';
+
   // To display a map, use ostream::operator<<.
   // Y direction maybe wrong.
-  // 
-  // '.': non wrapped
-  // ' ': wrapped
-  // '@': Wrappy
-  // 'B': Manipulator
-  // 'F': Fast Wheel
-  // 'L': Drill
-  // 'X': Something
-  // '#': Wall
   std::vector<std::string> map;
 
   // State of Wrappy ===================================
@@ -57,6 +56,10 @@ struct Game {
   int time_fast_wheels = 0;
   // remained time of 'L'. While this is >0, wrappy can go through obstacles.
   int time_drill = 0;
+
+private:
+  void behave(const char c);
+  void behave(const std::string& behavior);
 };
 
 // Outputs game status
