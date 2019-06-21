@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "fill_polygon.h"
-
+#include "manipulator_reach.h"
 
 Game::Game(const std::string& task) {
   ParsedMap parsed = parseDescString(task);
@@ -39,51 +39,59 @@ Game::Game(const std::vector<std::string>& mp) {
 // static const char RIGHT = 'D';
 void Game::move(char c) {
   int speed = (time_fast_wheels > 0) ? 2 : 1;
-  Point p {wrappy};
-  switch (c) {
-  case UP:
-    p.y += speed;
-    break;
-  case DOWN:
-    p.y -= speed;
-    break;
-  case LEFT:
-    p.x -= speed;
-    break;
-  case RIGHT:
-    p.x += speed;
-    break;
-  }
 
-  if (p.x < 0)
-    p.x = 0;
-  else if (p.x >= map2d.W)
-    p.x = map2d.W - 1;
-  else if (p.y < 0)
-    p.y = 0;
-  else if (p.y >= map2d.H)
-    p.y = map2d.H - 1;
+  for (int i = 0; i < speed; ++i) {
+    Point p {wrappy};
+    switch (c) {
+    case UP:
+      p.y += 1;
+      break;
+    case DOWN:
+      p.y -= 1;
+      break;
+    case LEFT:
+      p.x -= 1;
+      break;
+    case RIGHT:
+      p.x += 1;
+      break;
+    }
 
-  // paint & move
-  wrappy = p;
-  map2d(p) |= CellType::kWrappedBit;
+    if (p.x < 0)
+      p.x = 0;
+    else if (p.x >= map2d.W)
+      p.x = map2d.W - 1;
+    else if (p.y < 0)
+      p.y = 0;
+    else if (p.y >= map2d.H)
+      p.y = map2d.H - 1;
 
-  // automatically pick up boosters with no additional time cost.
-  if (map2d(p) & CellType::kBoosterManipulatorBit) {
-    ++num_manipulators;
-    map2d(p) &= ~CellType::kBoosterManipulatorBit;
-  }
-  if (map2d(p) & CellType::kBoosterFastWheelBit) {
-    ++fast_wheels;
-    map2d(p) &= ~CellType::kBoosterFastWheelBit;
-  }
-  if (map2d(p) & CellType::kBoosterDrillBit) {
-    ++drills;
-    map2d(p) &= ~CellType::kBoosterDrillBit;
-  }
-  if (map2d(p) & CellType::kBoosterTeleportBit) {
-    ++teleports;
-    map2d(p) &= ~CellType::kBoosterTeleportBit;
+    // paint & move
+    wrappy = p;
+    map2d(p) |= CellType::kWrappedBit;
+
+    // paint manipulator
+    for (auto manip : absolutePositionOfReachableManipulators(map2d, wrappy, manipulators)) {
+      map2d(manip) |= CellType::kWrappedBit;
+    }
+
+    // automatically pick up boosters with no additional time cost.
+    if (map2d(p) & CellType::kBoosterManipulatorBit) {
+      ++num_manipulators;
+      map2d(p) &= ~CellType::kBoosterManipulatorBit;
+    }
+    if (map2d(p) & CellType::kBoosterFastWheelBit) {
+      ++fast_wheels;
+      map2d(p) &= ~CellType::kBoosterFastWheelBit;
+    }
+    if (map2d(p) & CellType::kBoosterDrillBit) {
+      ++drills;
+      map2d(p) &= ~CellType::kBoosterDrillBit;
+    }
+    if (map2d(p) & CellType::kBoosterTeleportBit) {
+      ++teleports;
+      map2d(p) &= ~CellType::kBoosterTeleportBit;
+    }
   }
 
   behave(c);
