@@ -89,8 +89,14 @@ Map::Map(const std::string& task) {
 }
 
 Map::Map(const std::vector<std::string>& mp)
-  : map(mp) {
-  std::reverse(map.begin(), map.end());
-  wrappy_point = FindPoint(map);
+  : map_(mp) {
+  std::reverse(map_.begin(), map_.end());
+  wrappy_point = FindPoint(map_);
 }
 
+std::ostream& operator<<(std::ostream& os, const Map& map) {
+  const auto& m = map.map_;
+  for (int i = m.size() - 1; i >= 0; --i)
+    os << m[i] << "\n";
+  return os;
+}

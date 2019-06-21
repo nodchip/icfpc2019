@@ -21,5 +21,5 @@ struct Wrappy {
   int time_fast_wheels = 0;
   // remained time of 'L'. While this is >0, wrappy can go through obstacles.
   int time_drill = 0;
-  Map map;
+  Map& map;
 };

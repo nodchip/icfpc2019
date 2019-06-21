@@ -7,24 +7,18 @@
 
 int main(int argc, char* argv[]) {
 
-  // test input;
-  /*
-    "X........."
-    "......#..."
-    ".........."
-    ".....##..."
-    ".....##..."
-    ".....##..."
-    "L....##..."
-    "FF...##..."
-    "BB........"
-    "@........."
-   */
+  // test input: part-1-example/example-01.map
+  // TODO(peria): Make Map parse .desc well.
   std::vector<std::string> input;
   for (std::string l; std::getline(std::cin, l);)
     input.emplace_back(l);
   Map mp(input);
   Wrappy wrappy(mp);
+
+  // Do something with using |wrappy|
+
+  // Test output
+  std::cout << mp << "\n";
 
   return 0;
 }
