@@ -2,3 +2,5 @@
 *~
 /src/build
 solver
+test
+gmon.out
