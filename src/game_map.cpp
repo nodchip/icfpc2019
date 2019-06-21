@@ -37,11 +37,12 @@ std::vector<Point> ParseMap(char*& p) {
 }
 
 std::vector<std::vector<Point>> ParseObstacles(char*& p) {
+  if (*p == '#') return {};
   std::vector<std::vector<Point>> obstacles;
   assert (*p == '(');
   obstacles.emplace_back(ParseMap(p));
   while (*p == ';') {
-    obstacles.emplace_back(ParseMap(++p));
+      obstacles.emplace_back(ParseMap(++p));
   }
   return obstacles;
 }
@@ -54,6 +55,7 @@ Booster ParseBooster(char*& p) {
 }
 
 std::vector<Booster> ParseBoosters(char*& p) {
+  if (*p == '\0') return {};
   assert (std::strchr("BFLXR", *p) != nullptr);
   std::vector<Booster> boosters;
   boosters.emplace_back(ParseBooster(p));
