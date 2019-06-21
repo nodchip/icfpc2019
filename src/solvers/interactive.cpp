@@ -2,14 +2,15 @@
 #include <iostream>
 #include <cctype>
 
+#include "../getch.h"
+
 std::string interactiveSolver(Game game) {
   int iter = 0;
   while (true) {
     std::cout << "======= [iter: " << iter << "] ========" << std::endl;
     std::cout << game << std::endl;
-    std::cout << "Command [!] [W/A/S/D] [E/Q] [F/L/R/Z] [M:manipulate] [T:teleport]>" << std::flush;
-    char c;
-    std::cin >> c;
+    std::cout << "Command [!:quit] [W/A/S/D] [E/Q] [F/L/R/Z] [M:manipulate] [T:teleport]>" << std::flush;
+    char c = getch();
     c = std::toupper(c);
     if (c == '!') {
       break;
@@ -20,13 +21,13 @@ std::string interactiveSolver(Game game) {
     if (c == 'E' || c == 'Q') {
       game.turn(c);
     }
-    if (c == 'F' || c == 'L' || c == 'R') {
-      game.useBooster(c);
-    }
+    if (c == 'F' && game.fast_wheels > 0) { game.useBooster(c); }
+    if (c == 'L' && game.drills > 0) { game.useBooster(c); }
+    if (c == 'R' && game.teleports > 0) { game.useBooster(c); }
     if (c == 'Z') {
       game.nop();
     }
-    if (c == 'M') {
+    if (c == 'M' && game.num_manipulators > 0) {
       int x, y;
       std::cout << "(X, Y) >" << std::flush;
       std::cin >> x >> y;
@@ -36,7 +37,9 @@ std::string interactiveSolver(Game game) {
       int x, y;
       std::cout << "(X, Y) >" << std::flush;
       std::cin >> x >> y;
-      game.teleport({x, y});
+      if (game.map2d.isInside({x, y}) && (game.map2d({x, y}) & CellType::kTeleportTargetBit) != 0) {
+        game.teleport({x, y});
+      }
     }
     ++iter;
   }
