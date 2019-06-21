@@ -200,11 +200,27 @@ void Game::move(char c) {
   else if (p.y >= map2d.H)
     p.y = map2d.H - 1;
 
-  // no more required.
-  // // Update |map|. Need to simulate manipulators' behavior.
-  // map[wrappy.y][wrappy.x] = WRAPPED;
-  // wrappy = p;
-  // map[wrappy.y][wrappy.x] = WRAPPY;
+  // paint & move
+  wrappy = p;
+  map2d(p) |= CellType::kWrappedBit;
+
+  // automatically pick up boosters with no additional time cost.
+  if (map2d(p) & CellType::kBoosterManipulatorBit) {
+    ++num_manipulators;
+    map2d(p) &= ~CellType::kBoosterManipulatorBit;
+  }
+  if (map2d(p) & CellType::kBoosterFastWheelBit) {
+    ++fast_wheels;
+    map2d(p) &= ~CellType::kBoosterFastWheelBit;
+  }
+  if (map2d(p) & CellType::kBoosterDrillBit) {
+    ++drills;
+    map2d(p) &= ~CellType::kBoosterDrillBit;
+  }
+  if (map2d(p) & CellType::kBoosterTeleportBit) {
+    ++teleports;
+    map2d(p) &= ~CellType::kBoosterTeleportBit;
+  }
 
   behave(c);
 }
@@ -313,7 +329,8 @@ std::ostream& operator<<(std::ostream& os, const Game& game) {
 
   os << "Boosters: B(" << game.num_manipulators << ") "
      << "F(" << game.fast_wheels << ") "
-     << "L(" << game.drills << ")\n";
+     << "L(" << game.drills << ")"
+     << "R(" << game.teleports << ")\n";
   if (game.time_fast_wheels > 0) {
     os << " Speedup (" << game.time_fast_wheels << ")\n";
   }

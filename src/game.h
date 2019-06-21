@@ -64,6 +64,7 @@ struct Game {
   int num_manipulators = 0;  // number of unused manipulators
   int fast_wheels = 0;  // Increase if take 'F'
   int drills = 0;  // Increase if take 'L'
+  int teleports = 0;  // Increase if take 'R'
   // remained time of 'F'. While this is >0, speed becomes 2.
   int time_fast_wheels = 0;
   // remained time of 'L'. While this is >0, wrappy can go through obstacles.
