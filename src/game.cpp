@@ -74,42 +74,8 @@ void Game::move(char c) {
       p.y = map2d.H - 1;
 
     // paint & move
-    assert (map2d.isInside(p));
-    wrappy = p;
-    if ((map2d(p) & CellType::kWrappedBit) == 0) {
-      map2d(p) |= CellType::kWrappedBit;
-      a.absolute_new_wrapped_positions.push_back(p);
-    }
+    moveAndPaint(p, a);
 
-    // paint manipulator
-    for (auto manip : absolutePositionOfReachableManipulators(map2d, wrappy, manipulators)) {
-      if ((map2d(manip) & CellType::kWrappedBit) == 0) {
-        a.absolute_new_wrapped_positions.push_back(manip);
-        map2d(manip) |= CellType::kWrappedBit;
-      }
-    }
-
-    // automatically pick up boosters with no additional time cost.
-    if (map2d(p) & CellType::kBoosterManipulatorBit) {
-      a.pick_manipulator.push_back(p);
-      ++num_manipulators;
-      map2d(p) &= ~CellType::kBoosterManipulatorBit;
-    }
-    if (map2d(p) & CellType::kBoosterFastWheelBit) {
-      a.pick_fast_wheel.push_back(p);
-      ++fast_wheels;
-      map2d(p) &= ~CellType::kBoosterFastWheelBit;
-    }
-    if (map2d(p) & CellType::kBoosterDrillBit) {
-      a.pick_drill.push_back(p);
-      ++drills;
-      map2d(p) &= ~CellType::kBoosterDrillBit;
-    }
-    if (map2d(p) & CellType::kBoosterTeleportBit) {
-      a.pick_teleport.push_back(p);
-      ++teleports;
-      map2d(p) &= ~CellType::kBoosterTeleportBit;
-    }
   }
 
   a.new_position = wrappy;
@@ -162,6 +128,59 @@ void Game::addManipulate(const Point& p) {
   doAction(a);
 }
 
+void Game::teleport(const Point& p) {
+  Action a = getScaffoldAction();
+
+  std::ostringstream oss;
+  oss << "T(" << p.x << "," << p.y << ")";
+
+  moveAndPaint(p, a);
+
+  a.command = oss.str();
+  doAction(a);
+}
+
+void Game::moveAndPaint(Point p, Action& a) {
+  assert (map2d.isInside(p));
+
+  // paint & move
+  wrappy = p;
+  if ((map2d(p) & CellType::kWrappedBit) == 0) {
+    map2d(p) |= CellType::kWrappedBit;
+    a.absolute_new_wrapped_positions.push_back(p);
+  }
+
+  // paint manipulator
+  for (auto manip : absolutePositionOfReachableManipulators(map2d, wrappy, manipulators)) {
+    if ((map2d(manip) & CellType::kWrappedBit) == 0) {
+      a.absolute_new_wrapped_positions.push_back(manip);
+      map2d(manip) |= CellType::kWrappedBit;
+    }
+  }
+
+  // automatically pick up boosters with no additional time cost.
+  if (map2d(p) & CellType::kBoosterManipulatorBit) {
+    a.pick_manipulator.push_back(p);
+    ++num_manipulators;
+    map2d(p) &= ~CellType::kBoosterManipulatorBit;
+  }
+  if (map2d(p) & CellType::kBoosterFastWheelBit) {
+    a.pick_fast_wheel.push_back(p);
+    ++fast_wheels;
+    map2d(p) &= ~CellType::kBoosterFastWheelBit;
+  }
+  if (map2d(p) & CellType::kBoosterDrillBit) {
+    a.pick_drill.push_back(p);
+    ++drills;
+    map2d(p) &= ~CellType::kBoosterDrillBit;
+  }
+  if (map2d(p) & CellType::kBoosterTeleportBit) {
+    a.pick_teleport.push_back(p);
+    ++teleports;
+    map2d(p) &= ~CellType::kBoosterTeleportBit;
+  }
+}
+
 // static const char FAST = 'F';
 // static const char DRILL = 'L';
 void Game::useBooster(char c) {
@@ -180,6 +199,12 @@ void Game::useBooster(char c) {
     --drills;
     time_drill = 30;
     a.use_drill += 1;
+    break;
+  }
+  case RESET: {
+    --teleports;
+    a.use_teleport += 1;
+    map2d(wrappy) |= CellType::kTeleportTargetBit;
     break;
   }
   }
@@ -230,6 +255,11 @@ bool Game::undoAction() {
   fast_wheels += a.use_fast_wheel;
   drills += a.use_drill;
   teleports += a.use_teleport;
+  // undo placing teleports
+  if (a.use_teleport) {
+    assert (map2d.isInside(a.new_position) && (map2d(a.new_position) & CellType::kTeleportTargetBit) != 0);
+    map2d(a.new_position) &= ~CellType::kTeleportTargetBit;
+  }
   // undo time
   time -= 1;
   if (a.fast_wheels_active) { time_fast_wheels += 1; }

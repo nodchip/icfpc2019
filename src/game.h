@@ -8,7 +8,9 @@
 #include "game_map.h"
 
 struct Action {
-  Action(bool fast_wheels_active_, bool drill_active_, Point before_pos, const std::vector<Point>& before_manipulator_offsets) {
+  Action(bool fast_wheels_active_, bool drill_active_, Point before_pos, const std::vector<Point>& before_manipulator_offsets)
+    : fast_wheels_active(fast_wheels_active_)
+    , drill_active(drill_active_) {
     old_position = before_pos;
     new_position = before_pos;
     old_manipulator_offsets = before_manipulator_offsets;
@@ -58,8 +60,10 @@ struct Game {
   static const char CCW = 'Q';  // Counterclockwise
   void turn(char);  // input: EQ
   void addManipulate(const Point&);  // input: x,y
+  void teleport(const Point&);  // input: x,y
   static const char FAST = 'F';
   static const char DRILL = 'L';
+  static const char RESET = 'R';
   void useBooster(char);  // input: FL
 
   bool undoAction(); // if no actions are stacked, fail and return false.
@@ -88,6 +92,7 @@ struct Game {
   int time_drill = 0;
 
 private:
+  void moveAndPaint(Point p, Action& a);
   Action getScaffoldAction();
   void doAction(Action a);
 };
