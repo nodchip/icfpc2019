@@ -4,6 +4,7 @@
 
 
 // 経路の価値の比較。評価関数に相当する
+// todo 何らかの評価関数に従って経路をソートしながら幅優先探索するという実装をしたい。どのように書くのが良いだろうか
 bool traj_evaluator::comp_traj(const Trajectory &t1, const Trajectory &t2){
   return t1.distance < t2.distance;
 }
@@ -11,12 +12,12 @@ bool traj_evaluator::comp_traj(const Trajectory &t1, const Trajectory &t2){
 
 // 経路の価値の比較。評価関数に相当する
 const bool comp_traj(const Trajectory &t1, const Trajectory &t2){
-  return t1.distance < t2.distance;
+  return t1.distance < t2.distance; // とりあえず距離が短いほうが偉いとする
 }
 
 // 経路の価値の比較。評価関数に相当する
 bool overwrite(const Trajectory &before, const Trajectory after){
-  return comp_traj(before, after);
+  return comp_traj(before, after); // とりあえず距離が短いほうが偉いとする
 }
 
 void set_traj(Trajectory &traj, const Point from_in, const Point to_in, const int distance_in, const bool use_dig, const std::vector<Direction> path_in){
@@ -38,22 +39,24 @@ Trajectory map_parse::find_trajectory(const Game &game, const Point from, const 
     if (que.empty()){
       break;
     }
-    Trajectory traj; // = que.pop();
-
+    Trajectory traj = que.top();
+    que.pop();
     if(traj.distance > max_dist){
       continue;
     }
     
-    {
-      const int x_try = 0;
-      const int y_try = 0;
-      
+    auto try_expand = [&](Direction dir){
+      const int x_try =  (dir == Direction(W) || dir == Direction(S)) ? traj.to.first : dir == Direction(A) ? traj.to.first - 1 : traj.to.first + 1;
+      const int y_try =  (dir == Direction(A) || dir == Direction(D)) ? traj.to.second : dir == Direction(W) ? traj.to.second - 1 : traj.to.second + 1;
+
+      if(x_try > MAP_XMAX -1 || x_try < 0 || y_try > MAP_YMAX -1 || y_try < 0){
+	return;
+      }
       if(game.map[x_try][y_try] == '#'){
 	// todo write drill
-	continue;
+	return;
       }
       
-      Direction dir = Direction(W); 
       Trajectory traj_try = traj;
       traj_try.path.push_back(dir);
       traj_try.distance += 1;
@@ -62,7 +65,12 @@ Trajectory map_parse::find_trajectory(const Game &game, const Point from, const 
 	traj_map[x_try][y_try] = traj_try;
 	que.push(traj_try);
       }
-    }
+    };
+
+    try_expand(Direction(W));
+    try_expand(Direction(A));
+    try_expand(Direction(S));
+    try_expand(Direction(D));
   }
   return traj_map[to.first][to.second];
 }
@@ -79,22 +87,24 @@ Trajectory map_parse::find_nearest_unwrapped(const Game &game, const Point from,
     if (que.empty()){
       break;
     }
-    Trajectory traj; // = que.pop();
-
+    Trajectory traj = que.top();
+    que.pop();
+    
     if(traj.distance > max_dist || traj.distance > nearest){
       continue;
     }
     
-    {
-      const int x_try = 0;
-      const int y_try = 0;
+    auto try_expand = [&](Direction dir){
+      const int x_try =  (dir == Direction(W) || dir == Direction(S)) ? traj.to.first : dir == Direction(A) ? traj.to.first - 1 : traj.to.first + 1;
+      const int y_try =  (dir == Direction(A) || dir == Direction(D)) ? traj.to.second : dir == Direction(W) ? traj.to.second - 1 : traj.to.second + 1;
       
+      if(x_try > MAP_XMAX -1 || x_try < 0 || y_try > MAP_YMAX -1 || y_try < 0){
+	return;
+      }
       if(game.map[x_try][y_try] == '#'){
 	// todo write drill
-	continue;
+	return;
       }
-      
-      Direction dir = Direction(W); 
       Trajectory traj_try = traj;
       traj_try.path.push_back(dir);
       traj_try.distance += 1;
@@ -107,7 +117,13 @@ Trajectory map_parse::find_nearest_unwrapped(const Game &game, const Point from,
 	  que.push(traj_try);
 	}
       }
-    }
+    };
+
+    try_expand(Direction(W));
+    try_expand(Direction(A));
+    try_expand(Direction(S));
+    try_expand(Direction(D));
+
   }
   return traj_map[nearest_point.first][nearest_point.second];
 }

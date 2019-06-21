@@ -9,7 +9,7 @@ const int MAP_XMAX = 256;
 const int MAP_YMAX = 256;
 
 struct traj_evaluator{
-  bool comp_traj(const Trajectory &t1, const Trajectory &t2);
+  static bool comp_traj(const Trajectory &t1, const Trajectory &t2);
 };
 namespace map_parse{
   Trajectory find_trajectory(const Game &game, const Point from, const Point to, const int max_dist);
