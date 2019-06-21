@@ -9,7 +9,7 @@ std::string interactiveSolver(Game game) {
   while (true) {
     std::cout << "======= [iter: " << iter << "] ========" << std::endl;
     std::cout << game << std::endl;
-    std::cout << "Command [!:quit] [W/A/S/D] [E/Q] [F/L/R/Z] [M:manipulate] [T:teleport]>" << std::flush;
+    std::cout << "Command [!:quit] [U:undo] [W/A/S/D] [E/Q] [F/L/R/Z] [M:manipulate] [T:teleport]>" << std::flush;
     char c = getch();
     c = std::toupper(c);
     if (c == '!') {
@@ -40,6 +40,9 @@ std::string interactiveSolver(Game game) {
       if (game.map2d.isInside({x, y}) && (game.map2d({x, y}) & CellType::kTeleportTargetBit) != 0) {
         game.teleport({x, y});
       }
+    }
+    if (c == 'U' && !game.actions.empty()) {
+      game.undoAction();
     }
     ++iter;
   }
