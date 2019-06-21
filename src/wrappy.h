@@ -1,5 +1,6 @@
 #pragma once
 
+#include <ostream>
 #include <string>
 
 #include "base.h"
@@ -23,3 +24,6 @@ struct Wrappy {
   int time_drill = 0;
   Map& map;
 };
+
+// Outputs game status
+std::ostream& operator<<(std::ostream&, const Wrappy&);

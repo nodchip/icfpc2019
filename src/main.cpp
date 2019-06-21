@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
   // Do something with using |wrappy|
 
   // Test output
-  std::cout << mp << "\n";
+  std::cout << wrappy << "\n";
 
   return 0;
 }
