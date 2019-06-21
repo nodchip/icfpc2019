@@ -19,6 +19,17 @@ namespace CellType {
   static constexpr int kTeleportTargetBit = 1 << 7; // installed teleport target
 }
 
+// character representation of map ======================================
+static const char NON_WRAPPED = '.';
+static const char WRAPPED = ' ';
+static const char WRAPPY = '@';
+static const char BOOSTER_MANIPULATOR = 'B';
+static const char BOOSTER_FAST_WHEEL = 'F';
+static const char BOOSTER_DRILL = 'L';
+static const char BOOSTER_TELEPORT = 'R';
+static const char WALL = '#';
+static const char UNKNOWN = 'X';
+
 struct Map2D {
     using T = int;
     int W = 0;
@@ -50,5 +61,17 @@ struct Map2D {
         return W == rhs.W && H == rhs.H && data == rhs.data;
     }
 };
+
+using Booster = std::pair<char, Point>;
+
+struct ParsedMap {
+    Map2D map2d;
+    Point wrappy;
+};
+// parse *.desc string to construct Map2D and obtain other info.
+ParsedMap parseDescString(std::string desc_string);
+// parse *.map string to construct Map2D and obtain other info.
+// map_strings_top_to_bottom[H - 1 - y] corresponds to the y-line.
+ParsedMap parseMapString(std::vector<std::string> map_strings_top_to_bottom);
 
 std::ostream& operator<<(std::ostream&, const Map2D&);

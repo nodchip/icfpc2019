@@ -12,108 +12,11 @@
 
 #include "fill_polygon.h"
 
-namespace {
-
-Point ParsePoint(char*& p) {
-  assert (*p == '(');
-  Point pos;
-  int x = std::strtol(++p, &p, 10);
-  assert (*p == ',');
-  int y = std::strtol(++p, &p, 10);
-  assert (*p == ')');
-  ++p;
-
-  return {x, y};
-}
-
-std::vector<Point> ParseMap(char*& p) {
-  std::vector<Point> map_pos;
-
-  assert (*p == '(');
-  map_pos.emplace_back(ParsePoint(p));
-  while (*p == ',') {
-    map_pos.emplace_back(ParsePoint(++p));
-  }
-
-  return map_pos;
-}
-
-std::vector<std::vector<Point>> ParseObstacles(char*& p) {
-  std::vector<std::vector<Point>> obstacles;
-  assert (*p == '(');
-  obstacles.emplace_back(ParseMap(p));
-  while (*p == ';') {
-    obstacles.emplace_back(ParseMap(++p));
-  }
-  return obstacles;
-}
-
-Booster ParseBooster(char*& p) {
-  assert (std::strchr("BFLXR", *p) != nullptr);
-  char code = *p;
-  Point point { ParsePoint(++p) };
-  return {code, point};
-}
-
-std::vector<Booster> ParseBoosters(char*& p) {
-  assert (std::strchr("BFLXR", *p) != nullptr);
-  std::vector<Booster> boosters;
-  boosters.emplace_back(ParseBooster(p));
-  while (*p == ';') {
-    boosters.emplace_back(ParseBooster(++p));
-  }
-  return boosters;
-}
-
-Point FindPoint(const std::vector<std::string>& map) {
-  for (int y = 0; y < map.size(); ++y) {
-    for (int x = 0; x < map[y].size(); ++x) {
-      if (map[y][x] == '@')
-        return {x, y};
-    }
-  }
-  return {-1, -1};
-}
-
-}  // namespace
 
 Game::Game(const std::string& task) {
-  char* p = const_cast<char*>(task.data());
-
-  std::vector<Point> map_pos { ParseMap(p) };
-  assert (*p == '#');
-  wrappy = ParsePoint(++p);
-  assert (*p == '#');
-  std::vector<std::vector<Point>> obstacles { ParseObstacles(++p) };
-  assert (*p == '#');
-  std::vector<Booster> boosters { ParseBoosters(++p) };
-
-  BoundingBox map_bbox = calcBoundingBox(map_pos);
-  assert (map_bbox.lower.x >= 0);
-  assert (map_bbox.lower.y >= 0);
-  assert (map_bbox.isValid());
-  map2d = Map2D(map_bbox.upper.x, map_bbox.upper.y, CellType::kObstacleBit);
-  FillPolygon(map2d, map_pos, CellType::kEmpty);
-  for (const auto& obstacle : obstacles) {
-    FillPolygon(map2d, obstacle, CellType::kObstacleBit);
-  }
-
-  for (auto booster : boosters) {
-    switch (booster.first) {
-      case BOOSTER_MANIPULATOR:
-        map2d(booster.second) |= CellType::kBoosterManipulatorBit;
-        break;
-      case BOOSTER_FAST_WHEEL:
-        map2d(booster.second) |= CellType::kBoosterFastWheelBit;
-        break;
-      case BOOSTER_DRILL:
-        map2d(booster.second) |= CellType::kBoosterDrillBit;
-        break;
-      case UNKNOWN:
-        map2d(booster.second) |= CellType::kBoosterUnknownXBit;
-        break;
-    }
-  }
+  ParsedMap parsed = parseDescString(task);
+  map2d = parsed.map2d;
+  wrappy = parsed.wrappy;
 
   manipulators.push_back(Point {1, 0});
   manipulators.push_back(Point {1, 1});
@@ -121,49 +24,10 @@ Game::Game(const std::string& task) {
 }
 
 Game::Game(const std::vector<std::string>& mp) {
-  std::vector<std::string> maplines = mp;
+  ParsedMap parsed = parseMapString(mp);
+  map2d = parsed.map2d;
+  wrappy = parsed.wrappy;
   
-  std::reverse(maplines.begin(), maplines.end());
-  wrappy = FindPoint(maplines);
-
-  int H = maplines.size();
-  int W = maplines[0].size();
-  map2d = Map2D(W, H, CellType::kEmpty);
-  for (int y = 0; y < H; ++y) {
-    for (int x = 0; x < W; ++x) {
-      switch (maplines[y][x]) {
-        case NON_WRAPPED:
-          map2d(x, y) = CellType::kEmpty;
-          break;
-        case WRAPPED:
-          map2d(x, y) = CellType::kWrappedBit;
-          break;
-        case WRAPPY:
-          map2d(x, y) = CellType::kEmpty;
-          wrappy = {x, y};
-          break;
-        case BOOSTER_MANIPULATOR:
-          map2d(x, y) = CellType::kBoosterManipulatorBit;
-          break;
-        case BOOSTER_FAST_WHEEL:
-          map2d(x, y) = CellType::kBoosterFastWheelBit;
-          break;
-        case BOOSTER_DRILL:
-          map2d(x, y) = CellType::kBoosterDrillBit;
-          break;
-        case WALL:
-          map2d(x, y) = CellType::kObstacleBit;
-          break;
-        case UNKNOWN:
-          map2d(x, y) = CellType::kBoosterUnknownXBit;
-          break;
-        default:
-          assert(false);
-          break;
-      }
-    }
-  }
-
   manipulators.push_back(Point {1, 0});
   manipulators.push_back(Point {1, 1});
   manipulators.push_back(Point {1, -1});

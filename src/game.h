@@ -7,8 +7,6 @@
 #include "base.h"
 #include "game_map.h"
 
-using Booster = std::pair<char, Point>;
-
 struct Game {
   Game() = default;
   Game(const std::string& desc); // initialize using a task description string from *.desc file.
@@ -33,16 +31,6 @@ struct Game {
   std::string command;
   int time = 0;
 
-  // State of Map ======================================
-  static const char NON_WRAPPED = '.';
-  static const char WRAPPED = ' ';
-  static const char WRAPPY = '@';
-  static const char BOOSTER_MANIPULATOR = 'B';
-  static const char BOOSTER_FAST_WHEEL = 'F';
-  static const char BOOSTER_DRILL = 'L';
-  static const char BOOSTER_TELEPORT = 'R';
-  static const char WALL = '#';
-  static const char UNKNOWN = 'X';
 
   // refactored map representation
   Map2D map2d;
