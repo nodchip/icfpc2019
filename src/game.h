@@ -7,6 +7,41 @@
 #include "base.h"
 #include "game_map.h"
 
+struct Action {
+  Action(bool fast_wheels_active_, bool drill_active_, Point before_pos, const std::vector<Point>& before_manipulator_offsets) {
+    old_position = before_pos;
+    new_position = before_pos;
+    old_manipulator_offsets = before_manipulator_offsets;
+    new_manipulator_offsets = before_manipulator_offsets;
+  }
+  // old state
+  Point old_position;
+  std::vector<Point> old_manipulator_offsets;
+  // command string
+  std::string command;
+  // motion (including teleport)
+  Point new_position;
+  // wrapped (only new ones)
+  std::vector<Point> absolute_new_wrapped_positions;
+  // manipulators
+  std::vector<Point> new_manipulator_offsets;
+  // break walls
+  std::vector<Point> break_walls;
+  // picking boosters at
+  std::vector<Point> pick_manipulator;
+  std::vector<Point> pick_fast_wheel;
+  std::vector<Point> pick_drill;
+  std::vector<Point> pick_teleport;
+  // using boosters
+  int use_manipulator = 0;
+  int use_fast_wheel = 0;
+  int use_drill = 0;
+  int use_teleport = 0; // instaling, not teleporting.
+  // active boosters
+  bool fast_wheels_active = false;
+  bool drill_active = false;
+};
+
 struct Game {
   Game() = default;
   Game(const std::string& desc); // initialize using a task description string from *.desc file.
@@ -27,7 +62,11 @@ struct Game {
   static const char DRILL = 'L';
   void useBooster(char);  // input: FL
 
+  Action getScaffoldAction();
+  bool undo(); // if no actions are stacked, fail and return false.
+
   // State of Game
+  std::vector<Action> actions;
   std::string command;
   int time = 0;
 
