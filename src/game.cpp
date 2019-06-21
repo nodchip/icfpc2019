@@ -74,7 +74,6 @@ void Game::move(char c) {
       p.y = map2d.H - 1;
 
     if (map2d.isInside(p) && (map2d(p) & CellType::kObstacleBit) == 0) {
-      // paint & move
       moveAndPaint(p, a);
     }
   }
@@ -109,6 +108,8 @@ void Game::turn(char c) {
     }
   }
 
+  moveAndPaint(wrappy, a);
+
   a.new_manipulator_offsets = manipulators;
   doAction(a);
 }
@@ -119,6 +120,8 @@ void Game::addManipulate(const Point& p) {
 
   manipulators.push_back(p);
   --num_manipulators;
+
+  moveAndPaint(wrappy, a);
 
   std::ostringstream oss;
   oss << "B(" << p.x << "," << p.y << ")";
