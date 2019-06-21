@@ -31,8 +31,8 @@ void set_traj(Trajectory &traj, const Point from_in, const Point to_in, const in
 
 
 Trajectory map_parse::find_trajectory(const Game &game, const Point from, const Point to, const int max_dist){
-  const int xmax = game.map[0].length();
-  const int ymax = game.map.size();
+  const int xmax = game.map2d.W;
+  const int ymax = game.map2d.H;
   Trajectory traj_map[MAP_YMAX][MAP_XMAX];
   std::priority_queue<Trajectory, std::vector<Trajectory>, decltype(&comp_traj)> que(&comp_traj);
   set_traj(traj_map[from.y][from.x], from, from, 0, false, std::vector<Direction>(0));
@@ -80,8 +80,8 @@ Trajectory map_parse::find_trajectory(const Game &game, const Point from, const 
 }
 
 Trajectory map_parse::find_nearest_unwrapped(const Game &game, const Point from, const int max_dist){
-  const int xmax = game.map[0].length();
-  const int ymax = game.map.size();
+  const int xmax = game.map2d.W;
+  const int ymax = game.map2d.H;
   Trajectory traj_map[MAP_YMAX][MAP_XMAX];
   std::priority_queue<Trajectory, std::vector<Trajectory>, decltype(&comp_traj)> que(&comp_traj);
   set_traj(traj_map[from.y][from.x], from, from, 0, false, std::vector<Direction>(0));
