@@ -8,6 +8,13 @@
 
 #include "base.h"
 
+#define MAP2D_CHECK_INSIDE
+#ifdef MAP2D_CHECK_INSIDE
+# define MAP2D_ASSERT(eq) assert(eq)
+#else
+# define MAP2D_ASSERT(eq) 
+#endif
+
 namespace CellType {
   static constexpr int kEmpty = 0;
   static constexpr int kWrappedBit = 1 << 0;
@@ -51,10 +58,10 @@ struct Map2D {
         }
     }
 
-    T& operator()(int x, int y) { return data[y * W + x]; }
-    T operator()(int x, int y) const { return data[y * W + x]; }
-    T& operator()(Point p) { return data[p.y * W + p.x]; }
-    T operator()(Point p) const { return data[p.y * W + p.x]; }
+    T& operator()(int x, int y) { MAP2D_ASSERT(isInside(x, y)); return data[y * W + x]; }
+    T operator()(int x, int y) const { MAP2D_ASSERT(isInside(x, y)); return data[y * W + x]; }
+    T& operator()(Point p) { MAP2D_ASSERT(isInside(p)); return data[p.y * W + p.x]; }
+    T operator()(Point p) const { MAP2D_ASSERT(isInside(p)); return data[p.y * W + p.x]; }
     bool operator!=(const Map2D& rhs) const {
         return !operator==(rhs);
     }
