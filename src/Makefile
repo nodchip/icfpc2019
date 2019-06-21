@@ -10,7 +10,7 @@ SRCS=base.cpp game.cpp map_parse.cpp
 BUILD_PATH=build
 OBJS=$(SRCS:%.cpp=$(BUILD_PATH)/%.o)
 
-TEST_BUILD_PATH=build
+TEST_BUILD_PATH=build/tests
 TEST_CXXFLAGS=$(CXXFLAGS) \
 	-I$(LIB_PATH)/googletest/googletest \
 	-I$(LIB_PATH)/googletest/googletest/include
