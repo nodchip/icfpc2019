@@ -18,8 +18,10 @@ struct Trajectory{
   Trajectory(){
     distance = DISTANCE_INF;
   }
+
   Point from; // 元いた場所
   Point to; // 行き先
   int distance; // 距離
-  std::vector<Direction> traj; // 最短で到達できるtraj  
+  bool use_dig;
+  std::vector<Direction> path; // 最短で到達できるtraj  
 };
