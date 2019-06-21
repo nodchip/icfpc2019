@@ -63,6 +63,16 @@ std::vector<Booster> ParseBoosters(char*& p) {
   return boosters;
 }
 
+Point FindPoint(const std::vector<std::string>& map) {
+  for (int y = 0; y < map.size(); ++y) {
+    for (int x = 0; x < map[y].size(); ++x) {
+      if (map[y][x] == '@')
+        return {x, y};
+    }
+  }
+  return {-1, -1};
+}
+
 }  // namespace
 
 Map::Map(const std::string& task) {
@@ -70,9 +80,15 @@ Map::Map(const std::string& task) {
 
   std::vector<Point> map_pos { ParseMap(p) };
   assert (*p == '#');
-  Point start { ParsePoint(++p) };
+  wrappy_point = ParsePoint(++p);
   assert (*p == '#');
   std::vector<std::vector<Point>> obstacles { ParseObstacles(++p) };
   assert (*p == '#');
   std::vector<Booster> boosters { ParseBoosters(++p) };
 }
+
+Map::Map(const std::vector<std::string>& mp)
+  : map(mp) {
+  wrappy_point = FindPoint(map);
+}
+

@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+#include "base.h"
+
 // '.': non wrapped
 // ' ': wrapped
 // 'B': Booster
@@ -11,11 +13,11 @@
 // 'X': Something
 // '#': Wall
 
-class Map {
-public:
+struct Map {
   Map(const std::string& desc);
+  Map(const std::vector<std::string>& map);
 
-  const std::vector<std::string>& dump() const { return map_; }
-
-  std::vector<std::string> map_;
+  std::vector<std::string> map;
+  Point wrappy_point;
+  int time = 0;
 };
