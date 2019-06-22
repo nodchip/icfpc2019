@@ -42,8 +42,8 @@ def main(patterns=[REPO_ROOT_DIR / 'dataset/problems/*.map']):
     metainfo = []
     for pattern in patterns:
         for f in glob.glob(str(pattern)):
-            if len(metainfo) > 20:
-                break
+            #if len(metainfo) > 20:
+            #    break
 
             f = Path(f)
             print(f)
