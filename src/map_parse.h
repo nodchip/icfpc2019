@@ -12,4 +12,8 @@ namespace map_parse {
   std::vector<Trajectory> findNearestUnwrapped(const Game &game, const Point &from,
                                 const int max_dist);
 
+  std::vector<Trajectory> findNearestByBit(const Game &game, const Point &from,
+					   const int max_dist, const int kMask);
+  
+
 } // namepsace map_parse

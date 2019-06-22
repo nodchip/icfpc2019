@@ -28,7 +28,9 @@ Wrapper::Wrapper(Game* game_, Point pos_, int wrapper_spawn_index_)
 
 Action Wrapper::getScaffoldAction() {
   // +1 for next action.
-  return {game->time + 1, time_fast_wheels > 0, time_drill > 0, pos, direction, manipulators};
+  Action a = {game->time + 1, time_fast_wheels > 0, time_drill > 0, pos, direction, manipulators};
+  pick(a); // pick boosters before move!
+  return a;
 }
 
 void Wrapper::move(char c) {
@@ -144,11 +146,16 @@ void Wrapper::teleport(const Point& p) {
   doAction(a);
 }
 
+void Wrapper::pick(Action& a) {
+  assert (map2d.isInside(pos));
+  game->pick(*this, &a);
+}
+
 void Wrapper::moveAndPaint(Point p, Action& a) {
   assert (map2d.isInside(p));
 
   pos = p;
-  game->paintAndPick(*this, &a);
+  game->paint(*this, &a);
 }
 
 void Wrapper::useBooster(char c) {

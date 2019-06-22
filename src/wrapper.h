@@ -42,6 +42,7 @@ struct Wrapper {
   int time_drill = 0;
 
 private:
+  void pick(Action& a);
   void moveAndPaint(Point p, Action& a);
   void doAction(Action a);
 };
