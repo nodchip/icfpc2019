@@ -59,14 +59,10 @@ void Wrapper::move(char c) {
     else if (p.y >= map2d.H)
       p.y = map2d.H - 1;
 
-    std::cout << "1" << std::endl;
-    std::cout << map2d << std::endl;
     if (map2d.isInside(p) && (map2d(p) & CellType::kObstacleBit) == 0) {
-      std::cout << "2" << std::endl;
       moveAndPaint(p, a);
     }
   }
-  std::cout << "3" << std::endl;
 
   a.new_position = pos;
   doAction(a);
