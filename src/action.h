@@ -60,4 +60,6 @@ struct Action {
   static const char DRILL = 'L';
   static const char BEACON = 'R';
   static const char CLONE = 'C';
+
+  int wrappedCount() const { return absolute_new_wrapped_positions.size(); }
 };
