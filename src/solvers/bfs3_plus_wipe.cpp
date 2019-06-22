@@ -59,9 +59,10 @@ std::string bfs3_plus_wipe_Solver(SolverParam param, Game* game) {
 	p_max = d_paint;
 	d_max = Direction::D;
       }
-
+      /*
       std::cout<<*game<<std::endl;
       std::cout<<w_paint<<","<<s_paint<<","<<a_paint<<","<<d_paint<<std::endl;
+      */
       if(p_max > 10){
 	const char c = Direction2Char(d_max);
 	w->move(c);
