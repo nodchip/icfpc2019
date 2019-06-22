@@ -1,4 +1,5 @@
 #include "solver_helper.h"
+#include <cassert>
 
 std::string wrapperEngineSolver(SolverParam param, Game* game, SolverIterCallback iter_callback, WrapperEngineBase::Ptr prototype) {
   std::vector<WrapperEngineBase::Ptr> engines;
@@ -27,4 +28,26 @@ std::string wrapperEngineSolver(SolverParam param, Game* game, SolverIterCallbac
     }
   }
   return game->getCommand();
+}
+
+std::string functorSolver(SolverParam param, Game* game, SolverIterCallback iter_callback, std::function<Wrapper*(Wrapper*)> func) {
+  while (game->countUnWrapped() != 0) {
+    for (auto& w : game->wrappers) {
+      func(w.get());
+    }
+    game->tick();
+    displayAndWait(param, game);
+    if (iter_callback && !iter_callback(game)) return game->getCommand();
+  }
+  return game->getCommand();
+
+}
+void ManipulatorExtender::extend() {
+  assert (game->num_boosters[BoosterType::MANIPULATOR] > 0);
+  if (num_attached_manipulators % 2 == 0) {
+    wrapper->addManipulator(Point(1, 2 + num_attached_manipulators / 2));
+  } else {
+    wrapper->addManipulator(Point(1, - 2 - num_attached_manipulators / 2));
+  }
+  num_attached_manipulators++;
 }

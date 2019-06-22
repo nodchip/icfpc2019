@@ -24,3 +24,24 @@ protected:
 };
 
 std::string wrapperEngineSolver(SolverParam param, Game* game, SolverIterCallback iter_callback, WrapperEngineBase::Ptr prototype);
+std::string functorSolver(SolverParam param, Game* game, SolverIterCallback iter_callback, std::function<Wrapper*(Wrapper*)> func);
+
+struct ManipulatorExtender {
+  //   :
+  //   2
+  //   0
+  //   x
+  // @ x
+  //   x
+  //   1
+  //   3
+  //   :
+  ManipulatorExtender(Game* game_, Wrapper* wrapper_) : game(game_), wrapper(wrapper_) {}
+
+  // this will always emit an action.
+  void extend();
+private:
+  Game *game;
+  Wrapper *wrapper;
+  int num_attached_manipulators = 0;
+};
