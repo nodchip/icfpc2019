@@ -1,6 +1,6 @@
 #include "../solver_registry.h"
 
-std::string simpleSolver(Game game) {
+std::string simpleSolver(Game& game) {
     game.move(Game::UP);
     return game.getCommand();
 }

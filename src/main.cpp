@@ -17,6 +17,7 @@ int main(int argc, char* argv[]) {
   std::string solver_name = "simple";
   std::string desc_filename;
   std::string map_filename;
+  std::string command_output_filename;
 
   auto sub_list_solvers = app.add_subcommand("list_solvers", "list up registered solvers");
 
@@ -27,6 +28,7 @@ int main(int argc, char* argv[]) {
   sub_run->add_option("solver", solver_name, "the solver name");
   sub_run->add_option("--desc", desc_filename, "*.desc file input");
   sub_run->add_option("--map", map_filename, "*.map file input");
+  sub_run->add_option("--output", command_output_filename, "output commands to a file");
 
   CLI11_PARSE(app, argc, argv);
 
@@ -79,6 +81,12 @@ int main(int argc, char* argv[]) {
 
     // Test output
     std::cout << game << "\n";
+
+    // command output
+    if (!command_output_filename.empty()) {
+      std::ofstream ofs(command_output_filename);
+      ofs << game.getCommand();
+    }
   }
 
   return 0;

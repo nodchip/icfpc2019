@@ -4,7 +4,7 @@
 
 #include "../getch.h"
 
-std::string interactiveSolver(Game game) {
+std::string interactiveSolver(Game& game) {
   int iter = 0;
   while (true) {
     std::cout << "======= [iter: " << iter << "] ========" << std::endl;
