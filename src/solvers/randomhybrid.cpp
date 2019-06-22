@@ -19,16 +19,15 @@ T getEnv(std::string name, T default_value) {
 
 
 std::string randomHybridSolver(SolverParam param, Game* game, SolverIterCallback iter_callback) {
-  const int DIVERGE_STEP = getEnv<int>("DIVERGE_STEP", 30);
-  const int SEARCH_STEP = getEnv<int>("SEARCH_STEP", 50);
+  const int auto_diverge_step = std::max(30, int(game->countUnWrapped() * 0.01));
+  const int DIVERGE_STEP = getEnv<int>("DIVERGE_STEP", auto_diverge_step);
+  const int SEARCH_STEP = getEnv<int>("SEARCH_STEP", 30);
 
   std::vector<std::string> solver_names = {
-    "bfs3",
-    "bfs3_plus_dircheck",
-    "bfs3_plus_wipe",
-    "bfs4",
-    "bfs5",
     "bfs5_plus_wipe",
+    "bfs3_plus_wipe",
+    "bfs3",
+    "bfs2",
   };
   std::vector<SolverFunction> solvers;
   for (auto name : solver_names) {
