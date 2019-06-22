@@ -35,20 +35,20 @@ TrajectoryMap generateTrajectoryMap(const Game &game,
   TrajectoryMap traj_map(kYMax, std::vector<Trajectory>(kXMax));
   std::priority_queue<Trajectory> que;
   traj_map[from.y][from.x] =
-    Trajectory{from, from, 0};
+    Trajectory{Direction::W, from, 0, false};
 
   que.push(traj_map[from.y][from.x]);
   while (!que.empty()) {
     Trajectory traj = que.top();
     que.pop();
-
+    // std::cout<<"spawn "<<traj<<std::endl;
     if (traj.distance > max_dist) {
       continue;
     }
 
     auto try_expand = [&](Direction dir) {
-      int x_try = traj.to.x;
-      int y_try = traj.to.y;
+      int x_try = traj.pos.x;
+      int y_try = traj.pos.y;
       switch (dir) {
       case Direction::W: ++y_try; break;
       case Direction::S: --y_try; break;
@@ -65,12 +65,13 @@ TrajectoryMap generateTrajectoryMap(const Game &game,
       }
 
       Trajectory traj_try = traj;
-      traj_try.path.push_back(dir);
       traj_try.distance += 1;
-      traj_try.from = traj_try.to;
-      traj_try.to = {x_try, y_try};
+      traj_try.last_move = dir;
+      traj_try.pos = {x_try, y_try};
+      // std::cout<<"try "<<traj_try<<std::endl;
       if (update_callback(traj_try, traj_map[y_try][x_try])) {
         que.push(traj_try);
+	// std::cout<<"ok"<<std::endl;
       }
     };
 
@@ -83,7 +84,7 @@ TrajectoryMap generateTrajectoryMap(const Game &game,
   return traj_map;
 }
 
-Trajectory findTrajectory(const Game &game, const Point &from, const Point &to,
+std::vector<Trajectory> findTrajectory(const Game &game, const Point &from, const Point &to,
                           const int max_dist) {
   TrajectoryMap traj_map = generateTrajectoryMap(
       game, from, max_dist,
@@ -95,10 +96,24 @@ Trajectory findTrajectory(const Game &game, const Point &from, const Point &to,
         return false;  // Won't enqueue |traj_new|
       });
 
-  return traj_map[to.y][to.x];
+
+  const int dist_out = traj_map[to.y][to.x].distance;
+  std::vector<Trajectory> trajs(dist_out);
+
+  Point pos(to.x, to.y);
+  for(int i=0; i<dist_out; ++i){
+    trajs[dist_out - i - 1] = traj_map[pos.y][pos.x];
+    switch (traj_map[pos.y][pos.x].last_move) {
+    case Direction::W: --pos.y; break;
+    case Direction::S: ++pos.y; break;
+    case Direction::D: --pos.x; break;
+    case Direction::A: ++pos.x; break;
+    }
+  }
+  return trajs;  
 }
 
-Trajectory findNearestUnwrapped(const Game &game, const Point& from, const int max_dist) {
+std::vector<Trajectory> findNearestUnwrapped(const Game &game, const Point& from, const int max_dist) {
   int nearest = DISTANCE_INF;
   Point nearest_point = {-1, -1};
 
@@ -107,21 +122,36 @@ Trajectory findNearestUnwrapped(const Game &game, const Point& from, const int m
       [&](Trajectory& traj_new, Trajectory& traj_orig) {
         if (traj_new < traj_orig) {
           traj_orig = traj_new;
-          if (game.map2d(traj_new.to.x, traj_new.to.y) == CellType::kEmpty &&
+          if (game.map2d(traj_new.pos.x, traj_new.pos.y) == CellType::kEmpty &&
               traj_new.distance < nearest) {
-            nearest_point = traj_new.to;
+            nearest_point = traj_new.pos;
             nearest = traj_new.distance;
-          } else {
-            return true;  // Will enqueue |traj_new|
+          } else if(traj_new.distance < nearest){
+	    return true;  // Will enqueue |traj_new|
           }
         }
         return false;  // Won't enqueue |traj_new|
       });
 
   if (nearest == DISTANCE_INF){
-    return Trajectory{from, from, 0}; // nothing to do
+    return std::vector<Trajectory>(0);
   }
-  return traj_map[nearest_point.y][nearest_point.x];
+
+  const int dist_out = traj_map[nearest_point.y][nearest_point.x].distance;
+  std::vector<Trajectory> trajs(dist_out);
+
+  Point pos(nearest_point.x, nearest_point.y);
+  for(int i=0; i<dist_out; ++i){
+    trajs[dist_out - i - 1] = traj_map[pos.y][pos.x];
+    switch (traj_map[pos.y][pos.x].last_move) {
+    case Direction::W: --pos.y; break;
+    case Direction::S: ++pos.y; break;
+    case Direction::D: --pos.x; break;
+    case Direction::A: ++pos.x; break;
+    }
+  }
+  return trajs;
+
 }
 
 } // namespace map_parse

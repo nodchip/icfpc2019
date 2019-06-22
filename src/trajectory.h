@@ -12,11 +12,10 @@ const int DISTANCE_INF = 999999999;
 enum class Direction : std::uint8_t { W, S, A, D };
 
 struct Trajectory {
-  Point from;                  // 元いた場所
-  Point to;                    // 行き先
+  Direction last_move;         // 最後にしたmove
+  Point pos;                   // 自分の位置
   int distance = DISTANCE_INF; // 距離
-  bool use_drill = false;
-  std::vector<Direction> path; // 最短で到達できるtraj
+  bool use_drill = false;      // 到達するまでにdrillを使ったか
 };
 
 std::ostream &operator<<(std::ostream &, const Direction &);
