@@ -1,12 +1,12 @@
 #include "game.h"
 
-#include <iostream>
-#include <ostream>
 #include <algorithm>
-#include <limits>
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
+#include <limits>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -110,6 +110,10 @@ std::string Game::getCommand() const {
   return oss.str();
 }
 
+bool Game::isEnd() const {
+  return false;
+}
+
 std::vector<Point> Game::getWrapperPositions() const {
   std::vector<Point> wrapper_positions;
   for (auto& w : wrappers) {
@@ -119,7 +123,6 @@ std::vector<Point> Game::getWrapperPositions() const {
 }
 
 std::ostream& operator<<(std::ostream& os, const Game& game) {
-
   os << "Time: " << game.time << "\n";
   for (auto& line : dumpMapString(game.map2d, game.getWrapperPositions())) {
     os << line << "\n";

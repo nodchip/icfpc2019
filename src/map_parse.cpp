@@ -118,6 +118,9 @@ Trajectory findNearestUnwrapped(const Game &game, const Point& from, const int m
         return false;  // Won't enqueue |traj_new|
       });
 
+  if (nearest == DISTANCE_INF){
+    return Trajectory{from, from, 0}; // nothing to do
+  }
   return traj_map[nearest_point.y][nearest_point.x];
 }
 

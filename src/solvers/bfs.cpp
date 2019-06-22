@@ -16,8 +16,9 @@ std::string bfsSolver(std::shared_ptr<Game> game) {
       while (true) {
         std::cout << "# " << i << ": Command [!]quit [U]undo [W/A/S/D/Z]move [E/Q]turn [F/L/R/C]boost [M]manipulate [T]teleport >" << std::flush;
         auto w = game->wrappers[i];
-        char c = getch();
-        c = std::toupper(c);
+        const Trajectory traj = map_parse::findNearestUnwrapped(*game, game->wrappers[i]->pos, DISTANCE_INF);
+        const char c = traj.path.size() == 0 ? '!' : Direction2Char(traj.path[0]);
+	
         if (c == '!') {
           terminate = true;
           break;
@@ -77,4 +78,4 @@ std::string bfsSolver(std::shared_ptr<Game> game) {
   return game->getCommand();
 }
 
-REGISTER_SOLVER("interactive", interactiveSolver);
+REGISTER_SOLVER("bfs", bfsSolver);

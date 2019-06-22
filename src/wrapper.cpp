@@ -70,6 +70,7 @@ void Wrapper::move(char c) {
   }
 
   a.new_position = pos;
+  moveAndPaint(pos, a);
   doAction(a);
 }
 

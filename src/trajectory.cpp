@@ -21,3 +21,13 @@ std::ostream &operator<<(std::ostream &os, const Trajectory &traj) {
   os << "]";
   return os;
 }
+
+char Direction2Char(const Direction d){
+  switch (d) {
+  case Direction::W: return 'W';
+  case Direction::S: return 'S';
+  case Direction::A: return 'A';
+  case Direction::D: return 'D';
+  }
+  return '!'; // unreachable!!
+}

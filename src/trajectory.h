@@ -21,3 +21,5 @@ struct Trajectory {
 
 std::ostream &operator<<(std::ostream &, const Direction &);
 std::ostream &operator<<(std::ostream &, const Trajectory &);
+
+char Direction2Char(const Direction d);
