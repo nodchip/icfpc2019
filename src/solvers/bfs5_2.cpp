@@ -10,7 +10,7 @@ namespace {
 struct WrapperEngine {
   WrapperEngine(Game *game, int id) : m_game(game), m_id(id), m_wrapper(game->wrappers[id].get()), m_num_manipulators(0) { m_total_wrappers++; };
   Wrapper *action() {
-    if (m_game->num_boosters[BoosterType::MANIPULATOR] > 0 && (m_total_manipulators > m_total_wrappers * m_num_manipulators)) {
+    if (m_game->num_boosters[BoosterType::MANIPULATOR] > 0 && (m_game->num_boosters[BoosterType::MANIPULATOR] + m_total_manipulators > m_total_wrappers * m_num_manipulators)) {
       if (m_num_manipulators % 2 == 0) {
         m_wrapper->addManipulate(Point(1, 2 + m_num_manipulators / 2));
         cout << m_id << ": add: " << m_num_manipulators << ", " << Point(1, 2 + m_num_manipulators / 2) << endl;
