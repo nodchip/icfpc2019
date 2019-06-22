@@ -14,6 +14,34 @@
 
 namespace
 {
+struct XorShift {
+	unsigned x, y, z, w;
+	XorShift() { x = 123456789; y = 362436069; z = 521288629; w = 88675123; }
+	XorShift(int _w) { x = 123456789; y = 362436069; z = 521288629; w = _w; }
+	void setSeed() { x = 123456789; y = 362436069; z = 521288629; w = 88675123; }
+	void setSeed(int _w) { x = 123456789; y = 362436069; z = 521288629; w = _w; }
+	unsigned nextUInt() {
+		unsigned t = (x ^ (x << 11));
+		x = y; y = z; z = w;
+		return (w = (w ^ (w >> 19)) ^ (t ^ (t >> 8)));
+	}
+	unsigned nextUInt(unsigned mod) {
+		unsigned t = (x ^ (x << 11));
+		x = y; y = z; z = w;
+		w = (w ^ (w >> 19)) ^ (t ^ (t >> 8));
+		return w % mod;
+	}
+	unsigned nextUInt(unsigned l, unsigned r) {
+		unsigned t = (x ^ (x << 11));
+		x = y; y = z; z = w;
+		w = (w ^ (w >> 19)) ^ (t ^ (t >> 8));
+		return w % (r - l + 1) + l;
+	}
+	double nextDouble() {
+		return double(nextUInt()) / UINT_MAX;
+	}
+} rnd;
+
 class DisjointSet
 {
 public:
@@ -288,6 +316,44 @@ PuzzleSolution outMST(PuzzleSolverParam param, Puzzle puzzle)
 
   PuzzleSolution solution;
   solution.wall = simplifyPolygon(fine_polygon);
+
+  // // character representation of map ======================================
+  // static const char NON_WRAPPED = '.';
+  // static const char WRAPPED = ' ';
+  // static const char WRAPPY = '@';
+  // static const char BOOSTER_MANIPULATOR = 'B';
+  // static const char BOOSTER_FAST_WHEEL = 'F';
+  // static const char BOOSTER_DRILL = 'L';
+  // static const char BOOSTER_TELEPORT = 'R';
+  // static const char BOOSTER_CLONING = 'C';
+  // static const char WALL = '#';
+  // static const char SPAWN_POINT = 'X';
+
+  auto findUnwrapped = [&](){
+    int i, j;
+    do{
+      i = rnd.nextUInt(H);
+      j = rnd.nextUInt(W);
+    } while(!poly2d[i][j]);
+    poly2d[i][j] = false;
+    return Point(j, i);
+  };
+
+  {
+    int bNum = puzzle.bNum;
+    int fNum = puzzle.fNum;
+    int lNum = puzzle.dNum;
+    int rNum = puzzle.rNum;
+    int cNum = puzzle.cNum;
+    int xNum = puzzle.xNum;
+    for(int i = 0; i < bNum; i++) solution.Bs.push_back(findUnwrapped());
+    for(int i = 0; i < fNum; i++) solution.Fs.push_back(findUnwrapped());
+    for(int i = 0; i < lNum; i++) solution.Ls.push_back(findUnwrapped());
+    for(int i = 0; i < rNum; i++) solution.Rs.push_back(findUnwrapped());
+    for(int i = 0; i < cNum; i++) solution.Cs.push_back(findUnwrapped());
+    for(int i = 0; i < xNum; i++) solution.Xs.push_back(findUnwrapped());
+    solution.wrapper = findUnwrapped();
+  }
   return solution;
 }
 
