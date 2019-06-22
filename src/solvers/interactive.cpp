@@ -34,13 +34,13 @@ std::string interactiveSolver(std::shared_ptr<Game> game) {
           w->turn(c);
           break;
         }
-        if (c == 'F' && game->fast_wheels > 0) { w->useBooster(c); break; }
-        if (c == 'L' && game->drills > 0) { w->useBooster(c); break; }
-        if (c == 'R' && game->teleports > 0) { w->useBooster(c); break; }
-        if (c == 'C' && game->clonings > 0 && (game->map2d(w->pos) & CellType::kBoosterUnknownXBit) != 0) {
+        if (c == 'F' && game->num_boosters[BoosterType::FAST_WHEEL] > 0) { w->useBooster(c); break; }
+        if (c == 'L' && game->num_boosters[BoosterType::DRILL] > 0) { w->useBooster(c); break; }
+        if (c == 'R' && game->num_boosters[BoosterType::TELEPORT] > 0) { w->useBooster(c); break; }
+        if (c == 'C' && game->num_boosters[BoosterType::CLONING] > 0 && (game->map2d(w->pos) & CellType::kBoosterUnknownXBit) != 0) {
            w->cloneWrapper(); break;
         }
-        if (c == 'M' && game->num_manipulators > 0) {
+        if (c == 'M' && game->num_boosters[BoosterType::MANIPULATOR] > 0) {
           int x, y;
           std::cout << "(X, Y) >" << std::flush;
           std::cin >> x >> y;

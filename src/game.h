@@ -7,6 +7,7 @@
 #include "base.h"
 #include "map2d.h"
 #include "wrapper.h"
+#include "booster.h"
 
 struct Game {
   Game() = default;
@@ -21,7 +22,7 @@ struct Game {
   int nextWrapperIndex() const { return wrappers.size(); }
   std::vector<Point> getWrapperPositions() const;
 
-  void paint(const Wrapper& w, Action& a); // helper func used by Wrapper
+  void paint(const Wrapper& w, Action* a_optional); // helper func used by Wrapper
 
   // State of Game
   int time = 0;
@@ -32,12 +33,8 @@ struct Game {
   // State of Wrappy ===================================
   std::vector<std::shared_ptr<Wrapper>> wrappers;
 
-  // Boosters (shared among wrappers)
-  int num_manipulators = 0;  // number of unused manipulators
-  int fast_wheels = 0;  // Increase if take 'F'
-  int drills = 0;  // Increase if take 'L'
-  int teleports = 0;  // Increase if take 'R'
-  int clonings = 0; // Increase if take 'C'
+  // Unused boosters (shared among wrappers)
+  std::array<int, BoosterType::N> num_boosters;
 
 private:
   Action getScaffoldAction();

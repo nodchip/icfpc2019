@@ -105,17 +105,17 @@ void Wrapper::turn(char c) {
 
 void Wrapper::addManipulate(const Point& p) {
   Action a = getScaffoldAction();
-  assert (game->num_manipulators > 0);
+  assert (game->num_boosters[BoosterType::MANIPULATOR] > 0);
 
   manipulators.push_back(p);
-  --game->num_manipulators;
+  --game->num_boosters[BoosterType::MANIPULATOR];
 
   moveAndPaint(pos, a);
 
   std::ostringstream oss;
   oss << "B(" << p.x << "," << p.y << ")";
 
-  a.use_manipulator += 1;
+  a.use_booster[BoosterType::MANIPULATOR] += 1;
   a.new_manipulator_offsets = manipulators;
   a.command = oss.str();
   doAction(a);
@@ -137,46 +137,40 @@ void Wrapper::moveAndPaint(Point p, Action& a) {
   assert (map2d.isInside(p));
 
   pos = p;
-  game->paint(*this, a);
+  game->paint(*this, &a);
 }
 
 void Wrapper::useBooster(char c) {
   Action a = getScaffoldAction();
   a.command = c;
 
+  const int b = boosterFromChar(c).booster_type;
+  assert (game->num_boosters[b] > 0);
+  --game->num_boosters[b];
+  a.use_booster[b] += 1;
+
   switch (c) {
-  case FAST: {
-    assert (game->fast_wheels > 0);
-    --game->fast_wheels;
+  case FAST:
     time_fast_wheels = 50;
-    a.use_fast_wheel += 1;
     break;
-  }
-  case DRILL: {
-    assert (game->drills > 0);
-    --game->drills;
+  case DRILL:
     time_drill = 30;
-    a.use_drill += 1;
     break;
-  }
-  case RESET: {
-    --game->teleports;
-    a.use_teleport += 1;
+  case RESET:
     map2d(pos) |= CellType::kTeleportTargetBit;
     break;
-  }
   }
 
   doAction(a);
 }
 
 std::shared_ptr<Wrapper> Wrapper::cloneWrapper() {
-  assert (game->clonings > 0);
-  --game->clonings;
+  assert (game->num_boosters[BoosterType::CLONING] > 0);
+  --game->num_boosters[BoosterType::CLONING];
 
   Action a = getScaffoldAction();
   a.command = "C";
-  a.use_cloning += 1;
+  a.use_booster[BoosterType::CLONING] += 1;
 
   assert ((game->map2d(pos) & CellType::kBoosterUnknownXBit) != 0);
   auto spawned = std::make_shared<Wrapper>(game, pos, game->nextWrapperIndex());
@@ -216,35 +210,17 @@ bool Wrapper::undoAction() {
     assert (map2d.isInside(p) && (map2d(p) & CellType::kObstacleBit) == 0);
     map2d(p) |= CellType::kObstacleBit;
   }
-  // place boosters
-  for (auto p : a.pick_manipulator) {
-    assert (map2d.isInside(p) && (map2d(p) & CellType::kBoosterManipulatorBit) == 0);
-    map2d(p) |= CellType::kBoosterManipulatorBit;
+  for (auto booster : boosters) {
+    // undo picking boosters (place boosters)
+    for (auto p : a.pick_boosters[booster.booster_type]) {
+      assert (map2d.isInside(p) && (map2d(p) & booster.map_bit) == 0);
+      map2d(p) |= booster.map_bit;
+    }
+    // undo using boosters
+    game->num_boosters[booster.booster_type] += a.use_booster[booster.booster_type];
   }
-  for (auto p : a.pick_fast_wheel) {
-    assert (map2d.isInside(p) && (map2d(p) & CellType::kBoosterFastWheelBit) == 0);
-    map2d(p) |= CellType::kBoosterFastWheelBit;
-  }
-  for (auto p : a.pick_drill) {
-    assert (map2d.isInside(p) && (map2d(p) & CellType::kBoosterDrillBit) == 0);
-    map2d(p) |= CellType::kBoosterDrillBit;
-  }
-  for (auto p : a.pick_cloning) {
-    assert (map2d.isInside(p) && (map2d(p) & CellType::kBoosterCloningBit) == 0);
-    map2d(p) |= CellType::kBoosterCloningBit;
-  }
-  for (auto p : a.pick_teleport) {
-    assert (map2d.isInside(p) && (map2d(p) & CellType::kBoosterTeleportBit) == 0);
-    map2d(p) |= CellType::kBoosterTeleportBit;
-  }
-  // undo using boosters
-  game->num_manipulators += a.use_manipulator;
-  game->fast_wheels += a.use_fast_wheel;
-  game->drills += a.use_drill;
-  game->clonings += a.use_cloning;
-  game->teleports += a.use_teleport;
   // undo placing teleports
-  if (a.use_teleport) {
+  if (a.use_booster[BoosterType::TELEPORT]) {
     assert (map2d.isInside(a.new_position) && (map2d(a.new_position) & CellType::kTeleportTargetBit) != 0);
     map2d(a.new_position) &= ~CellType::kTeleportTargetBit;
   }

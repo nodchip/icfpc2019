@@ -7,6 +7,7 @@
 
 #include "base.h"
 #include "map2d.h"
+#include "booster.h"
 
 struct Action {
   Action(int timestamp_, bool fast_wheels_active_, bool drill_active_, Point before_pos, const std::vector<Point>& before_manipulator_offsets)
@@ -17,6 +18,10 @@ struct Action {
     new_position = before_pos;
     old_manipulator_offsets = before_manipulator_offsets;
     new_manipulator_offsets = before_manipulator_offsets;
+    for (int i = 0; i < BoosterType::N; ++i) {
+      pick_boosters[i] = {};
+      use_booster[i] = 0;
+    }
   }
   int timestamp;
   // old state
@@ -33,17 +38,9 @@ struct Action {
   // break walls
   std::vector<Point> break_walls;
   // picking boosters at
-  std::vector<Point> pick_manipulator;
-  std::vector<Point> pick_fast_wheel;
-  std::vector<Point> pick_drill;
-  std::vector<Point> pick_cloning;
-  std::vector<Point> pick_teleport;
+  std::array<std::vector<Point>, BoosterType::N> pick_boosters;
   // using boosters
-  int use_manipulator = 0;
-  int use_fast_wheel = 0;
-  int use_drill = 0;
-  int use_cloning = 0;
-  int use_teleport = 0; // instaling, not teleporting.
+  std::array<int, BoosterType::N> use_booster; // NOTE: user_booster[TELEPORT] means installing, not teleporting.
   // active boosters
   bool fast_wheels_active = false;
   bool drill_active = false;

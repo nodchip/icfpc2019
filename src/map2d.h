@@ -7,6 +7,7 @@
 #include <cassert>
 
 #include "base.h"
+#include "booster.h"
 
 #define MAP2D_CHECK_INSIDE
 #ifdef MAP2D_CHECK_INSIDE
@@ -14,19 +15,6 @@
 #else
 # define MAP2D_ASSERT(eq) 
 #endif
-
-namespace CellType {
-  static constexpr int kEmpty = 0;
-  static constexpr int kWrappedBit = 1 << 0;
-  static constexpr int kObstacleBit = 1 << 1;
-  static constexpr int kBoosterManipulatorBit = 1 << 2; // B
-  static constexpr int kBoosterFastWheelBit = 1 << 3; // F
-  static constexpr int kBoosterDrillBit = 1 << 4; // L
-  static constexpr int kBoosterUnknownXBit = 1 << 5; // X
-  static constexpr int kBoosterTeleportBit = 1 << 6; // R
-  static constexpr int kBoosterCloningBit = 1 << 7; // C
-  static constexpr int kTeleportTargetBit = 1 << 8; // installed teleport target
-}
 
 // character representation of map ======================================
 static const char NON_WRAPPED = '.';

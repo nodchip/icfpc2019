@@ -8,7 +8,7 @@ CXXFLAGS+=-pg
 
 LDFLAGS=-lstdc++fs
 
-SRCS=base.cpp map2d.cpp wrapper.cpp game.cpp solver_registry.cpp
+SRCS=base.cpp map2d.cpp booster.cpp wrapper.cpp game.cpp solver_registry.cpp
 SRCS+=manipulator_reach.cpp fill_polygon.cpp
 SRCS+=map_parse.cpp trajectory.cpp
 OBJS=$(SRCS:%.cpp=$(BUILD_PATH)/%.o)
