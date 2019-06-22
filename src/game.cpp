@@ -111,7 +111,21 @@ std::string Game::getCommand() const {
 }
 
 bool Game::isEnd() const {
-  return false;
+  return countUnWrapped() == 0;
+}
+
+int Game::countUnWrapped() const {
+  static const int kMask = CellType::kObstacleBit | CellType::kWrappedBit;
+  const int H = map2d.H;
+  const int W = map2d.W;
+  int count = 0;
+  for (int x = 0; x < W; ++x) {
+    for (int y = 0; y < H; ++y) {
+      if ((map2d(x, y) & kMask) == 0)
+        ++count;
+    }
+  }
+  return count;
 }
 
 std::vector<Point> Game::getWrapperPositions() const {

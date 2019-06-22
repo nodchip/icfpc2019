@@ -25,6 +25,8 @@ struct Game {
   // Returns True if no unwrapped cells are remained.
   bool isEnd() const;
 
+  int countUnWrapped() const;
+
   std::string getCommand() const; // extended solution command.
 
   int nextWrapperIndex() const { return wrappers.size(); }
