@@ -4,16 +4,10 @@
 #include "map_parse.h"
 #include "solver_registry.h"
 
-std::string bfsSolver(SolverParam param, Game::Ptr game) {
+std::string bfsSolver(SolverParam param, Game* game) {
   while (true) {
-    auto w = game->wrappers[0];
+    Wrapper* w = game->wrappers[0].get();
     const std::vector<Trajectory> trajs = map_parse::findNearestUnwrapped(*game, w->pos, DISTANCE_INF);
-    /*
-    for(auto t : trajs){
-      std::cout<<t<<" ";
-    }
-    std::cout<<std::endl;
-    */
     if (trajs.size() == 0)
       break;
     for(auto t : trajs){

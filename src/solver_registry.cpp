@@ -4,7 +4,7 @@
 #include <thread>
 #include <experimental/filesystem>
 
-void displayAndWait(SolverParam param, Game::Ptr game) {
+void displayAndWait(SolverParam param, Game* game) {
   if (param.wait_ms > 0) {
     std::cout << "\033[2J\033[1;1H"; // clear screen and return to top-left.
     std::cout << *game << std::endl;

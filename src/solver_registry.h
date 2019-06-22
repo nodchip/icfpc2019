@@ -9,9 +9,9 @@ struct SolverParam {
   int wait_ms = 0;
 };
 
-void displayAndWait(SolverParam param, Game::Ptr game);
+void displayAndWait(SolverParam param, Game* game);
 
-using SolverFunction = std::function<std::string(SolverParam, Game::Ptr)>;
+using SolverFunction = std::function<std::string(SolverParam, Game*)>;
 
 #define CONCAT_SUB(a, b) a##b
 #define CONCAT(a, b) CONCAT_SUB(a, b)

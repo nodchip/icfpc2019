@@ -40,6 +40,7 @@ int main(int argc, char* argv[]) {
   // ================== list_solvers
   if (sub_list_solvers->parsed()) {
     SolverRegistry::displaySolvers();
+    return 0;
   }
 
   // ================== convert
@@ -47,40 +48,42 @@ int main(int argc, char* argv[]) {
     assert (std::experimental::filesystem::is_regular_file(desc_filename));
     std::ifstream ifs(desc_filename);
     std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
-    Game::Ptr game = std::make_shared<Game>(str);
+    Game game(str);
 
-    for (auto line : dumpMapString(game->map2d, game->getWrapperPositions())) {
+    for (auto line : dumpMapString(game.map2d, game.getWrapperPositions())) {
       std::cout << line << std::endl;
     }
+
+    return 0;
   }
 
   // ================== run
   if (sub_run->parsed()) {
-    Game::Ptr game; 
+    std::unique_ptr<Game> game; 
     if (std::experimental::filesystem::is_regular_file(desc_filename)) {
       std::ifstream ifs(desc_filename);
       std::string str((std::istreambuf_iterator<char>(ifs)),
                       std::istreambuf_iterator<char>());
-      game = std::make_shared<Game>(str);
+      game.reset(new Game(str));
     } else if (std::experimental::filesystem::is_regular_file(map_filename)) {
       std::ifstream ifs(map_filename);
       std::vector<std::string> input;
       for (std::string l; std::getline(ifs, l);)
         input.emplace_back(l);
-      game = std::make_shared<Game>(input);
+      game.reset(new Game(input));
     } else {
       // read *.map from stdin
       std::ifstream ifs(map_filename);
       std::vector<std::string> input;
       for (std::string l; std::getline(std::cin, l);)
         input.emplace_back(l);
-      game = std::make_shared<Game>(input);
+      game.reset(new Game(input));
     }
 
     // Do something
     const auto t0 = std::chrono::system_clock::now();
     if (SolverFunction solver = SolverRegistry::getSolver(solver_name)) {
-      solver(solver_param, game);
+      solver(solver_param, game.get());
       if (!game->isEnd()) {
         std::cerr << "******** Some cells are not wrapped **********\n"
                   << *game << "\n";
