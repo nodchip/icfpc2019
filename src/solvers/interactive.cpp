@@ -16,7 +16,10 @@ std::string interactiveSolver(SolverParam param, Game::Ptr game) {
       while (true) {
         std::cout << "# " << i << ": Command [!]quit [U]undo [W/A/S/D/Z]move [E/Q]turn [F/L/R/C]boost [M]manipulate [T]teleport >" << std::flush;
         auto w = game->wrappers[i];
-        char c = _getch();
+#if defined(_MSC_VER)
+#define getch _getch
+#endif
+        char c = getch();
         c = std::toupper(c);
         if (c == '!') {
           terminate = true;
