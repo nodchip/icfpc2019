@@ -119,3 +119,66 @@ TEST(ActionTest, Clone) {
   EXPECT_EQ(Point(0, 3), wrapper->pos);
   EXPECT_EQ(Point(1, 2), wrapper_cloned->pos);
 }
+
+TEST(ActionTest, Manipulator) {
+  // example-01.desc + mod.
+  Game game("(0,0),(10,0),(10,10),(0,10)#(0,0)#(4,2),(6,2),(6,7),(4,7);(5,8),(6,8),(6,9),(5,9)#B(0,1);B(0,2)");
+
+  Wrapper* wrapper = game.wrappers[0].get();
+  //
+  wrapper->move(Action::UP);
+  game.tick();
+  //
+  wrapper->move(Action::UP);
+  game.tick();
+  EXPECT_EQ(1, game.num_boosters[BoosterType::MANIPULATOR]);
+  //
+  wrapper->move(Action::UP);
+  game.tick();
+  EXPECT_EQ(2, game.num_boosters[BoosterType::MANIPULATOR]);
+  //
+  wrapper->turn(Action::CCW);
+  game.tick();
+
+  // . o o o .
+  // o * * * o
+  // . o @ o .
+  // . . o . .
+  EXPECT_FALSE(wrapper->canAddManipulator({-2, -1}));
+  EXPECT_FALSE(wrapper->canAddManipulator({-1, -1}));
+  EXPECT_TRUE (wrapper->canAddManipulator({ 0, -1}));
+  EXPECT_FALSE(wrapper->canAddManipulator({ 1, -1}));
+  EXPECT_FALSE(wrapper->canAddManipulator({ 2, -1}));
+  
+  EXPECT_FALSE(wrapper->canAddManipulator({-2, 0}));
+  EXPECT_TRUE (wrapper->canAddManipulator({-1, 0}));
+  EXPECT_FALSE(wrapper->canAddManipulator({ 0, 0}));
+  EXPECT_TRUE (wrapper->canAddManipulator({ 1, 0}));
+  EXPECT_FALSE(wrapper->canAddManipulator({ 2, 0}));
+
+  EXPECT_TRUE (wrapper->canAddManipulator({-2, 1}));
+  EXPECT_FALSE(wrapper->canAddManipulator({-1, 1}));
+  EXPECT_FALSE(wrapper->canAddManipulator({ 0, 1}));
+  EXPECT_FALSE(wrapper->canAddManipulator({ 1, 1}));
+  EXPECT_TRUE (wrapper->canAddManipulator({ 2, 1}));
+
+  EXPECT_FALSE(wrapper->canAddManipulator({-2, 2}));
+  EXPECT_TRUE (wrapper->canAddManipulator({-1, 2}));
+  EXPECT_TRUE (wrapper->canAddManipulator({ 0, 2}));
+  EXPECT_TRUE (wrapper->canAddManipulator({ 1, 2}));
+  EXPECT_FALSE(wrapper->canAddManipulator({ 2, 2}));
+
+  // * * *  
+  //   @    
+  //   !    
+  wrapper->addManipulator({0, -1});
+  game.tick();
+  EXPECT_EQ(1, game.num_boosters[BoosterType::MANIPULATOR]);
+
+  // * * * !
+  //   @    
+  //   *    
+  wrapper->addManipulator({2, 1});
+  game.tick();
+  EXPECT_EQ(0, game.num_boosters[BoosterType::MANIPULATOR]);
+}
