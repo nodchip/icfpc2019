@@ -158,6 +158,7 @@ std::ostream& operator<<(std::ostream& os, const Game& game) {
     }
     os << "\n";
   }
+  os << "Commad: " << getCommand() << "\n";
 
   return os;
 }
