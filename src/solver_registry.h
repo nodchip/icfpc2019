@@ -13,8 +13,10 @@ void displayAndWait(SolverParam param, Game::Ptr game);
 
 using SolverFunction = std::function<std::string(SolverParam, Game::Ptr)>;
 
+#define CONCAT_SUB(a, b) a##b
+#define CONCAT(a, b) CONCAT_SUB(a, b)
 #define REGISTER_SOLVER(name, func) \
-  static SolverRegistry _register_solver_##__COUNT__ = {name, {__FILE__, func}}
+  static SolverRegistry CONCAT(_register_solver_, __LINE__) = {name, {__FILE__, func}}
 
 struct SolverRegistry {
   struct SolverEntry {
