@@ -8,17 +8,13 @@ using namespace std;
 
 namespace {
 struct WrapperEngine {
-  WrapperEngine(Game *game, int id) : m_game(game), m_id(id), m_wrapper(game->wrappers[id].get()), m_num_manipulators(0) {};
+  WrapperEngine(Game *game, int id) : m_game(game), m_id(id), m_wrapper(game->wrappers[id].get()), m_num_manipulators(0) { m_total_wrappers++; };
   Wrapper *action() {
-    if (m_game->num_boosters[BoosterType::MANIPULATOR] > 0) {
-      if (m_num_manipulators % 2 == 0) {
-        m_wrapper->addManipulate(Point(1, 2 + m_num_manipulators / 2));
-//        cout << m_id << ": add: " << m_num_manipulators << ", " << Point(1, 2 + m_num_manipulators / 2) << endl;
-      } else {
-        m_wrapper->addManipulate(Point(1, - 2 - m_num_manipulators / 2));
-//        cout << m_id << ": add: " << m_num_manipulators << ", " << Point(1, - 2 - m_num_manipulators / 2) << endl;
-      }
+    if (m_game->num_boosters[BoosterType::MANIPULATOR] > 0 && (m_total_manipulators > m_total_wrappers * m_num_manipulators)) {
+      m_wrapper->addManipulate(Point(1 + m_num_manipulators, 0));
+//      cout << m_id << ": add: " << m_num_manipulators << ", " << Point(1 + m_num_manipulators, 0) << endl;
       m_num_manipulators++;
+      m_total_manipulators++;
     } else if (((m_game->map2d(m_wrapper->pos) & CellType::kSpawnPointBit) != 0) && m_game->num_boosters[BoosterType::CLONING]) {
 //      cout << m_id << ": clone: " << m_wrapper->pos << endl;
       return m_wrapper->cloneWrapper();
@@ -38,10 +34,15 @@ struct WrapperEngine {
   int m_id;
   Wrapper *m_wrapper;
   int m_num_manipulators;
-};
+  static int m_total_manipulators;
+  static int m_total_wrappers;
 };
 
-std::string bfs5Solver(SolverParam param, Game* game, SolverIterCallback iter_callback) {
+int WrapperEngine::m_total_manipulators = 0;
+int WrapperEngine::m_total_wrappers = 0;
+};
+
+std::string bfs5_3Solver(SolverParam param, Game* game, SolverIterCallback iter_callback) {
   int num_wrappers = 1;
   vector<WrapperEngine> ws;
   ws.emplace_back(WrapperEngine(game, 0));
@@ -67,4 +68,4 @@ std::string bfs5Solver(SolverParam param, Game* game, SolverIterCallback iter_ca
   return game->getCommand();
 }
 
-REGISTER_SOLVER("bfs5", bfs5Solver);
+REGISTER_SOLVER("bfs5_3", bfs5_3Solver);

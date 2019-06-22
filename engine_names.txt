@@ -4,5 +4,7 @@ bfs3
 bfs4
 bfs5
 bfs5_2
+bfs5_3
+bfs5_4
 bfs3_plus_wipe
 bfs5_plus_wipe

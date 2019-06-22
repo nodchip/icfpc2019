@@ -6,6 +6,7 @@
 
 using namespace std;
 
+namespace {
 struct WrapperEngine {
   WrapperEngine(Game *game, int id) : m_game(game), m_id(id), m_wrapper(game->wrappers[id].get()), m_num_manipulators(0) { m_total_wrappers++; };
   Wrapper *action() {
@@ -44,6 +45,7 @@ struct WrapperEngine {
 
 int WrapperEngine::m_total_manipulators = 0;
 int WrapperEngine::m_total_wrappers = 0;
+};
 
 std::string bfs5_2Solver(SolverParam param, Game* game, SolverIterCallback iter_callback) {
   int num_wrappers = 1;
