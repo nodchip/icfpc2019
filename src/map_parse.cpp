@@ -33,13 +33,13 @@ TrajectoryMap generateTrajectoryMap(const Game &game,
   const int kYMax = game.map2d.H;
 
   TrajectoryMap traj_map(kYMax, std::vector<Trajectory>(kXMax));
-  std::priority_queue<Trajectory> que;
+  std::queue<Trajectory> que;
   traj_map[from.y][from.x] =
     Trajectory{Direction::W, from, 0, false};
 
   que.push(traj_map[from.y][from.x]);
   while (!que.empty()) {
-    Trajectory traj = que.top();
+    Trajectory traj = que.front();
     que.pop();
     // std::cout<<"spawn "<<traj<<std::endl;
     if (traj.distance > max_dist) {
