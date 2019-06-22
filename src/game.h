@@ -13,9 +13,15 @@ struct Game {
   Game(const std::string& desc); // initialize using a task description string from *.desc file.
   Game(const std::vector<std::string>& map); // initialize by a raster *.map file.
 
-  bool tick(); // move time frame. make sure you provided commands for each wrapper.
+  // move time frame. make sure you provided commands for each wrapper.
+  bool tick();
 
-  bool undo(); // undo previous frame. if no actions are stacked, fail and return false.
+  // undo previous frame. if no actions are stacked, fail and return false.
+  bool undo();
+
+  // Returns True if no unwrapped cells are remained.
+  bool isEnd() const;
+
   std::string getCommand() const; // extended solution command.
 
   int nextWrapperIndex() const { return wrappers.size(); }
