@@ -86,8 +86,7 @@ TEST(ActionTest, AffectsOnGame) {
   wrapper->move(Action::DOWN); game.tick();
   EXPECT_EQ(Point(3, 8), wrapper->pos);
 
-  // TODO: Is {-2,-2} impossible?
-  wrapper->addManipulator({-2, -2}); game.tick();
+  wrapper->addManipulator({-1, 0}); game.tick();
   EXPECT_EQ(0, game.num_boosters[BoosterType::MANIPULATOR]);
   wrapper->useBooster(Action::FAST); game.tick();
   EXPECT_EQ(0, game.num_boosters[BoosterType::FAST_WHEEL]);
