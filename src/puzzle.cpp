@@ -1,4 +1,5 @@
 #include "puzzle.h"
+#include <sstream>
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
@@ -19,6 +20,28 @@ Map2D Puzzle::constraintsToMap() const {
   for (auto p : iSqs) { assert (map2d.isInside(p)); map2d(p) = IN; }
   for (auto p : oSqs) { assert (map2d.isInside(p)); map2d(p) = OUT; }
   return map2d;
+}
+
+std::string PuzzleSolution::toString() const {
+  std::ostringstream oss;
+  for (int i = 0; i < wall.size(); ++i) {
+    oss << wall[i];
+    if (i + 1 != wall.size()) oss << ",";
+  }
+  oss << "#";
+  oss << wrapper;
+  oss << "#";
+  // no obstacles
+  oss << "#";
+  for (auto p : Bs) { oss << "B" << p << ";"; }
+  for (auto p : Fs) { oss << "F" << p << ";"; }
+  for (auto p : Ls) { oss << "L" << p << ";"; }
+  for (auto p : Rs) { oss << "R" << p << ";"; }
+  for (auto p : Cs) { oss << "C" << p << ";"; }
+  for (auto p : Xs) { oss << "X" << p << ";"; }
+  std::string s(oss.str());
+  s = s.substr(0, s.size() - 1); // training ";"
+  return s;
 }
 
 namespace {

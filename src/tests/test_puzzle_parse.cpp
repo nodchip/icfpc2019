@@ -56,3 +56,19 @@ TEST(PuzzleTest, constraintToMap) {
   });
   EXPECT_EQ(constraint_map, ground_truth);
 }
+
+TEST(PuzzleTest, puzzleSolutionToString) {
+  PuzzleSolution sol;
+  sol.wall = {{0, 0}, {4, 0}, {4, 4}, {0, 4}};
+  sol.wrapper = {1, 1};
+  sol.Bs = {{1, 2}};
+  sol.Fs = {{1, 3}};
+  sol.Ls = {{2, 0}};
+  sol.Rs = {{2, 1}};
+  sol.Cs = {{2, 2}};
+  sol.Xs = {{2, 3}};
+  //std::cout << sol.toString() << std::endl;
+  EXPECT_EQ(
+    "(0,0),(4,0),(4,4),(0,4)#(1,1)##B(1,2);F(1,3);L(2,0);R(2,1);C(2,2);X(2,3)",
+    sol.toString());
+}

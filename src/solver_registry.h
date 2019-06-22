@@ -17,7 +17,7 @@ void displayAndWait(SolverParam param, Game* game);
 
 using SolverIterCallback = std::function<bool(Game*)>; // return false to terminate.
 using SolverFunction = std::function<std::string(SolverParam, Game*, SolverIterCallback)>;
-using PuzzleSolverFunction = std::function<Polygon(PuzzleSolverParam, Puzzle)>;
+using PuzzleSolverFunction = std::function<PuzzleSolution(PuzzleSolverParam, Puzzle)>;
 
 #define CONCAT_SUB(a, b) a##b
 #define CONCAT(a, b) CONCAT_SUB(a, b)

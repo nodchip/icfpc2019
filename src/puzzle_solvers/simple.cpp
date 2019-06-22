@@ -5,7 +5,7 @@
 #include "fill_polygon.h"
 #include "solver_registry.h"
 
-Polygon simpleSolver(PuzzleSolverParam param, Puzzle puzzle) {
+PuzzleSolution simpleSolver(PuzzleSolverParam param, Puzzle puzzle) {
   // just returns a fixed (invalid) solution.
   constexpr int R = 1;
   Map2D map2d(3, 3, {
@@ -16,8 +16,9 @@ Polygon simpleSolver(PuzzleSolverParam param, Puzzle puzzle) {
   Polygon fine_polygon;
   assert (parsePolygon(fine_polygon, map2d, R));
   
-  Polygon simple_polygon = simplifyPolygon(fine_polygon);
-  return simple_polygon;
+  PuzzleSolution solution;
+  solution.wall = simplifyPolygon(fine_polygon);
+  return solution;
 }
 
 REGISTER_PUZZLE_SOLVER("simple", simpleSolver);

@@ -43,6 +43,19 @@ struct Puzzle {
   Map2D constraintsToMap() const;
 };
 
+struct PuzzleSolution {
+  Polygon wall;
+  Point wrapper;
+  std::vector<Point> Bs;
+  std::vector<Point> Fs;
+  std::vector<Point> Ls;
+  std::vector<Point> Rs;
+  std::vector<Point> Cs;
+  std::vector<Point> Xs;
+
+  std::string toString() const;
+};
+
 Puzzle parsePuzzleCondString(std::string cond_file_str);
 
 // dump constraints map for display. the first row corresponds to the highest y.

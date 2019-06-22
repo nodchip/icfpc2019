@@ -144,10 +144,10 @@ int main(int argc, char* argv[]) {
     Puzzle puzzle = parsePuzzleCondString(str);
 
     // solve
-    Polygon simple_polygon;
+    PuzzleSolution puzzle_solution;
     const auto t0 = std::chrono::system_clock::now();
     if (PuzzleSolverFunction solver = SolverRegistry<PuzzleSolverFunction>::getSolver(solver_name)) {
-      simple_polygon = solver(puzzle_solver_param, puzzle);
+      puzzle_solution = solver(puzzle_solver_param, puzzle);
 
       // TODO: validation.
     }
@@ -157,14 +157,9 @@ int main(int argc, char* argv[]) {
     // output
     if (!command_output_filename.empty()) {
       std::ofstream ofs(command_output_filename);
-      for (auto p : simple_polygon) {
-        ofs << p;
-      }
+      ofs << puzzle_solution.toString();
     } else {
-      for (auto p : simple_polygon) {
-        std::cout << p;
-      }
-      std::cout << std::endl;
+      std::cout << puzzle_solution.toString() << std::endl;
     }
 
     // meta information output
