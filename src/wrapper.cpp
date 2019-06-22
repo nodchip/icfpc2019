@@ -116,9 +116,6 @@ void Wrapper::turn(char c) {
 void Wrapper::addManipulate(const Point& p) {
   Action a = getScaffoldAction();
   assert (game->num_boosters[BoosterType::MANIPULATOR] > 0);
-  for (auto &mp : manipulators) {
-    assert(mp == p);
-  }
 
   manipulators.push_back(p);
   --game->num_boosters[BoosterType::MANIPULATOR];
