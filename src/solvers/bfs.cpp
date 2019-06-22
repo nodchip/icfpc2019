@@ -23,6 +23,7 @@ std::string bfsSolver(SolverParam param, Game::Ptr game) {
       displayAndWait(param, game);
     }
   }
+  std::cout<<*game<<std::endl;
   return game->getCommand();
 }
 
