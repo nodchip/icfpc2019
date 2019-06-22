@@ -12,7 +12,7 @@ import multiprocessing
 Result = collections.namedtuple('Result', ('problem_name', 'new_time', 'best_time'))
 
 
-TIMEOUT = 120.0
+TIMEOUT = 300.0
 INFINITE = 10**9
 
 def calculate_time(solution_file_path):

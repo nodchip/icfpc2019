@@ -45,6 +45,11 @@ bool Game::tick() {
     assert (wrapper->actions.back().timestamp == time + 1);
   }
   ++time;
+  // add new wrappers.
+  for (auto&& w : next_wrappers) {
+    wrappers.push_back(std::move(w));
+  }
+  next_wrappers.clear();
   return true;
 }
 
@@ -136,6 +141,10 @@ std::vector<Point> Game::getWrapperPositions() const {
   return wrapper_positions;
 }
 
+void Game::addClonedWrapperForNextFrame(std::unique_ptr<Wrapper> wrapper) { 
+  next_wrappers.push_back(std::move(wrapper));
+}
+
 std::ostream& operator<<(std::ostream& os, const Game& game) {
   os << "Time: " << game.time << "\n";
   for (auto& line : dumpMapString(game.map2d, game.getWrapperPositions())) {
@@ -150,6 +159,14 @@ std::ostream& operator<<(std::ostream& os, const Game& game) {
   os << "Wrappers: " << game.wrappers.size() << "\n";
   for (auto& w : game.wrappers) {
     os << w->index << " : ";
+    os << "Dir[";
+    switch (w->direction) {
+      case Direction::W: os << "↑"; break;
+      case Direction::A: os << "←"; break;
+      case Direction::S: os << "↓"; break;
+      case Direction::D: os << "→"; break;
+    }
+    os << "]";
     if (w->time_fast_wheels > 0) {
       os << " Speedup (" << w->time_fast_wheels << ")\n";
     }

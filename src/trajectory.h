@@ -9,8 +9,6 @@
 
 const int DISTANCE_INF = 999999999;
 
-enum class Direction : std::uint8_t { W, S, A, D };
-
 struct Trajectory {
   Direction last_move;         // 最後にしたmove
   Point pos;                   // 自分の位置

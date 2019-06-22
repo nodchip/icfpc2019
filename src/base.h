@@ -4,6 +4,11 @@
 #include <vector>
 #include <limits>
 
+enum class Direction : std::uint8_t { W, S, A, D };
+Direction turn(Direction dir, bool turn_cw);
+inline Direction turnCCW(Direction dir) { return turn(dir, false); }
+inline Direction turnCW(Direction dir) { return turn(dir, true); }
+
 struct Point {
     int x = 0;
     int y = 0;
