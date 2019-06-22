@@ -6,8 +6,8 @@
 #include "wrapper.h"
 #include "solver_registry.h"
 
-std::string simpleSolver(SolverParam param, Game::Ptr game) {
-  for (auto wrapper : game->wrappers) {
+std::string simpleSolver(SolverParam param, Game* game) {
+  for (auto& wrapper : game->wrappers) {
     wrapper->move(Action::UP);
   }
   game->tick();

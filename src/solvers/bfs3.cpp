@@ -4,16 +4,14 @@
 #include "map_parse.h"
 #include "solver_registry.h"
 
-std::string bfs3Solver(SolverParam param, Game::Ptr game) {
+std::string bfs3Solver(SolverParam param, Game* game) {
   int num_add_manipulators = 0;
   while (true) {
-    auto w = game->wrappers[0];
+    Wrapper* w = game->wrappers[0].get();
     if (game->num_boosters[BoosterType::MANIPULATOR] > 0) {
       if (num_add_manipulators % 2 == 0) {
-//        w->addManipulate(Point())
         w->addManipulate(Point(1, 2 + num_add_manipulators / 2));
       } else {
-//        w->addManipulate();
         w->addManipulate(Point(1, - 2 - num_add_manipulators / 2));
       }
       game->tick();
@@ -21,12 +19,6 @@ std::string bfs3Solver(SolverParam param, Game::Ptr game) {
       num_add_manipulators++;
     }
     const std::vector<Trajectory> trajs = map_parse::findNearestUnwrapped(*game, w->pos, DISTANCE_INF);
-    /*
-    for(auto t : trajs){
-      std::cout<<t<<" ";
-    }
-    std::cout<<std::endl;
-    */
     int count = game->countUnWrapped();
     if (trajs.size() == 0)
       break;

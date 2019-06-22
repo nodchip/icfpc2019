@@ -24,18 +24,18 @@ Game::Game(const std::string& task) : Game() {
   ParsedMap parsed = parseDescString(task);
   map2d = parsed.map2d;
 
-  auto w = std::make_shared<Wrapper>(this, parsed.wrappy, 0);
+  auto w = std::make_unique<Wrapper>(this, parsed.wrappy, 0);
   paintAndPick(*w, nullptr);
-  wrappers.push_back(w);
+  wrappers.push_back(std::move(w));
 }
 
 Game::Game(const std::vector<std::string>& mp) : Game() {
   ParsedMap parsed = parseMapString(mp);
   map2d = parsed.map2d;
 
-  auto w = std::make_shared<Wrapper>(this, parsed.wrappy, 0);
+  auto w = std::make_unique<Wrapper>(this, parsed.wrappy, 0);
   paintAndPick(*w, nullptr);
-  wrappers.push_back(w);
+  wrappers.push_back(std::move(w));
 }
 
 bool Game::tick() {

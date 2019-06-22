@@ -4,11 +4,12 @@ GTEST_DIR=$(LIB_PATH)/googletest/googletest
 
 CXXFLAGS+=-O2 -Wall -Wno-sign-compare -std=c++14
 CXXFLAGS+=-I. -I$(GTEST_DIR) -I$(GTEST_DIR)/include -I$(LIB_PATH)/CLI11/include
-CXXFLAGS+=-DNDEBUG
+#CXXFLAGS+=-DNDEBUG
 
 LDFLAGS=-lstdc++fs
 
 SRCS=base.cpp getch.cpp map2d.cpp booster.cpp wrapper.cpp game.cpp action.cpp solver_registry.cpp
+SRCS+=puzzle.cpp
 SRCS+=manipulator_reach.cpp fill_polygon.cpp
 SRCS+=map_parse.cpp trajectory.cpp
 OBJS=$(SRCS:%.cpp=$(BUILD_PATH)/%.o)

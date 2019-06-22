@@ -168,7 +168,7 @@ void Wrapper::useBooster(char c) {
   doAction(a);
 }
 
-Wrapper::Ptr Wrapper::cloneWrapper() {
+Wrapper* Wrapper::cloneWrapper() {
   assert (game->num_boosters[BoosterType::CLONING] > 0);
   --game->num_boosters[BoosterType::CLONING];
 
@@ -177,9 +177,9 @@ Wrapper::Ptr Wrapper::cloneWrapper() {
   a.use_booster[BoosterType::CLONING] += 1;
 
   assert ((game->map2d(pos) & CellType::kSpawnPointBit) != 0);
-  auto spawned = std::make_shared<Wrapper>(game, pos, game->nextWrapperIndex());
+  game->wrappers.emplace_back(new Wrapper(game, pos, game->nextWrapperIndex()));
+  Wrapper* spawned = game->wrappers.back().get();
   a.spawned_index = spawned->index;
-  game->wrappers.push_back(spawned);
 
   doAction(a);
   return spawned;
