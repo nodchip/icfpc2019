@@ -11,9 +11,12 @@ import subprocess
 Result = collections.namedtuple('Result', ('problem_name', 'new_time', 'best_time'))
 
 
+TIMEOUT = 120.0
+INFINITE = 10**9
+
 def calculate_time(solution_file_path):
     if not os.path.isfile(solution_file_path):
-        return 10**9
+        return INFINITE
 
     with open(solution_file_path, 'r') as f:
         body = f.read()
@@ -48,7 +51,10 @@ def execute(problem_name, args):
     command = [args.engine_file_path, 'run', args.solver_name, '--desc', description_file_path,
                '--output', solution_file_path]
     print(command, flush=True)
-    completed_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    try:
+        completed_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=TIMEOUT)
+    except subprocess.TimeoutExpired:
+        return Result(problem_name, INFINITE, INFINITE)
 
     assert completed_process.returncode == 0, 'Failed to execute the engine. command={command} description_file_path={description_file_path} solution_file_path={solution_file_path}'.format(
             command=command, description_file_path=description_file_path,
@@ -97,7 +103,7 @@ def main():
             future = executor.submit(execute, problem_name, args)
             futures.append(future)
 
-    results = [future.result() for future in futures]
+    results = [future.result() for future in futures if future.result()]
     results.sort(key=lambda x:x.problem_name)
     for result in results:
         if result.new_time < result.best_time:
