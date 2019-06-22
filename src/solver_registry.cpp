@@ -19,5 +19,5 @@ void SolverRegistry<Func>::displaySolvers() {
   }
 }
 
-template class SolverRegistry<SolverFunction>;
-template class SolverRegistry<PuzzleSolverFunction>;
+template struct SolverRegistry<SolverFunction>;
+template struct SolverRegistry<PuzzleSolverFunction>;
