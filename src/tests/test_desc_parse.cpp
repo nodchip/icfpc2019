@@ -17,7 +17,7 @@ TEST(desc_parse, Game_parse_desc) {
   constexpr int R = CellType::kBoosterTeleportBit;
   constexpr int X = CellType::kBoosterUnknownXBit;
   Map2D ground_truth(10, 10, {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     B, B, 0, 0, 0, 0, 0, 0, 0, 0,
     F, F, 0, 0, W, W, 0, 0, 0, 0,
     L, 0, 0, 0, W, W, 0, 0, 0, 0,
