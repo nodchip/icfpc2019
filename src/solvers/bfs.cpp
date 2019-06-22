@@ -4,7 +4,7 @@
 #include "map_parse.h"
 #include "solver_registry.h"
 
-std::string bfsSolver(SolverParam param, Game* game) {
+std::string bfsSolver(SolverParam param, Game* game, SolverIterCallback iter_callback) {
   while (true) {
     Wrapper* w = game->wrappers[0].get();
     const std::vector<Trajectory> trajs = map_parse::findNearestUnwrapped(*game, w->pos, DISTANCE_INF);
@@ -15,6 +15,7 @@ std::string bfsSolver(SolverParam param, Game* game) {
       w->move(c);
       game->tick();
       displayAndWait(param, game);
+      if (iter_callback && !iter_callback(game)) return game->getCommand();
     }
   }
   std::cout<<*game<<std::endl;

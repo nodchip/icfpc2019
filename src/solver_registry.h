@@ -15,7 +15,8 @@ struct PuzzleSolverParam {
 
 void displayAndWait(SolverParam param, Game* game);
 
-using SolverFunction = std::function<std::string(SolverParam, Game*)>;
+using SolverIterCallback = std::function<bool(Game*)>; // return false to terminate.
+using SolverFunction = std::function<std::string(SolverParam, Game*, SolverIterCallback)>;
 using PuzzleSolverFunction = std::function<Polygon(PuzzleSolverParam, Puzzle)>;
 
 #define CONCAT_SUB(a, b) a##b

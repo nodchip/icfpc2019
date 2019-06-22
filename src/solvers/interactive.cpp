@@ -4,7 +4,7 @@
 #include "getch.h"
 #include "solver_registry.h"
 
-std::string interactiveSolver(SolverParam param, Game* game) {
+std::string interactiveSolver(SolverParam param, Game* game, SolverIterCallback iter_callback) {
   int iter = 0;
   bool terminate = false;
   while (!terminate) {
@@ -74,6 +74,7 @@ std::string interactiveSolver(SolverParam param, Game* game) {
     }
     if (!terminate && !did_undo) {
       game->tick();
+      if (!iter_callback(game)) return game->getCommand();
       ++iter;
     }
   }
