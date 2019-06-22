@@ -177,6 +177,8 @@ std::vector<std::string> dumpMapString(const Map2D& map2d, std::vector<Point> wr
       if (map2d(x, y) & CellType::kSpawnPointBit) { c = SPAWN_POINT; }
       if (map2d(x, y) & CellType::kBoosterTeleportBit) { c = BOOSTER_TELEPORT; }
       if (map2d(x, y) & CellType::kObstacleBit) { c = WALL; } // highest priority
+      if (std::isalpha(c) && (map2d(x, y) & CellType::kWrappedBit) == 0)
+        c = std::tolower(c);
       line[x] = c;
     }
     charmap.push_back(line);

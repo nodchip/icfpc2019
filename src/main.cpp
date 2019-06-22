@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <chrono>
 #include <cassert>
 #include <experimental/filesystem>
 
@@ -77,6 +78,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Do something
+    const auto t0 = std::chrono::system_clock::now();
     if (SolverFunction solver = SolverRegistry::getSolver(solver_name)) {
       solver(solver_param, game);
       if (!game->isEnd()) {
@@ -84,6 +86,8 @@ int main(int argc, char* argv[]) {
                   << *game << "\n";
       }
     }
+    const auto t1 = std::chrono::system_clock::now();
+    const double solve_s = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count() * 1e-6;
 
     // command output
     if (!command_output_filename.empty()) {
@@ -94,9 +98,11 @@ int main(int argc, char* argv[]) {
     if (!meta_output_filename.empty() && game->isEnd()) {
       std::ofstream ofs(meta_output_filename);
       ofs << "{\"name\":\"" << solver_name
-          << "\",\"time_unit\":" << game->time << "}\n";
+          << "\",\"time_unit\":" << game->time
+          << "\",\"wall_clock_time\":" << solve_s << "}\n";
     }
-    std::cout << "Time: " << game->time << "\n";
+    std::cout << "Time step: " << game->time << "\n";
+    std::cout << "Elapsed  : " << solve_s << " s\n";
   }
 
   return 0;
