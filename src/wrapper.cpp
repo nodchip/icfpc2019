@@ -16,7 +16,11 @@
 #include "game.h"
 
 Wrapper::Wrapper(Game* game_, Point pos_, int wrapper_spawn_index_)
-  : game(game_), map2d(game_->map2d), pos(pos_), index(wrapper_spawn_index_) {
+  : game(game_), map2d(game_->map2d), pos(pos_), index(wrapper_spawn_index_), direction(Direction::D) {
+  // initial manipulator position. it looks like the wrapper is facing right (D).
+  //   *
+  // @ *
+  //   *
   manipulators.push_back(Point {1, 0});
   manipulators.push_back(Point {1, 1});
   manipulators.push_back(Point {1, -1});
@@ -24,7 +28,7 @@ Wrapper::Wrapper(Game* game_, Point pos_, int wrapper_spawn_index_)
 
 Action Wrapper::getScaffoldAction() {
   // +1 for next action.
-  return {game->time + 1, time_fast_wheels > 0, time_drill > 0, pos, manipulators};
+  return {game->time + 1, time_fast_wheels > 0, time_drill > 0, pos, direction, manipulators};
 }
 
 void Wrapper::move(char c) {
@@ -85,12 +89,14 @@ void Wrapper::turn(char c) {
   a.command = c;
 
   if (c == Action::CW) {
+    direction = turnCW(direction);
     for (auto& manip : manipulators) {
       auto orig(manip);
       manip.x = orig.y;
       manip.y = -orig.x;
     }
   } else {
+    direction = turnCCW(direction);
     for (auto& manip : manipulators) {
       auto orig(manip);
       manip.x = -orig.y;
@@ -101,6 +107,7 @@ void Wrapper::turn(char c) {
   moveAndPaint(pos, a);
 
   a.new_manipulator_offsets = manipulators;
+  a.new_direction = direction;
   doAction(a);
 }
 
@@ -202,6 +209,7 @@ bool Wrapper::undoAction() {
   actions.pop_back();
   // undo motion
   pos = a.old_position;
+  direction = a.old_direction;
   // undo rotation and manipulator addition
   manipulators = a.old_manipulator_offsets;
   // undo paint

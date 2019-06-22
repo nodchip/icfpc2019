@@ -150,6 +150,14 @@ std::ostream& operator<<(std::ostream& os, const Game& game) {
   os << "Wrappers: " << game.wrappers.size() << "\n";
   for (auto& w : game.wrappers) {
     os << w->index << " : ";
+    os << "Dir[";
+    switch (w->direction) {
+      case Direction::W: os << "↑"; break;
+      case Direction::A: os << "←"; break;
+      case Direction::S: os << "↓"; break;
+      case Direction::D: os << "→"; break;
+    }
+    os << "]";
     if (w->time_fast_wheels > 0) {
       os << " Speedup (" << w->time_fast_wheels << ")\n";
     }

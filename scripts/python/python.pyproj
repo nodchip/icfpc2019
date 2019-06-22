@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>c01736d3-5982-48a1-9be3-088fd811939c</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>compare_engine.py</StartupFile>
+    <StartupFile>lambda_poller.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>C:\msys64\home\nodchip\icfpc2019</WorkingDirectory>
@@ -13,7 +13,7 @@
     <RootNamespace>python</RootNamespace>
     <IsWindowsApplication>False</IsWindowsApplication>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>--solution_base_directory_path solutions --engine_name_file_paths engine_names.txt --output_html_file_path compare_engine.html</CommandLineArguments>
+    <CommandLineArguments>--puzzle_solver_file_path ls --jobs 1 </CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -29,6 +29,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="execute_engines.py" />
+    <Compile Include="lambda_poller.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

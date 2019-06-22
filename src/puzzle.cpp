@@ -5,9 +5,20 @@
 #include <sstream>
 #include <cctype>
 
-bool Puzzle::validateSolution(const Map2D& solution_map) {
+constexpr int BLANK = 0;
+constexpr int IN = 1;
+constexpr int OUT = 2;
+
+bool Puzzle::validateSolution(const Map2D& solution_map) const {
   assert (false);
   return false;
+}
+
+Map2D Puzzle::constraintsToMap() const {
+  Map2D map2d(tSize, tSize, BLANK);
+  for (auto p : iSqs) { assert (map2d.isInside(p)); map2d(p) = IN; }
+  for (auto p : oSqs) { assert (map2d.isInside(p)); map2d(p) = OUT; }
+  return map2d;
 }
 
 namespace {
@@ -66,6 +77,31 @@ Puzzle parsePuzzleCondString(std::string cond_file_str) {
   res.oSqs = ParsePolygon(p);
 
   return res;
+}
+
+std::vector<std::string> dumpPuzzleConstraintMapString(const Map2D& map2d) {
+  std::vector<std::vector<char>> charmap;
+
+  for (int y = 0; y < map2d.H; ++y) {
+    std::vector<char> line(map2d.W, WALL);
+    for (int x = 0; x < map2d.W; ++x) {
+      char c = ' ';
+      if (map2d(x, y) == BLANK) c = '.';
+      if (map2d(x, y) == IN) c = '+';
+      if (map2d(x, y) == OUT) c = '-';
+      line[x] = c;
+    }
+    charmap.push_back(line);
+  }
+
+  std::reverse(charmap.begin(), charmap.end()); // now charmap[0] is the highest y.
+
+  std::vector<std::string> result;
+  for (auto& line : charmap) {
+    result.push_back(std::string(line.begin(), line.end()));
+  }
+  return result;
+
 }
 
 std::ostream& operator<<(std::ostream& os, const Puzzle& puzzle) {

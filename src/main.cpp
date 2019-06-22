@@ -9,6 +9,7 @@
 #include <CLI/CLI.hpp>
 
 #include "game.h"
+#include "puzzle.h"
 #include "solver_registry.h"
 
 int main(int argc, char* argv[]) {
@@ -34,6 +35,17 @@ int main(int argc, char* argv[]) {
   sub_run->add_option("--output", command_output_filename, "output commands to a file");
   sub_run->add_option("--meta", meta_output_filename, "output meta information to a JSON file");
   sub_run->add_option("--wait-ms", solver_param.wait_ms, "display and pause a while between frames");
+
+  std::string cond_filename;
+
+  auto sub_puzzle_convert = app.add_subcommand("puzzle_convert", "read *.cond file and print pmap format");
+  sub_puzzle_convert->add_option("input_cond", cond_filename, "*.cond file input");
+
+  auto sub_puzzle_run = app.add_subcommand("puzzle_run", "solve a puzzle");
+  sub_puzzle_run->add_option("solver", solver_name, "the solver name");
+  sub_puzzle_run->add_option("--cond", cond_filename, "*.cond file input");
+  sub_puzzle_run->add_option("--output", command_output_filename, "output commands to a file");
+  sub_puzzle_run->add_option("--meta", meta_output_filename, "output meta information to a JSON file");
 
   CLI11_PARSE(app, argc, argv);
 
@@ -106,6 +118,27 @@ int main(int argc, char* argv[]) {
     }
     std::cout << "Time step: " << game->time << "\n";
     std::cout << "Elapsed  : " << solve_s << " s\n";
+  }
+
+  // ================== puzzle_convert
+  if (sub_puzzle_convert->parsed()) {
+    assert (std::experimental::filesystem::is_regular_file(cond_filename));
+    std::ifstream ifs(cond_filename);
+    std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+    Puzzle puzzle = parsePuzzleCondString(str);
+    for (auto line : dumpPuzzleConstraintMapString(puzzle.constraintsToMap())) {
+      std::cout << line << std::endl;
+    }
+  }
+
+  // ================== puzzle_run
+  if (sub_puzzle_run->parsed()) {
+    assert (std::experimental::filesystem::is_regular_file(cond_filename));
+    std::ifstream ifs(cond_filename);
+    std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+    Puzzle puzzle = parsePuzzleCondString(str);
+
+    // TODO.
   }
 
   return 0;

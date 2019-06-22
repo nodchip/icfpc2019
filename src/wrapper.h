@@ -32,6 +32,7 @@ struct Wrapper {
   Map2D& map2d;
   Point pos;
   int index;
+  Direction direction;
   std::vector<Action> actions;
   std::vector<Point> manipulators;
 

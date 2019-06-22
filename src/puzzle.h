@@ -39,9 +39,14 @@ struct Puzzle {
       iSqs == rhs.iSqs &&
       oSqs == rhs.oSqs;
   }
-  bool validateSolution(const Map2D& solution_map);
+  bool validateSolution(const Map2D& solution_map) const;
+  Map2D constraintsToMap() const;
 };
 
 Puzzle parsePuzzleCondString(std::string cond_file_str);
+
+// dump constraints map for display. the first row corresponds to the highest y.
+// do not contain line terminator at the end of lines.
+std::vector<std::string> dumpPuzzleConstraintMapString(const Map2D& map2d);
 
 std::ostream& operator<<(std::ostream&, const Puzzle&);
