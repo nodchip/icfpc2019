@@ -11,14 +11,9 @@ std::ostream &operator<<(std::ostream &os, const Direction &d) {
 }
 
 std::ostream &operator<<(std::ostream &os, const Trajectory &traj) {
-  os << "from : (" << traj.from.x << "," << traj.from.y << ") ";
-  os << "to : (" << traj.to.x << "," << traj.to.y << ") ";
+  os << "pos : (" << traj.pos.x << "," << traj.pos.y << ") ";
   os << "dist : " << traj.distance << " ";
-  os << "path : [";
-  for (auto p : traj.path) {
-    os << p << ",";
-  }
-  os << "]";
+  os << "last_move : "<<traj.last_move;
   return os;
 }
 

@@ -6,11 +6,12 @@
 #include "wrapper.h"
 #include "solver_registry.h"
 
-std::string simpleSolver(std::shared_ptr<Game> game) {
+std::string simpleSolver(SolverParam param, std::shared_ptr<Game> game) {
   for (auto wrapper : game->wrappers) {
     wrapper->move(Action::UP);
   }
   game->tick();
+  displayAndWait(param, game);
   return game->getCommand();
 }
 

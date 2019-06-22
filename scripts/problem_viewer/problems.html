@@ -1,0 +1,64 @@
+<html>
+<header>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.css">
+    <script
+        src="https://code.jquery.com/jquery-2.2.4.min.js"
+        integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+        crossorigin="anonymous"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.js"></script>
+    <style>
+    img { width: 80px; height: 80px; }
+    </style>
+    <title>ICFPC2019 problems</title>
+</header>
+<body>
+
+<table id="myTable"></div>
+<thead>
+    <td>Image</td>
+    <td>Name</td>
+    <td>W</td>
+    <td>H</td>
+    <td>W*H</td>
+    <td>Area</td>
+    <td>#</td>
+    <td>X</td>
+    <td>B</td>
+    <td>L</td>
+    <td>F</td>
+    <td>R</td>
+    <td>C</td>
+</thead>
+<script>
+$(document).ready(function () {
+    $.getJSON("problems_info.json", function (data) {
+        $('#myTable').DataTable({
+            "pageLength": 30,
+            "data": data[0],
+            "columns": [
+                {
+                    "render": function (data, type, JsonResultRow, meta) {
+                        return '<a href="/image/' + data + '" target="_blank"><img src="/image/' + data + '"></a>';
+                    }
+                },
+                { "orderable": true },
+                { "orderable": true },
+                { "orderable": true },
+                { "orderable": true },
+                { "orderable": true },
+                { "orderable": true },
+                { "orderable": true },
+                { "orderable": true },
+                { "orderable": true },
+                { "orderable": true },
+                { "orderable": true },
+                { "orderable": true },
+            ],
+        });
+    });
+});
+</script>
+
+</body>
+</html>
