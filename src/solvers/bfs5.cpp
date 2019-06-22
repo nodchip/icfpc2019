@@ -12,8 +12,10 @@ struct WrapperEngine {
     if (m_game->num_boosters[BoosterType::MANIPULATOR] > 0) {
       if (m_num_manipulators % 2 == 0) {
         m_wrapper->addManipulate(Point(1, 2 + m_num_manipulators / 2));
+        cout << m_id << ": " << m_num_manipulators << ", " << Point(1, 2 + m_num_manipulators / 2) << endl;
       } else {
         m_wrapper->addManipulate(Point(1, - 2 - m_num_manipulators / 2));
+        cout << m_id << ": " << m_num_manipulators << ", " << Point(1, - 2 - m_num_manipulators / 2) << endl;
       }
       m_num_manipulators++;
     } else if (((m_game->map2d(m_wrapper->pos) & CellType::kSpawnPointBit) != 0) && m_game->num_boosters[BoosterType::CLONING]) {
@@ -40,16 +42,18 @@ std::string bfs5Solver(SolverParam param, Game* game) {
   vector<WrapperEngine> ws;
   ws.emplace_back(WrapperEngine(game, 0));
   while (game->countUnWrapped() != 0) {
-    for (int i = 0; i < ws.size(); ++i) {
-      auto w = ws[i];
+    vector<int> cloned;
+    for (auto &w : ws) {
       auto wc = w.action();
       if (wc != NULL) {
-        ws.emplace_back(WrapperEngine(game, num_wrappers));
-        ++num_wrappers;
+        cloned.emplace_back(num_wrappers);
       }
     }
     game->tick();
     displayAndWait(param, game);
+    for (auto id : cloned) {
+      ws.emplace_back(game, id);
+    }
   }
   return game->getCommand();
 }
