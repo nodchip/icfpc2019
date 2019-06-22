@@ -10,6 +10,7 @@
 
 #include "game.h"
 #include "puzzle.h"
+#include "fill_polygon.h"
 #include "solver_registry.h"
 
 int main(int argc, char* argv[]) {
@@ -138,7 +139,44 @@ int main(int argc, char* argv[]) {
     std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
     Puzzle puzzle = parsePuzzleCondString(str);
 
-    // TODO.
+    // TODO: inside room: 1, wall: 0
+    // use solver_name to select a solver.
+    const auto t0 = std::chrono::system_clock::now();
+    constexpr int R = 1;
+    Map2D map2d(3, 3, {
+      0, 0, R,
+      0, R, R,
+      0, 0, R,
+    });
+    const auto t1 = std::chrono::system_clock::now();
+    const double solve_s = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count() * 1e-6;
+
+    Polygon fine_polygon;
+    assert (parsePolygon(fine_polygon, map2d, R));
+
+    Polygon simple_polygon = simplifyPolygon(fine_polygon);
+
+    // TODO: validation.
+
+    // output
+    if (!command_output_filename.empty()) {
+      std::ofstream ofs(command_output_filename);
+      for (auto p : simple_polygon) {
+        ofs << p;
+      }
+    } else {
+      for (auto p : simple_polygon) {
+        std::cout << p;
+      }
+      std::cout << std::endl;
+    }
+
+    // meta information output
+    if (!meta_output_filename.empty()) {
+      std::ofstream ofs(meta_output_filename);
+      ofs << "{\"name\":\"" << solver_name
+          << "\",\"wall_clock_time\":" << solve_s << "}\n";
+    }
   }
 
   return 0;
