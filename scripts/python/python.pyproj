@@ -7,10 +7,14 @@
     <StartupFile>execute_engines.py</StartupFile>
     <SearchPath>
     </SearchPath>
-    <WorkingDirectory>.</WorkingDirectory>
+    <WorkingDirectory>C:\msys64\home\nodchip\icfpc2019</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>python</Name>
     <RootNamespace>python</RootNamespace>
+    <IsWindowsApplication>False</IsWindowsApplication>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <CommandLineArguments>--description_directory_path dataset/problems --solution_directory_path solutions/simple --best_solution_directory_path best_solutions --engine_file_path src/solver --jobs 4 --solver_name simple</CommandLineArguments>
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
