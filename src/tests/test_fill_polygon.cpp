@@ -121,3 +121,13 @@ TEST(fill_polygon, parsePolygon) {
         std::cout << p;
     }
 }
+
+TEST(fill_polygon, simplifyPolygon) {
+    Polygon input = {
+        {0, 0}, {1, 0}, {2, 0}, {2, 1}, {2, 2}, {1, 2}, {0, 2}, {0, 1},
+    };
+    Polygon simplified = simplifyPolygon(input);
+    for (auto p : simplified) {
+        std::cout << p;
+    }
+}

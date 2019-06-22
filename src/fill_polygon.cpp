@@ -25,6 +25,10 @@ std::vector<VerticalLine> enumerateIntersectionsToHorizontalLine(int line_y, con
     }
     return res;
 }
+
+bool pointsOnAxisAlignedLine(Point p0, Point p1, Point p2) {
+    return (p0.x == p1.x && p1.x == p2.x) || (p0.y == p1.y && p1.y == p2.y);
+}
 }
 
 // scan-line method
@@ -99,4 +103,23 @@ bool parsePolygon(Polygon& polygon, const Map2D& map, int value) {
         }
     }
     return false; // no pixel found.
+}
+
+Polygon simplifyPolygon(Polygon& polygon) {
+    if (polygon.size() < 2) return polygon;
+
+    Polygon result = {polygon[0], polygon[1]};
+    for (int i = 2; i <= polygon.size(); ++i) {
+        int idx = i % polygon.size();
+        // [fixed]-------------[testing]----[current]
+        if (detail::pointsOnAxisAlignedLine(result[result.size() - 2], result.back(), polygon[idx])) {
+            // remove testing and add current.
+            result.back() = polygon[i];
+        } else {
+            result.push_back(polygon[i]);
+        }
+    }
+    result.pop_back(); // duplicated last point.
+
+    return result;
 }
