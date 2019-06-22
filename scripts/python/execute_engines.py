@@ -6,6 +6,7 @@ import os
 import re
 import shutil
 import subprocess
+import multiprocessing
 
 
 Result = collections.namedtuple('Result', ('problem_name', 'new_time', 'best_time'))
@@ -77,14 +78,19 @@ def execute(problem_name, args):
 def main():
     parser = argparse.ArgumentParser(description='Executes engines.')
     parser.add_argument('--description_directory_path',
-                        help='Directory path containing input task descriptions.')
+                        help='Directory path containing input task descriptions.',
+                        default='dataset/problems')
     parser.add_argument('--solution_directory_path',
-                        help='Parent directory path containing output solutions.')
+                        help='Parent directory path containing output solutions.',
+                        required=True)
     parser.add_argument('--best_solution_directory_path',
-                        help='Directory path containing best output solutions.')
-    parser.add_argument('--engine_file_path', help='File path of the engine.')
-    parser.add_argument('--jobs', type=int, help='Number of jobs,')
-    parser.add_argument('--solver_name', help='Solver name.')
+                        help='Directory path containing best output solutions.',
+                        default='best_solutions')
+    parser.add_argument('--engine_file_path', help='File path of the engine.',
+                        default='src/solver')
+    parser.add_argument('--jobs', type=int, help='Number of jobs,',
+                        default=multiprocessing.cpu_count())
+    parser.add_argument('--solver_name', help='Solver name.', required=True)
     args = parser.parse_args()
 
     os.makedirs(args.description_directory_path, exist_ok=True)
