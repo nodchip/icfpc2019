@@ -19,7 +19,7 @@ struct WrapperEngine {
       }
       m_num_manipulators++;
     } else if (((m_game->map2d(w->pos) & CellType::kSpawnPointBit) != 0) && m_game->num_boosters[BoosterType::CLONING]) {
-//      cout << m_id << ": clone: " << w->pos << endl;
+//      cout << m_id << ": clone: " << w->pos << ": " << m_game->num_boosters[BoosterType::CLONING] << endl;
       return w->cloneWrapper();
     } else {
     // dist1 check
@@ -56,15 +56,17 @@ struct WrapperEngine {
       if(p_max > 10) {
         const char c = Direction2Char(d_max);
         w->move(c);
+//        cout << m_id << ": move undo: " << w->pos << ": " << c << endl;
       } else {
         const std::vector<Trajectory> trajs = map_parse::findNearestUnwrapped(*m_game, w->pos, DISTANCE_INF);
         if (trajs.size() == 0) {
           w->nop();
+//          cout << m_id << ": nop:" << endl;
           return NULL;
         }
         const char c = Direction2Char(trajs[0].last_move);
         w->move(c);
-//      cout << m_id << ": move: " << c << endl;
+//        cout << m_id << ": move: " << w->pos << ": " << c << endl;
       }
     }
     return NULL;
