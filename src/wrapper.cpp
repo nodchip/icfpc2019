@@ -137,7 +137,7 @@ void Wrapper::moveAndPaint(Point p, Action& a) {
   assert (map2d.isInside(p));
 
   pos = p;
-  game->paint(*this, &a);
+  game->paintAndPick(*this, &a);
 }
 
 void Wrapper::useBooster(char c) {

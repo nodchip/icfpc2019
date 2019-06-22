@@ -25,7 +25,7 @@ Game::Game(const std::string& task) : Game() {
   map2d = parsed.map2d;
 
   auto w = std::make_shared<Wrapper>(this, parsed.wrappy, 0);
-  paint(*w, nullptr);
+  paintAndPick(*w, nullptr);
   wrappers.push_back(w);
 }
 
@@ -34,7 +34,7 @@ Game::Game(const std::vector<std::string>& mp) : Game() {
   map2d = parsed.map2d;
 
   auto w = std::make_shared<Wrapper>(this, parsed.wrappy, 0);
-  paint(*w, nullptr);
+  paintAndPick(*w, nullptr);
   wrappers.push_back(w);
 }
 
@@ -49,11 +49,11 @@ bool Game::tick() {
 }
 
 
-void Game::paint(const Wrapper& w, Action* a_optional) {
+void Game::paintAndPick(const Wrapper& w, Action* a_optional) {
   auto p = w.pos;
   assert (map2d.isInside(p));
 
-  // paint & move
+  // paint
   if ((map2d(p) & CellType::kWrappedBit) == 0) {
     map2d(p) |= CellType::kWrappedBit;
     if (a_optional) a_optional->absolute_new_wrapped_positions.push_back(p);

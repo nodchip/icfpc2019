@@ -21,7 +21,7 @@ struct Game {
   int nextWrapperIndex() const { return wrappers.size(); }
   std::vector<Point> getWrapperPositions() const;
 
-  void paint(const Wrapper& w, Action* a_optional); // helper func used by Wrapper
+  void paintAndPick(const Wrapper& w, Action* a_optional); // helper func used by Wrapper
 
   // State of Game
   int time = 0;
