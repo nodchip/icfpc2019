@@ -17,7 +17,7 @@ TEST(actions, Game_test_actions) {
   constexpr int R = CellType::kBoosterTeleportBit;
   constexpr int X = CellType::kBoosterUnknownXBit;
   Map2D ground_truth(10, 10, {
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
     B, B, 0, 0, 0, 0, 0, 0, 0, 0,
     F, F, 0, 0, W, W, 0, 0, 0, 0,
     L, 0, 0, 0, W, W, 0, 0, 0, 0,
@@ -32,24 +32,25 @@ TEST(actions, Game_test_actions) {
   std::cout << ground_truth << std::endl;
   EXPECT_EQ(game.map2d, ground_truth);
 
-  game.move(Game::UP);
-  game.move(Game::UP); // B
-  game.move(Game::UP); // F
-  game.move(Game::UP); // L
-  game.move(Game::UP);
-  game.move(Game::UP);
-  game.move(Game::UP);
-  game.move(Game::UP);
-  game.move(Game::UP); // on X
-  game.move(Game::RIGHT);
-  game.move(Game::RIGHT);
-  game.move(Game::RIGHT);
-  game.move(Game::DOWN);
-  game.turn(Game::CW);
-  game.turn(Game::CCW);
-  game.addManipulate({-2, -2});
-  game.useBooster(Game::FAST);
-  game.useBooster(Game::DRILL);
+  auto wrapper = game.wrappers[0];
+  wrapper->move(Wrapper::UP);
+  wrapper->move(Wrapper::UP); // B
+  wrapper->move(Wrapper::UP); // F
+  wrapper->move(Wrapper::UP); // L
+  wrapper->move(Wrapper::UP);
+  wrapper->move(Wrapper::UP);
+  wrapper->move(Wrapper::UP);
+  wrapper->move(Wrapper::UP);
+  wrapper->move(Wrapper::UP); // on X
+  wrapper->move(Wrapper::RIGHT);
+  wrapper->move(Wrapper::RIGHT);
+  wrapper->move(Wrapper::RIGHT);
+  wrapper->move(Wrapper::DOWN);
+  wrapper->turn(Wrapper::CW);
+  wrapper->turn(Wrapper::CCW);
+  wrapper->addManipulate({-2, -2});
+  wrapper->useBooster(Wrapper::FAST);
+  wrapper->useBooster(Wrapper::DRILL);
 
   //std::cout << game.map2d << std::endl;
   //std::cout << game.map2d.W << "x" << game.map2d.H << std::endl;

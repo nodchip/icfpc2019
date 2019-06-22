@@ -162,7 +162,7 @@ ParsedMap parseMapString(std::vector<std::string> map_strings_top_to_bottom) {
   return map;
 }
 
-std::vector<std::string> dumpMapString(const Map2D& map2d, Point wrappy) {
+std::vector<std::string> dumpMapString(const Map2D& map2d, std::vector<Point> wrappy_list) {
   std::vector<std::vector<char>> charmap;
 
   for (int y = 0; y < map2d.H; ++y) {
@@ -181,8 +181,10 @@ std::vector<std::string> dumpMapString(const Map2D& map2d, Point wrappy) {
     }
     charmap.push_back(line);
   }
-  if (map2d.isInside(wrappy)) {
-    charmap[wrappy.y][wrappy.x] = WRAPPY;
+  for (auto& wrappy: wrappy_list) {
+    if (map2d.isInside(wrappy)) {
+      charmap[wrappy.y][wrappy.x] = WRAPPY;
+    }
   }
 
   std::reverse(charmap.begin(), charmap.end()); // now charmap[0] is the highest y.
@@ -196,7 +198,7 @@ std::vector<std::string> dumpMapString(const Map2D& map2d, Point wrappy) {
 }
 
 std::ostream& operator<<(std::ostream& os, const Map2D& map) {
-  for (auto line : dumpMapString(map, {-1, -1})) {
+  for (auto line : dumpMapString(map, {})) {
     os << line << std::endl;
   }
   return os;

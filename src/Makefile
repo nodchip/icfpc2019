@@ -8,7 +8,7 @@ CXXFLAGS+=-pg
 
 LDFLAGS=-lstdc++fs
 
-SRCS=base.cpp game_map.cpp game.cpp solver_registry.cpp map_parse.cpp manipulator_reach.cpp fill_polygon.cpp trajectory.cpp
+SRCS=base.cpp game_map.cpp wrapper.cpp game.cpp solver_registry.cpp map_parse.cpp manipulator_reach.cpp fill_polygon.cpp trajectory.cpp
 OBJS=$(SRCS:%.cpp=$(BUILD_PATH)/%.o)
 
 SOLVER_SRCS=$(wildcard solvers/*.cpp)
