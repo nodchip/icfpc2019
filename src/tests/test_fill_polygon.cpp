@@ -96,3 +96,28 @@ TEST(fill_polygon, fillPolygon_concave) {
 
     //std::cout << map << std::endl;
 }
+
+TEST(fill_polygon, parsePolygon) {
+    Map2D simple0(3, 3, {
+        1, 1, 1,
+        1, 1, 1,
+        1, 1, 1,
+    });
+    Polygon polygon0;
+    EXPECT_TRUE(parsePolygon(polygon0, simple0, 1));
+    for (auto p : polygon0) {
+        std::cout << p;
+    }
+
+
+    Map2D simple1(3, 3, {
+        2, 2, 2,
+        2, 0, 0,
+        2, 2, 0,
+    });
+    Polygon polygon1;
+    EXPECT_TRUE(parsePolygon(polygon1, simple1, 2));
+    for (auto p : polygon1) {
+        std::cout << p;
+    }
+}
