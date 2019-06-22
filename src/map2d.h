@@ -26,7 +26,7 @@ static const char BOOSTER_DRILL = 'L';
 static const char BOOSTER_TELEPORT = 'R';
 static const char BOOSTER_CLONING = 'C';
 static const char WALL = '#';
-static const char UNKNOWN = 'X';
+static const char SPAWN_POINT = 'X';
 
 struct Map2D {
     using T = int;

@@ -17,7 +17,7 @@ namespace CellType {
   static constexpr int kBoosterManipulatorBit = 1 << 2; // B
   static constexpr int kBoosterFastWheelBit = 1 << 3; // F
   static constexpr int kBoosterDrillBit = 1 << 4; // L
-  static constexpr int kBoosterUnknownXBit = 1 << 5; // X
+  static constexpr int kSpawnPointBit = 1 << 5; // X
   static constexpr int kBoosterTeleportBit = 1 << 6; // R
   static constexpr int kBoosterCloningBit = 1 << 7; // C
   static constexpr int kTeleportTargetBit = 1 << 8; // installed teleport target

@@ -175,7 +175,7 @@ std::shared_ptr<Wrapper> Wrapper::cloneWrapper() {
   a.command = "C";
   a.use_booster[BoosterType::CLONING] += 1;
 
-  assert ((game->map2d(pos) & CellType::kBoosterUnknownXBit) != 0);
+  assert ((game->map2d(pos) & CellType::kSpawnPointBit) != 0);
   auto spawned = std::make_shared<Wrapper>(game, pos, game->nextWrapperIndex());
   a.spawned_index = spawned->index;
   game->wrappers.push_back(spawned);

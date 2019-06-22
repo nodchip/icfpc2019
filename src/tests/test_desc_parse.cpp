@@ -15,8 +15,8 @@ TEST(desc_parse, Game_parse_desc) {
   constexpr int B = CellType::kBoosterManipulatorBit;
   constexpr int F = CellType::kBoosterFastWheelBit;
   constexpr int L = CellType::kBoosterDrillBit;
-  constexpr int R = CellType::kBoosterTeleportBit;
-  constexpr int X = CellType::kBoosterUnknownXBit;
+  //constexpr int R = CellType::kBoosterTeleportBit;
+  constexpr int X = CellType::kSpawnPointBit;
   Map2D ground_truth(10, 10, {
     P, P, 0, 0, 0, 0, 0, 0, 0, 0,
     B, B|P, 0, 0, 0, 0, 0, 0, 0, 0,

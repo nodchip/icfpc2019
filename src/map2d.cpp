@@ -104,8 +104,8 @@ ParsedMap parseDescString(std::string desc_string) {
       case BOOSTER_CLONING:
         map.map2d(booster.second) |= CellType::kBoosterCloningBit;
         break;
-      case UNKNOWN:
-        map.map2d(booster.second) |= CellType::kBoosterUnknownXBit;
+      case SPAWN_POINT:
+        map.map2d(booster.second) |= CellType::kSpawnPointBit;
         break;
     }
   }
@@ -149,8 +149,8 @@ ParsedMap parseMapString(std::vector<std::string> map_strings_top_to_bottom) {
         case WALL:
           map.map2d(x, y) = CellType::kObstacleBit;
           break;
-        case UNKNOWN:
-          map.map2d(x, y) = CellType::kBoosterUnknownXBit;
+        case SPAWN_POINT:
+          map.map2d(x, y) = CellType::kSpawnPointBit;
           break;
         default:
           assert(false);
@@ -174,7 +174,7 @@ std::vector<std::string> dumpMapString(const Map2D& map2d, std::vector<Point> wr
       if (map2d(x, y) & CellType::kBoosterFastWheelBit) { c = BOOSTER_FAST_WHEEL; }
       if (map2d(x, y) & CellType::kBoosterDrillBit) { c = BOOSTER_DRILL; }
       if (map2d(x, y) & CellType::kBoosterCloningBit) { c = BOOSTER_CLONING; }
-      if (map2d(x, y) & CellType::kBoosterUnknownXBit) { c = UNKNOWN; }
+      if (map2d(x, y) & CellType::kSpawnPointBit) { c = SPAWN_POINT; }
       if (map2d(x, y) & CellType::kBoosterTeleportBit) { c = BOOSTER_TELEPORT; }
       if (map2d(x, y) & CellType::kObstacleBit) { c = WALL; } // highest priority
       line[x] = c;
