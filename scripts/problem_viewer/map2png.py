@@ -58,7 +58,7 @@ def main(patterns=[REPO_ROOT_DIR / 'dataset/problems/*.map']):
             plt.close(fig)
             metainfo.append(
                 [f.with_suffix('.png').name, f.name]
-                + [m.shape[1], m.shape[2], m.size]
+                + [m.shape[1], m.shape[0], m.shape[0] * m.shape[1]]
                 + [counts['.'] + counts['#']] + [counts[k] for k in '#XBLFRC']
             )
 
