@@ -24,6 +24,7 @@ struct WrapperEngine {
     } else {
       const std::vector<Trajectory> trajs = map_parse::findNearestUnwrapped(*m_game, m_wrapper->pos, DISTANCE_INF);
       if (trajs.size() == 0) {
+        m_wrapper->nop();
         return NULL;
       }
       const char c = Direction2Char(trajs[0].last_move);
