@@ -27,7 +27,7 @@ TEST(fill_polygon, Map_equivalence) {
     EXPECT_NE(map0, map3);
 }
 
-TEST(fill_polygon, FillPolygon_full) {
+TEST(fill_polygon, fillPolygon_full) {
     Polygon polygon = {
         {0, 0},
         {4, 0},
@@ -36,7 +36,7 @@ TEST(fill_polygon, FillPolygon_full) {
     };
     
     Map2D map(4, 4);
-    EXPECT_TRUE(FillPolygon(map, polygon, 1));
+    EXPECT_TRUE(fillPolygon(map, polygon, 1));
 
     Map2D ground_truth(4, 4, {
         1, 1, 1, 1,
@@ -49,7 +49,7 @@ TEST(fill_polygon, FillPolygon_full) {
     //std::cout << map << std::endl;
 }
 
-TEST(fill_polygon, FillPolygon_rect) {
+TEST(fill_polygon, fillPolygon_rect) {
     Polygon polygon = {
         { 2,  1},
         { 9,  1},
@@ -58,7 +58,7 @@ TEST(fill_polygon, FillPolygon_rect) {
     };
     
     Map2D map(10, 10);
-    EXPECT_TRUE(FillPolygon(map, polygon, 1));
+    EXPECT_TRUE(fillPolygon(map, polygon, 1));
 
     Map2D ground_truth(10, 10, {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -77,13 +77,13 @@ TEST(fill_polygon, FillPolygon_rect) {
     //std::cout << map << std::endl;
 }
 
-TEST(fill_polygon, FillPolygon_concave) {
+TEST(fill_polygon, fillPolygon_concave) {
     Polygon polygon = {
         {1, 1}, {4, 1}, {4, 3}, {3, 3}, {3, 2}, {2, 2}, {2, 4}, {1, 4}
     };
     
     Map2D map(5, 5);
-    EXPECT_TRUE(FillPolygon(map, polygon, 2));
+    EXPECT_TRUE(fillPolygon(map, polygon, 2));
 
     Map2D ground_truth(5, 5, {
         0, 0, 0, 0, 0,

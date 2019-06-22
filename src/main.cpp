@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
     assert (std::experimental::filesystem::is_regular_file(desc_filename));
     std::ifstream ifs(desc_filename);
     std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
-    std::shared_ptr<Game> game = std::make_shared<Game>(str);
+    Game::Ptr game = std::make_shared<Game>(str);
 
     for (auto line : dumpMapString(game->map2d, game->getWrapperPositions())) {
       std::cout << line << std::endl;
@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
 
   // ================== run
   if (sub_run->parsed()) {
-    std::shared_ptr<Game> game; 
+    Game::Ptr game; 
     if (std::experimental::filesystem::is_regular_file(desc_filename)) {
       std::ifstream ifs(desc_filename);
       std::string str((std::istreambuf_iterator<char>(ifs)),

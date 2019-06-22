@@ -13,8 +13,8 @@ struct VerticalLine {
     int y0 = 0;
     int y1 = 0;
 };
-std::vector<VerticalLine> EnumerateIntersectionsToHorizontalLine(int line_y, const Polygon& polygon);
+std::vector<VerticalLine> enumerateIntersectionsToHorizontalLine(int line_y, const Polygon& polygon);
 }
 
 // set map[y][x] := value inside the polygon = [(x0, y1), ..]
-bool FillPolygon(Map2D& map, const Polygon& polygon, int value);
+bool fillPolygon(Map2D& map, const Polygon& polygon, int value);

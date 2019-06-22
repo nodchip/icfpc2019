@@ -5,7 +5,7 @@
 
 namespace detail {
 // O(N)
-std::vector<VerticalLine> EnumerateIntersectionsToHorizontalLine(int line_y, const Polygon& polygon) {
+std::vector<VerticalLine> enumerateIntersectionsToHorizontalLine(int line_y, const Polygon& polygon) {
     std::vector<VerticalLine> res;
     for (size_t i = 0; i < polygon.size(); ++i) {
         const size_t j = (i + polygon.size() + 1) % polygon.size();
@@ -27,10 +27,10 @@ std::vector<VerticalLine> EnumerateIntersectionsToHorizontalLine(int line_y, con
 }
 
 // scan-line method
-bool FillPolygon(Map2D& map, const Polygon& polygon, int value) {
+bool fillPolygon(Map2D& map, const Polygon& polygon, int value) {
     using namespace detail;
     for (int y = 0; y < map.H; ++y) {
-        auto intersections = EnumerateIntersectionsToHorizontalLine(y, polygon);
+        auto intersections = enumerateIntersectionsToHorizontalLine(y, polygon);
         std::sort(intersections.begin(), intersections.end(), [](const VerticalLine& lhs, const VerticalLine& rhs) {
             return lhs.x < rhs.x;
         });

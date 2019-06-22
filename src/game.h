@@ -46,7 +46,6 @@ struct Game {
 
 private:
   Game();
-  Action getScaffoldAction();
 };
 
 // Outputs game status
