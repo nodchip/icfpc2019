@@ -9,9 +9,9 @@ struct SolverParam {
   int wait_ms = 0;
 };
 
-void displayAndWait(SolverParam param, std::shared_ptr<Game> game);
+void displayAndWait(SolverParam param, Game::Ptr game);
 
-using SolverFunction = std::function<std::string(SolverParam, std::shared_ptr<Game>)>;
+using SolverFunction = std::function<std::string(SolverParam, Game::Ptr)>;
 
 #define REGISTER_SOLVER(name, func) \
   static SolverRegistry _register_solver_##__COUNT__ = {name, {__FILE__, func}}

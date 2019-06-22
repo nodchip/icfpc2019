@@ -4,7 +4,7 @@
 #include "map_parse.h"
 #include "solver_registry.h"
 
-std::string bfsSolver(SolverParam param, std::shared_ptr<Game> game) {
+std::string bfsSolver(SolverParam param, Game::Ptr game) {
   while (true) {
     auto w = game->wrappers[0];
     const Trajectory traj = map_parse::findNearestUnwrapped(*game, w->pos, DISTANCE_INF);
