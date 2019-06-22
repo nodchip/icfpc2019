@@ -13,6 +13,14 @@ struct Point {
     int x = 0;
     int y = 0;
     Point() = default;
+    explicit Point(Direction dir) {
+        switch (dir) {
+            case Direction::W: y = +1; break;
+            case Direction::A: x = -1; break;
+            case Direction::S: y = -1; break;
+            case Direction::D: x = +1; break;
+        }
+    }
     Point(int x_, int y_) : x(x_), y(y_) {}
     bool operator==(const Point& rhs) const { return x == rhs.x && y == rhs.y; }
     bool operator!=(const Point& rhs) const { return !operator==(rhs); }
