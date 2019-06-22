@@ -59,8 +59,13 @@ void Wrapper::move(char c) {
     else if (p.y >= map2d.H)
       p.y = map2d.H - 1;
 
-    if (map2d.isInside(p) && (map2d(p) & CellType::kObstacleBit) == 0) {
-      moveAndPaint(p, a);
+    if (map2d.isInside(p)) {
+      if ((map2d(p) & CellType::kObstacleBit) == 0) {
+        moveAndPaint(p, a);
+      } else if (time_drill > 0) {
+        map2d(p) &= ~CellType::kObstacleBit;
+        moveAndPaint(p, a);
+      }
     }
   }
 
