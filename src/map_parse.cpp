@@ -114,6 +114,7 @@ std::vector<Trajectory> findTrajectory(const Game &game, const Point &from, cons
 }
 
 std::vector<Trajectory> findNearestUnwrapped(const Game &game, const Point& from, const int max_dist) {
+  static constexpr int kMask = CellType::kObstacleBit | CellType::kWrappedBit;
   int nearest = DISTANCE_INF;
   Point nearest_point = {-1, -1};
 
@@ -122,7 +123,7 @@ std::vector<Trajectory> findNearestUnwrapped(const Game &game, const Point& from
       [&](Trajectory& traj_new, Trajectory& traj_orig) {
         if (traj_new < traj_orig) {
           traj_orig = traj_new;
-          if (game.map2d(traj_new.pos.x, traj_new.pos.y) == CellType::kEmpty &&
+          if ((game.map2d(traj_new.pos.x, traj_new.pos.y) & kMask) == 0 &&
               traj_new.distance < nearest) {
             nearest_point = traj_new.pos;
             nearest = traj_new.distance;
