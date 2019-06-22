@@ -15,6 +15,7 @@ struct Trajectory {
   Point from;                  // 元いた場所
   Point to;                    // 行き先
   int distance = DISTANCE_INF; // 距離
+  int eval = DISTANCE_INF; // 評価値(低いほどよい)
   bool use_drill = false;
   std::vector<Direction> path; // 最短で到達できるtraj
 };
