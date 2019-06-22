@@ -13,6 +13,7 @@ struct Point {
     bool operator!=(const Point& rhs) const { return !operator==(rhs); }
     Point operator+(const Point& rhs) const { return Point(x + rhs.x, y + rhs.y); }
     Point operator-(const Point& rhs) const { return Point(x - rhs.x, y - rhs.y); }
+    int length2() const { return x * x + y * y; }
 };
 std::ostream& operator<<(std::ostream&, const Point&);
 
