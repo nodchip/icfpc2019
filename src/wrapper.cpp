@@ -184,9 +184,10 @@ Wrapper* Wrapper::cloneWrapper() {
   a.use_booster[BoosterType::CLONING] += 1;
 
   assert ((game->map2d(pos) & CellType::kSpawnPointBit) != 0);
-  game->wrappers.emplace_back(new Wrapper(game, pos, game->nextWrapperIndex()));
-  Wrapper* spawned = game->wrappers.back().get();
+  std::unique_ptr<Wrapper> new_wrapper(new Wrapper(game, pos, game->nextWrapperIndex())); 
+  Wrapper* spawned = new_wrapper.get();
   a.spawned_index = spawned->index;
+  game->addClonedWrapperForNextFrame(std::move(new_wrapper));
 
   doAction(a);
   return spawned;

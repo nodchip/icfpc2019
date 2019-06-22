@@ -45,6 +45,11 @@ bool Game::tick() {
     assert (wrapper->actions.back().timestamp == time + 1);
   }
   ++time;
+  // add new wrappers.
+  for (auto&& w : next_wrappers) {
+    wrappers.push_back(std::move(w));
+  }
+  next_wrappers.clear();
   return true;
 }
 
@@ -134,6 +139,10 @@ std::vector<Point> Game::getWrapperPositions() const {
     wrapper_positions.push_back(w->pos);
   }
   return wrapper_positions;
+}
+
+void Game::addClonedWrapperForNextFrame(std::unique_ptr<Wrapper> wrapper) { 
+  next_wrappers.push_back(std::move(wrapper));
 }
 
 std::ostream& operator<<(std::ostream& os, const Game& game) {

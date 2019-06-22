@@ -28,6 +28,7 @@ struct Game {
   std::string getCommand() const; // extended solution command.
 
   int nextWrapperIndex() const { return wrappers.size(); }
+  void addClonedWrapperForNextFrame(std::unique_ptr<Wrapper> wrapper); // this wrapper will be available after tick()
   std::vector<Point> getWrapperPositions() const;
 
   void paintAndPick(const Wrapper& w, Action* a_optional); // helper func used by Wrapper
@@ -46,6 +47,7 @@ struct Game {
 
 private:
   Game();
+  std::vector<std::unique_ptr<Wrapper>> next_wrappers;
 };
 
 // Outputs game status
