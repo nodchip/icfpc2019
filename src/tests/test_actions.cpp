@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <iostream>
 #include "action.h"
+#include "booster.h"
 #include "base.h"
 #include "game.h"
 
@@ -11,7 +11,7 @@ TEST(ActionTest, AffectsOnGame) {
 
   auto wrapper = game.wrappers[0];
   wrapper->move(Action::UP); game.tick();
-  EXPECT_EQ(1, game.num_manipulators);
+  EXPECT_EQ(1, game.num_boosters[BoosterType::MANIPULATOR]);
 
   EXPECT_TRUE((game.map2d(0, 2) & CellType::kWrappedBit) == 0);
   wrapper->turn(Action::CCW); game.tick();
@@ -19,10 +19,10 @@ TEST(ActionTest, AffectsOnGame) {
   wrapper->turn(Action::CW); game.tick();
 
   wrapper->move(Action::UP); game.tick();
-  EXPECT_EQ(1, game.fast_wheels);
+  EXPECT_EQ(1, game.num_boosters[BoosterType::FAST_WHEEL]);
 
   wrapper->move(Action::UP); game.tick();
-  EXPECT_EQ(1, game.drills);
+  EXPECT_EQ(1, game.num_boosters[BoosterType::DRILL]);
 
   wrapper->move(Action::UP); game.tick();
   wrapper->move(Action::UP); game.tick();
@@ -42,9 +42,9 @@ TEST(ActionTest, AffectsOnGame) {
 
   // TODO: Is {-2,-2} impossible?
   wrapper->addManipulate({-2, -2}); game.tick();
-  EXPECT_EQ(0, game.num_manipulators);
+  EXPECT_EQ(0, game.num_boosters[BoosterType::MANIPULATOR]);
   wrapper->useBooster(Action::FAST); game.tick();
-  EXPECT_EQ(0, game.fast_wheels);
+  EXPECT_EQ(0, game.num_boosters[BoosterType::FAST_WHEEL]);
   wrapper->useBooster(Action::DRILL); game.tick();
-  EXPECT_EQ(0, game.drills);
+  EXPECT_EQ(0, game.num_boosters[BoosterType::DRILL]);
 }
