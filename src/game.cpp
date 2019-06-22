@@ -48,7 +48,6 @@ bool Game::tick() {
   return true;
 }
 
-
 void Game::paintAndPick(const Wrapper& w, Action* a_optional) {
   auto p = w.pos;
   assert (map2d.isInside(p));
@@ -82,10 +81,17 @@ void Game::paintAndPick(const Wrapper& w, Action* a_optional) {
 }
 
 bool Game::undo() {
+  if (time <= 0) return false;
   if (wrappers.empty()) return false;
 
-  for (auto& w : wrappers) {
-    w->undoAction();
+  for (auto it = wrappers.begin(); it != wrappers.end();) {
+    (*it)->undoAction();
+    // unspawn.
+    if ((*it)->actions.empty()) {
+      it = wrappers.erase(it);
+    } else {
+      ++it;
+    }
   }
 
   // undo time
