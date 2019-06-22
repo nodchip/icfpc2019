@@ -34,7 +34,7 @@ TEST(PuzzleTest, ParseDesc) {
 
 TEST(PuzzleTest, constraintToMap) {
   Puzzle parsed = parsePuzzleCondString(
-    "1,1,150,400,1200,6,10,5,1,3,4#"
+    "1,1,10,400,1200,6,10,5,1,3,4#"
     "(0,2),(8,3)#"
     "(0,3),(9,4)");
   
@@ -42,12 +42,17 @@ TEST(PuzzleTest, constraintToMap) {
   for (auto line : dumpPuzzleConstraintMapString(constraint_map)) {
     std::cout << line << std::endl;
   }
-  Map2D ground_truth(10, 5, {
+  Map2D ground_truth(10, 10, {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     2, 0, 0, 0, 0, 0, 0, 0, 1, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   });
   EXPECT_EQ(constraint_map, ground_truth);
 }

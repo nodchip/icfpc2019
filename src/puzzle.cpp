@@ -15,18 +15,9 @@ bool Puzzle::validateSolution(const Map2D& solution_map) const {
 }
 
 Map2D Puzzle::constraintsToMap() const {
-  Point maxpoint {0, 0};
-  for (auto p : iSqs) {
-    maxpoint.x = std::max(maxpoint.x, p.x);
-    maxpoint.y = std::max(maxpoint.y, p.y);
-  }
-  for (auto p : oSqs) {
-    maxpoint.x = std::max(maxpoint.x, p.x);
-    maxpoint.y = std::max(maxpoint.y, p.y);
-  }
-  Map2D map2d(maxpoint.x + 1, maxpoint.y + 1, BLANK);
-  for (auto p : iSqs) { map2d(p) = IN; }
-  for (auto p : oSqs) { map2d(p) = OUT; }
+  Map2D map2d(tSize, tSize, BLANK);
+  for (auto p : iSqs) { assert (map2d.isInside(p)); map2d(p) = IN; }
+  for (auto p : oSqs) { assert (map2d.isInside(p)); map2d(p) = OUT; }
   return map2d;
 }
 
