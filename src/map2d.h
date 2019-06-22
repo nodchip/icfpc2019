@@ -69,6 +69,10 @@ struct Map2D {
 
 using Booster = std::pair<char, Point>;
 
+// return all points (x, y) with (map(x, y) & mask) == bits
+std::vector<Point> enumerateCellsByMask(const Map2D& map, int mask, int bits);
+inline int countCellsByMask(const Map2D& map, int mask, int bits) { return enumerateCellsByMask(map, mask, bits).size(); }
+
 struct ParsedMap {
     Map2D map2d;
     Point wrappy;

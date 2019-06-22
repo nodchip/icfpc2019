@@ -11,6 +11,15 @@
 
 #include "fill_polygon.h"
 
+std::vector<Point> enumerateCellsByMask(const Map2D& map, int mask, int bits) {
+  std::vector<Point> res;
+  for (int y = 0; y < map.H; ++y)
+    for (int x = 0; x < map.W; ++x)
+      if ((map(x, y) & mask) == bits)
+        res.emplace_back(x, y);
+  return res;
+}
+
 namespace {
 Point ParsePoint(char*& p) {
   assert (*p == '(');
