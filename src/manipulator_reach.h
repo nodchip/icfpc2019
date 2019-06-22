@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include "base.h"
-#include "game_map.h"
+#include "map2d.h"
 
 std::vector<Point> requiredClearance(Point offset);
 
