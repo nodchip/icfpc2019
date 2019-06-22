@@ -19,7 +19,7 @@ struct Wrapper {
   void move(char);  // input: WSAD
   void nop();  // input: Z
   void turn(char);  // input: EQ
-  void addManipulate(const Point&);  // input: x,y
+  void addManipulator(const Point&);  // input: x,y relative to wrapper position.
   void teleport(const Point&);  // input: x,y
   void useBooster(char);  // input: FLR
   Wrapper* cloneWrapper(); 
@@ -27,6 +27,8 @@ struct Wrapper {
   Action getScaffoldAction();
   std::string getCommand() const; // command for this wrapper.
   bool undoAction(); // if no actions are stacked, fail and return false.
+
+  bool canAddManipulator(const Point&);
 
   Game* game;
   Map2D& map2d;

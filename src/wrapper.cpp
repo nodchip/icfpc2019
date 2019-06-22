@@ -113,7 +113,9 @@ void Wrapper::turn(char c) {
   doAction(a);
 }
 
-void Wrapper::addManipulate(const Point& p) {
+void Wrapper::addManipulator(const Point& p) {
+  assert (canAddManipulator(p));
+
   Action a = getScaffoldAction();
   assert (game->num_boosters[BoosterType::MANIPULATOR] > 0);
 
@@ -129,6 +131,22 @@ void Wrapper::addManipulate(const Point& p) {
   a.new_manipulator_offsets = manipulators;
   a.command = oss.str();
   doAction(a);
+}
+
+bool Wrapper::canAddManipulator(const Point& p) {
+  // cannot place over an existing manipulator (or the wrapper itself).
+  if (p == Point{0, 0}) return false;
+  for (auto m : manipulators) {
+    if (m == p) return false;
+  }
+  // it has to be 4-connected to existing manipulator (or the wrapper itself).
+  for (auto dir : all_directions) {
+    if (p + Point(dir) == Point{0, 0}) return true;
+    for (auto m : manipulators) {
+      if (p + Point(dir) == m) return true;
+    }
+  }
+  return false;
 }
 
 void Wrapper::teleport(const Point& p) {

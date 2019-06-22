@@ -9,7 +9,7 @@ std::string bfs4Solver(SolverParam param, Game* game, SolverIterCallback iter_ca
   while (true) {
     Wrapper* w = game->wrappers[0].get();
     if (game->num_boosters[BoosterType::MANIPULATOR] > 0) {
-      w->addManipulate(Point(1 + num_add_manipulators, 0));
+      w->addManipulator(Point(1 + num_add_manipulators, 0));
       game->tick();
       displayAndWait(param, game);
       if (iter_callback && !iter_callback(game)) return game->getCommand();

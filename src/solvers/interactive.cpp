@@ -47,7 +47,7 @@ std::string interactiveSolver(SolverParam param, Game* game, SolverIterCallback 
           int x, y;
           std::cout << "(X, Y) >" << std::flush;
           std::cin >> x >> y;
-          w->addManipulate({x, y});
+          w->addManipulator({x, y});
           break;
         }
         if (c == 'T') {

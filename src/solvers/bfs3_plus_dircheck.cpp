@@ -14,9 +14,9 @@ std::string bfs3_plus_dircheck_Solver(SolverParam param, Game* game, SolverIterC
     Wrapper* w = game->wrappers[0].get();
     if (game->num_boosters[BoosterType::MANIPULATOR] > 0) {
       if (num_add_manipulators % 2 == 0) {
-        w->addManipulate(Point(1, 2 + num_add_manipulators / 2));
+        w->addManipulator(Point(1, 2 + num_add_manipulators / 2));
       } else {
-        w->addManipulate(Point(1, - 2 - num_add_manipulators / 2));
+        w->addManipulator(Point(1, - 2 - num_add_manipulators / 2));
       }
       game->tick();
       displayAndWait(param, game);

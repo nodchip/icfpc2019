@@ -11,10 +11,10 @@ struct WrapperEngine {
   Wrapper *action() {
     if (m_game->num_boosters[BoosterType::MANIPULATOR] > 0) {
       if (m_num_manipulators % 2 == 0) {
-        w->addManipulate(Point(1, 2 + m_num_manipulators / 2));
+        w->addManipulator(Point(1, 2 + m_num_manipulators / 2));
 //        cout << m_id << ": add: " << m_num_manipulators << ", " << Point(1, 2 + m_num_manipulators / 2) << endl;
       } else {
-        w->addManipulate(Point(1, - 2 - m_num_manipulators / 2));
+        w->addManipulator(Point(1, - 2 - m_num_manipulators / 2));
 //        cout << m_id << ": add: " << m_num_manipulators << ", " << Point(1, - 2 - m_num_manipulators / 2) << endl;
       }
       m_num_manipulators++;

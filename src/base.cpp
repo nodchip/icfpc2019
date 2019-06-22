@@ -2,6 +2,10 @@
 
 #include <algorithm>
 
+const std::vector<Direction> all_directions = {
+  Direction::W, Direction::A, Direction::S, Direction::D, 
+};
+
 Direction turn(Direction dir, bool turn_cw) {
   switch (dir) {
     case Direction::W: return turn_cw ? Direction::D : Direction::A;

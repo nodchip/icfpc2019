@@ -5,6 +5,7 @@
 #include <limits>
 
 enum class Direction : std::uint8_t { W, S, A, D };
+extern const std::vector<Direction> all_directions;
 Direction turn(Direction dir, bool turn_cw);
 inline Direction turnCCW(Direction dir) { return turn(dir, false); }
 inline Direction turnCW(Direction dir) { return turn(dir, true); }
