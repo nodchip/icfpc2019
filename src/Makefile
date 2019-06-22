@@ -42,7 +42,6 @@ $(BUILD_PATH)/%.o: %.cpp %.h
 clean:
 	rm -fr $(BUILD_PATH) $(TARGETS)
 
-.PHONY: test
 test: $(GTEST_SRCS) $(TEST_OBJS) $(OBJS)
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(TEST_LDFLAGS)
 
