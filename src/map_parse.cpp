@@ -41,7 +41,7 @@ TrajectoryMap generateTrajectoryMap(const Game &game,
   while (!que.empty()) {
     Trajectory traj = que.top();
     que.pop();
-
+    std::cout<<"spawn "<<traj<<std::endl;
     if (traj.distance > max_dist) {
       continue;
     }
@@ -69,8 +69,10 @@ TrajectoryMap generateTrajectoryMap(const Game &game,
       traj_try.distance += 1;
       traj_try.from = traj_try.to;
       traj_try.to = {x_try, y_try};
+      std::cout<<"try "<<traj_try<<std::endl;
       if (update_callback(traj_try, traj_map[y_try][x_try])) {
         que.push(traj_try);
+	std::cout<<"ok"<<std::endl;
       }
     };
 

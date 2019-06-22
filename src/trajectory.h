@@ -12,7 +12,8 @@ const int DISTANCE_INF = 999999999;
 enum class Direction : std::uint8_t { W, S, A, D };
 
 struct Trajectory {
-  Point from;                  // 元いた場所
+  Point origin;                // 元いた場所
+  Point from;                  // 元いた場所から最短経路で来る場合、どのマスから来るか
   Point to;                    // 行き先
   int distance = DISTANCE_INF; // 距離
   int eval = DISTANCE_INF; // 評価値(低いほどよい)
