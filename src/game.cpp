@@ -25,7 +25,8 @@ Game::Game(const std::string& task) : Game() {
   map2d = parsed.map2d;
 
   auto w = std::make_unique<Wrapper>(this, parsed.wrappy, 0);
-  paintAndPick(*w, nullptr);
+  pick(*w, nullptr);
+  paint(*w, nullptr);
   wrappers.push_back(std::move(w));
 }
 
@@ -34,7 +35,8 @@ Game::Game(const std::vector<std::string>& mp) : Game() {
   map2d = parsed.map2d;
 
   auto w = std::make_unique<Wrapper>(this, parsed.wrappy, 0);
-  paintAndPick(*w, nullptr);
+  pick(*w, nullptr);
+  paint(*w, nullptr);
   wrappers.push_back(std::move(w));
 }
 
@@ -53,7 +55,22 @@ bool Game::tick() {
   return true;
 }
 
-void Game::paintAndPick(const Wrapper& w, Action* a_optional) {
+void Game::pick(const Wrapper& w, Action* a_optional) {
+  // automatically pick up boosters with no additional time cost.
+  for (auto booster : boosters) {
+    if (map2d(w.pos) & booster.map_bit) {
+      if (a_optional) {
+        assert (booster.booster_type < a_optional->pick_boosters.size());
+        a_optional->pick_boosters[booster.booster_type].push_back(w.pos);
+      }
+      assert (booster.booster_type < num_boosters.size());
+      ++num_boosters[booster.booster_type];
+      map2d(w.pos) &= ~booster.map_bit;
+    }
+  }
+}
+
+void Game::paint(const Wrapper& w, Action* a_optional) {
   auto p = w.pos;
   assert (map2d.isInside(p));
 
@@ -68,19 +85,6 @@ void Game::paintAndPick(const Wrapper& w, Action* a_optional) {
     if ((map2d(manip) & CellType::kWrappedBit) == 0) {
       if (a_optional) a_optional->absolute_new_wrapped_positions.push_back(manip);
       map2d(manip) |= CellType::kWrappedBit;
-    }
-  }
-
-  // automatically pick up boosters with no additional time cost.
-  for (auto booster : boosters) {
-    if (map2d(p) & booster.map_bit) {
-      if (a_optional) {
-        assert (booster.booster_type < a_optional->pick_boosters.size());
-        a_optional->pick_boosters[booster.booster_type].push_back(p);
-      }
-      assert (booster.booster_type < num_boosters.size());
-      ++num_boosters[booster.booster_type];
-      map2d(p) &= ~booster.map_bit;
     }
   }
 }
