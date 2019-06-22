@@ -4,3 +4,4 @@ bfs3
 bfs4
 bfs3_plus_wipe
 bfs5
+bfs5_plus_wipe
