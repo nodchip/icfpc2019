@@ -57,7 +57,7 @@ std::string bfs5Solver(SolverParam param, Game* game, SolverIterCallback iter_ca
     }
     game->tick();
     displayAndWait(param, game);
-    if (!iter_callback(game)) return game->getCommand();
+    if (iter_callback && !iter_callback(game)) return game->getCommand();
     for (auto id : cloned) {
       ws.emplace_back(game, id);
     }

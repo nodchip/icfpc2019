@@ -23,9 +23,12 @@ std::string randomHybridSolver(SolverParam param, Game* game, SolverIterCallback
   const int SEARCH_STEP = getEnv<int>("SEARCH_STEP", 50);
 
   std::vector<std::string> solver_names = {
+    "bfs3",
     "bfs3_plus_dircheck",
     "bfs3_plus_wipe",
     "bfs4",
+    "bfs5",
+    "bfs5_plus_wipe",
   };
   std::vector<SolverFunction> solvers;
   for (auto name : solver_names) {
