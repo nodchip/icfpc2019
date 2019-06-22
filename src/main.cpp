@@ -73,21 +73,17 @@ int main(int argc, char* argv[]) {
     }
 
     // Do something
-    SolverFunction solver = SolverRegistry::getSolver(solver_name);
-    if (solver) {
-      std::string command = solver(game);
-      std::cout << "command: " << command << "\n";
+    if (SolverFunction solver = SolverRegistry::getSolver(solver_name)) {
+      solver(game);
     }
-
-    // Test output
-    std::cout << *game << "\n";
-    std::cout << "Command: " << game->getCommand() << "\n";
+    // TODO: Check if no unwrapped cells are remained.
 
     // command output
     if (!command_output_filename.empty()) {
       std::ofstream ofs(command_output_filename);
       ofs << game->getCommand();
     }
+    std::cout << "Time: " << game->time << "\n";
   }
 
   return 0;
