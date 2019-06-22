@@ -27,7 +27,7 @@ struct Game {
 
   std::string getCommand() const; // extended solution command.
 
-  int nextWrapperIndex() const { return wrappers.size(); }
+  int nextWrapperIndex() const { return wrappers.size() + next_wrappers.size(); }
   void addClonedWrapperForNextFrame(std::unique_ptr<Wrapper> wrapper); // this wrapper will be available after tick()
   std::vector<Point> getWrapperPositions() const;
 
