@@ -18,6 +18,9 @@ Game::Game(const std::string& task) {
   map2d = parsed.map2d;
   wrappy = parsed.wrappy;
 
+  Action dummy = getScaffoldAction();
+  moveAndPaint(wrappy, dummy);
+
   manipulators.push_back(Point {1, 0});
   manipulators.push_back(Point {1, 1});
   manipulators.push_back(Point {1, -1});
@@ -27,6 +30,9 @@ Game::Game(const std::vector<std::string>& mp) {
   ParsedMap parsed = parseMapString(mp);
   map2d = parsed.map2d;
   wrappy = parsed.wrappy;
+
+  Action dummy = getScaffoldAction();
+  moveAndPaint(wrappy, dummy);
   
   manipulators.push_back(Point {1, 0});
   manipulators.push_back(Point {1, 1});
