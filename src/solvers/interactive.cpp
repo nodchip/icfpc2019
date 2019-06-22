@@ -1,8 +1,8 @@
-#include "../solver_registry.h"
 #include <iostream>
 #include <cctype>
 
-#include "../getch.h"
+#include "getch.h"
+#include "solver_registry.h"
 
 std::string interactiveSolver(std::shared_ptr<Game> game) {
   int iter = 0;

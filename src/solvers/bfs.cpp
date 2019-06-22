@@ -1,8 +1,8 @@
-#include "../solver_registry.h"
 #include <iostream>
 #include <cctype>
 
-#include "../map_parse.h"
+#include "map_parse.h"
+#include "solver_registry.h"
 
 std::string bfsSolver(std::shared_ptr<Game> game) {
   while (true) {
