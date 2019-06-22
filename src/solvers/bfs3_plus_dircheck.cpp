@@ -4,7 +4,7 @@
 #include "map_parse.h"
 #include "solver_registry.h"
 
-std::string bfs3_plus_dircheck_Solver(SolverParam param, Game* game) {
+std::string bfs3_plus_dircheck_Solver(SolverParam param, Game* game, SolverIterCallback iter_callback) {
   int num_add_manipulators = 0;
   char lean = 'W';
   char antilean = 'S';
@@ -20,6 +20,7 @@ std::string bfs3_plus_dircheck_Solver(SolverParam param, Game* game) {
       }
       game->tick();
       displayAndWait(param, game);
+      if (iter_callback && !iter_callback(game)) return game->getCommand();
       num_add_manipulators++;
     }
 
@@ -105,7 +106,7 @@ std::string bfs3_plus_dircheck_Solver(SolverParam param, Game* game) {
       w->move(c);
       game->tick();
       displayAndWait(param, game);
-      
+      if (iter_callback && !iter_callback(game)) return game->getCommand();
       if (count != game->countUnWrapped()) {
         break;
       }

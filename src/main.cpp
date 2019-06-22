@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
     // Do something
     const auto t0 = std::chrono::system_clock::now();
     if (SolverFunction solver = SolverRegistry<SolverFunction>::getSolver(solver_name)) {
-      solver(solver_param, game.get());
+      solver(solver_param, game.get(), [](Game*) { return true; });
       if (!game->isEnd()) {
         std::cerr << "******** Some cells are not wrapped **********\n"
                   << *game << "\n";

@@ -235,6 +235,8 @@ bool Wrapper::undoAction() {
     for (auto p : a.pick_boosters[booster.booster_type]) {
       assert (map2d.isInside(p) && (map2d(p) & booster.map_bit) == 0);
       map2d(p) |= booster.map_bit;
+      game->num_boosters[booster.booster_type] -= 1;
+      assert (game->num_boosters[booster.booster_type] >= 0);
     }
     // undo using boosters
     game->num_boosters[booster.booster_type] += a.use_booster[booster.booster_type];

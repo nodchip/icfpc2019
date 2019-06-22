@@ -39,7 +39,7 @@ struct WrapperEngine {
   int m_num_manipulators;
 };
 
-std::string bfs5Solver(SolverParam param, Game* game) {
+std::string bfs5Solver(SolverParam param, Game* game, SolverIterCallback iter_callback) {
   int num_wrappers = 1;
   vector<WrapperEngine> ws;
   ws.emplace_back(WrapperEngine(game, 0));
@@ -57,6 +57,7 @@ std::string bfs5Solver(SolverParam param, Game* game) {
     }
     game->tick();
     displayAndWait(param, game);
+    if (iter_callback && !iter_callback(game)) return game->getCommand();
     for (auto id : cloned) {
       ws.emplace_back(game, id);
     }
