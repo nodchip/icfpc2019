@@ -3,6 +3,7 @@
 #include <ostream>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "base.h"
 #include "map2d.h"
@@ -10,6 +11,8 @@
 #include "booster.h"
 
 struct Game {
+  using Ptr = std::shared_ptr<Game>;
+
   Game(const std::string& desc); // initialize using a task description string from *.desc file.
   Game(const std::vector<std::string>& map); // initialize by a raster *.map file.
 
@@ -21,6 +24,8 @@ struct Game {
 
   // Returns True if no unwrapped cells are remained.
   bool isEnd() const;
+
+  int countUnWrapped() const;
 
   std::string getCommand() const; // extended solution command.
 
@@ -36,14 +41,13 @@ struct Game {
   Map2D map2d;
 
   // State of Wrappy ===================================
-  std::vector<std::shared_ptr<Wrapper>> wrappers;
+  std::vector<Wrapper::Ptr> wrappers;
 
   // Unused boosters (shared among wrappers)
   std::array<int, BoosterType::N> num_boosters;
 
 private:
   Game();
-  Action getScaffoldAction();
 };
 
 // Outputs game status

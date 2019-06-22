@@ -85,9 +85,9 @@ ParsedMap parseDescString(std::string desc_string) {
   assert (map_bbox.lower.y >= 0);
   assert (map_bbox.isValid());
   map.map2d = Map2D(map_bbox.upper.x, map_bbox.upper.y, CellType::kObstacleBit);
-  FillPolygon(map.map2d, map_pos, CellType::kEmpty);
+  fillPolygon(map.map2d, map_pos, CellType::kEmpty);
   for (const auto& obstacle : obstacles) {
-    FillPolygon(map.map2d, obstacle, CellType::kObstacleBit);
+    fillPolygon(map.map2d, obstacle, CellType::kObstacleBit);
   }
 
   for (auto booster : boosters) {

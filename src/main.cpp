@@ -18,6 +18,7 @@ int main(int argc, char* argv[]) {
   std::string desc_filename;
   std::string map_filename;
   std::string command_output_filename;
+  std::string meta_output_filename;
 
   auto sub_list_solvers = app.add_subcommand("list_solvers", "list up registered solvers");
 
@@ -30,6 +31,7 @@ int main(int argc, char* argv[]) {
   sub_run->add_option("--desc", desc_filename, "*.desc file input");
   sub_run->add_option("--map", map_filename, "*.map file input");
   sub_run->add_option("--output", command_output_filename, "output commands to a file");
+  sub_run->add_option("--meta", meta_output_filename, "output meta information to a JSON file");
   sub_run->add_option("--wait-ms", solver_param.wait_ms, "display and pause a while between frames");
 
   CLI11_PARSE(app, argc, argv);
@@ -44,7 +46,7 @@ int main(int argc, char* argv[]) {
     assert (std::experimental::filesystem::is_regular_file(desc_filename));
     std::ifstream ifs(desc_filename);
     std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
-    std::shared_ptr<Game> game = std::make_shared<Game>(str);
+    Game::Ptr game = std::make_shared<Game>(str);
 
     for (auto line : dumpMapString(game->map2d, game->getWrapperPositions())) {
       std::cout << line << std::endl;
@@ -53,7 +55,7 @@ int main(int argc, char* argv[]) {
 
   // ================== run
   if (sub_run->parsed()) {
-    std::shared_ptr<Game> game; 
+    Game::Ptr game; 
     if (std::experimental::filesystem::is_regular_file(desc_filename)) {
       std::ifstream ifs(desc_filename);
       std::string str((std::istreambuf_iterator<char>(ifs)),
@@ -77,13 +79,22 @@ int main(int argc, char* argv[]) {
     // Do something
     if (SolverFunction solver = SolverRegistry::getSolver(solver_name)) {
       solver(solver_param, game);
+      if (!game->isEnd()) {
+        std::cerr << "******** Does not complete **********\n"
+                  << game << "\n";
+      }
     }
-    // TODO: Check if no unwrapped cells are remained.
 
     // command output
     if (!command_output_filename.empty()) {
       std::ofstream ofs(command_output_filename);
       ofs << game->getCommand();
+    }
+    // meta information output
+    if (!meta_output_filename.empty() && game->isEnd()) {
+      std::ofstream ofs(meta_output_filename);
+      ofs << "{\"name\":\"" << solver_name
+          << "\",\"time_unit\":" << game->time << "}\n";
     }
     std::cout << "Time: " << game->time << "\n";
   }

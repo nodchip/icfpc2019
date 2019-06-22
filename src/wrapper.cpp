@@ -168,7 +168,7 @@ void Wrapper::useBooster(char c) {
   doAction(a);
 }
 
-std::shared_ptr<Wrapper> Wrapper::cloneWrapper() {
+Wrapper::Ptr Wrapper::cloneWrapper() {
   assert (game->num_boosters[BoosterType::CLONING] > 0);
   --game->num_boosters[BoosterType::CLONING];
 

@@ -13,6 +13,7 @@
 struct Game;
 
 struct Wrapper {
+  using Ptr = std::shared_ptr<Wrapper>;
   Wrapper(Game* game_, Point pos_, int wrapper_spawn_index_);
 
   // Control Wrappy
@@ -22,7 +23,7 @@ struct Wrapper {
   void addManipulate(const Point&);  // input: x,y
   void teleport(const Point&);  // input: x,y
   void useBooster(char);  // input: FLR
-  std::shared_ptr<Wrapper> cloneWrapper(); 
+  Ptr cloneWrapper(); 
 
   Action getScaffoldAction();
   std::string getCommand() const; // command for this wrapper.
