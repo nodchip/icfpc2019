@@ -80,8 +80,8 @@ int main(int argc, char* argv[]) {
     if (SolverFunction solver = SolverRegistry::getSolver(solver_name)) {
       solver(solver_param, game);
       if (!game->isEnd()) {
-        std::cerr << "******** Does not complete **********\n"
-                  << game << "\n";
+        std::cerr << "******** Some cells are not wrapped **********\n"
+                  << *game << "\n";
       }
     }
 
