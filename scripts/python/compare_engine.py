@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import argparse
 import os
 
@@ -16,11 +16,12 @@ RANKING_COLORS = [
 def main():
     parser = argparse.ArgumentParser(description='Compare engine results and generate a html file.')
     parser.add_argument('--solution_base_directory_path', required=True,
-                        help='Base directory path of solutions.')
+                        help='Base directory path of solutions.', default='solutions')
     parser.add_argument('--engine_name_file_paths', required=True,
-                        help='File path containing engine name. One engine name per one line.')
+                        help='File path containing engine name. One engine name per one line.',
+                        default='engine_names.txt')
     parser.add_argument('--output_html_file_path', required=True,
-                        help='File path of the output html file.')
+                        help='File path of the output html file.', default='compare_engine.html')
     args = parser.parse_args()
 
     engines = list()

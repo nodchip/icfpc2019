@@ -1,9 +1,9 @@
-#include <iostream>
-#include <vector>
-#include <string>
-#include <memory>
-#include <chrono>
 #include <cassert>
+#include <chrono>
+#include <iostream>
+#include <memory>
+#include <string>
+#include <vector>
 #include <experimental/filesystem>
 
 #include <CLI/CLI.hpp>

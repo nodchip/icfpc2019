@@ -33,13 +33,13 @@ TrajectoryMap generateTrajectoryMap(const Game &game,
   const int kYMax = game.map2d.H;
 
   TrajectoryMap traj_map(kYMax, std::vector<Trajectory>(kXMax));
-  std::priority_queue<Trajectory> que;
+  std::queue<Trajectory> que;
   traj_map[from.y][from.x] =
     Trajectory{Direction::W, from, 0, false};
 
   que.push(traj_map[from.y][from.x]);
   while (!que.empty()) {
-    Trajectory traj = que.top();
+    Trajectory traj = que.front();
     que.pop();
     // std::cout<<"spawn "<<traj<<std::endl;
     if (traj.distance > max_dist) {
@@ -155,4 +155,46 @@ std::vector<Trajectory> findNearestUnwrapped(const Game &game, const Point& from
 
 }
 
+  std::vector<Trajectory> findNearestByBit(const Game &game, const Point& from, const int max_dist, const int kMask) {
+
+  int nearest = DISTANCE_INF;
+  Point nearest_point = {-1, -1};
+
+  TrajectoryMap traj_map = generateTrajectoryMap(
+      game, from, max_dist,
+      [&](Trajectory& traj_new, Trajectory& traj_orig) {
+        if (traj_new < traj_orig) {
+          traj_orig = traj_new;
+          if ((game.map2d(traj_new.pos.x, traj_new.pos.y) & kMask) != 0 &&
+              traj_new.distance < nearest) {
+            nearest_point = traj_new.pos;
+            nearest = traj_new.distance;
+          } else if(traj_new.distance < nearest){
+	    return true;  // Will enqueue |traj_new|
+          }
+        }
+        return false;  // Won't enqueue |traj_new|
+      });
+
+  if (nearest == DISTANCE_INF){
+    return std::vector<Trajectory>(0);
+  }
+
+  const int dist_out = traj_map[nearest_point.y][nearest_point.x].distance;
+  std::vector<Trajectory> trajs(dist_out);
+
+  Point pos(nearest_point.x, nearest_point.y);
+  for(int i=0; i<dist_out; ++i){
+    trajs[dist_out - i - 1] = traj_map[pos.y][pos.x];
+    switch (traj_map[pos.y][pos.x].last_move) {
+    case Direction::W: --pos.y; break;
+    case Direction::S: ++pos.y; break;
+    case Direction::D: --pos.x; break;
+    case Direction::A: ++pos.x; break;
+    }
+  }
+  return trajs;
+
+}
+  
 } // namespace map_parse
