@@ -1,4 +1,4 @@
-#include "game_map.h"
+#include "map2d.h"
 
 #include <iostream>
 #include <ostream>

@@ -6,7 +6,7 @@
 #include <memory>
 
 #include "base.h"
-#include "game_map.h"
+#include "map2d.h"
 
 struct Action {
   Action(int timestamp_, bool fast_wheels_active_, bool drill_active_, Point before_pos, const std::vector<Point>& before_manipulator_offsets)
