@@ -18,6 +18,10 @@ SOLVER_SRCS=$(wildcard solvers/*.cpp)
 SOLVER_OBJS=$(SOLVER_SRCS:%.cpp=$(BUILD_PATH)/%.o)
 SOLVER_BUILD_PATH=build/solvers
 
+PUZZLE_SOLVER_SRCS=$(wildcard puzzle_solvers/*.cpp)
+PUZZLE_SOLVER_OBJS=$(PUZZLE_SOLVER_SRCS:%.cpp=$(BUILD_PATH)/%.o)
+PUZZLE_SOLVER_BUILD_PATH=build/puzzle_solvers
+
 GTEST_SRCS=$(GTEST_DIR)/src/gtest-all.cc $(GTEST_DIR)/src/gtest_main.cc
 TEST_BUILD_PATH=build/tests
 TEST_LDFLAGS=$(LDFLAGS) -lpthread
@@ -29,12 +33,12 @@ TARGETS=solver test
 .PHONY: all
 all: dirs $(TARGETS)
 
-solver: main.cpp $(OBJS) $(SOLVER_OBJS)
+solver: main.cpp $(OBJS) $(SOLVER_OBJS) $(PUZZLE_SOLVER_OBJS)
 	$(CXX) $(CXXFLAGS) -Wall $^ -o $@ $(LDFLAGS)
 
 .PHONY: dirs
 dirs:
-	@mkdir -p $(BUILD_PATH) $(SOLVER_BUILD_PATH) $(TEST_BUILD_PATH)
+	@mkdir -p $(BUILD_PATH) $(SOLVER_BUILD_PATH) $(PUZZLE_SOLVER_BUILD_PATH) $(TEST_BUILD_PATH)
 
 $(BUILD_PATH)/%.o: %.cpp %.h
 	$(CXX) $(CXXFLAGS) -c $< -o $@

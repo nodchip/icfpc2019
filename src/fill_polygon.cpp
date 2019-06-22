@@ -72,7 +72,7 @@ bool parsePolygon(Polygon& polygon, const Map2D& map, int value) {
     for (int y = 0; y < map.H; ++y) {
         for (int x = 0; x < map.W; ++x) {
             if (map(x, y) == value) {
-                std::cout << "start point" << Point(x, y) << std::endl;
+                //std::cout << "start point" << Point(x, y) << std::endl;
                 // make a left-inside polygon (CCW tracing)
                 Polygon fine = {{x, y}}; // always a corner and not a midpoint.
                 Direction dir = Direction::D;

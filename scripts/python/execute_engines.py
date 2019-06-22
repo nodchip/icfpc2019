@@ -34,7 +34,7 @@ def calculate_time(solution_file_path):
         life_times[wrappy_index] += 1
         
         if ch == 'C':
-            life_times.append[life_times[wrappy_index]]
+            life_times.append(life_times[wrappy_index])
 
     assert wrappy_index + 1 == len(life_times), 'Expected number of wrappies={num_wrappies} Actual number of actions={num_actions}'.format(
         num_wrapies=len(life_times), num_actions=wrappy_index + 1)

@@ -103,10 +103,10 @@ TEST(ActionTest, Clone) {
   //
   wrapper->move(Action::UP);
   game.tick();
-  EXPECT_EQ(1, game.num_boosters[BoosterType::CLONING]);
   //
   wrapper->move(Action::UP);
   game.tick();
+  EXPECT_EQ(1, game.num_boosters[BoosterType::CLONING]);
   //
   Wrapper* wrapper_cloned = wrapper->cloneWrapper();
   EXPECT_EQ(1, game.wrappers.size()); // not added yet.

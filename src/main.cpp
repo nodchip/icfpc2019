@@ -10,6 +10,7 @@
 
 #include "game.h"
 #include "puzzle.h"
+#include "fill_polygon.h"
 #include "solver_registry.h"
 
 int main(int argc, char* argv[]) {
@@ -42,6 +43,7 @@ int main(int argc, char* argv[]) {
   sub_puzzle_convert->add_option("input_cond", cond_filename, "*.cond file input");
 
   auto sub_puzzle_run = app.add_subcommand("puzzle_run", "solve a puzzle");
+  PuzzleSolverParam puzzle_solver_param;
   sub_puzzle_run->add_option("solver", solver_name, "the solver name");
   sub_puzzle_run->add_option("--cond", cond_filename, "*.cond file input");
   sub_puzzle_run->add_option("--output", command_output_filename, "output commands to a file");
@@ -51,7 +53,10 @@ int main(int argc, char* argv[]) {
 
   // ================== list_solvers
   if (sub_list_solvers->parsed()) {
-    SolverRegistry::displaySolvers();
+    std::cout << "== game solvers ==" << std::endl;
+    SolverRegistry<SolverFunction>::displaySolvers();
+    std::cout << "== puzzle solvers ==" << std::endl;
+    SolverRegistry<PuzzleSolverFunction>::displaySolvers();
     return 0;
   }
 
@@ -94,7 +99,7 @@ int main(int argc, char* argv[]) {
 
     // Do something
     const auto t0 = std::chrono::system_clock::now();
-    if (SolverFunction solver = SolverRegistry::getSolver(solver_name)) {
+    if (SolverFunction solver = SolverRegistry<SolverFunction>::getSolver(solver_name)) {
       solver(solver_param, game.get());
       if (!game->isEnd()) {
         std::cerr << "******** Some cells are not wrapped **********\n"
@@ -138,7 +143,36 @@ int main(int argc, char* argv[]) {
     std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
     Puzzle puzzle = parsePuzzleCondString(str);
 
-    // TODO.
+    // solve
+    Polygon simple_polygon;
+    const auto t0 = std::chrono::system_clock::now();
+    if (PuzzleSolverFunction solver = SolverRegistry<PuzzleSolverFunction>::getSolver(solver_name)) {
+      simple_polygon = solver(puzzle_solver_param, puzzle);
+
+      // TODO: validation.
+    }
+    const auto t1 = std::chrono::system_clock::now();
+    const double solve_s = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count() * 1e-6;
+
+    // output
+    if (!command_output_filename.empty()) {
+      std::ofstream ofs(command_output_filename);
+      for (auto p : simple_polygon) {
+        ofs << p;
+      }
+    } else {
+      for (auto p : simple_polygon) {
+        std::cout << p;
+      }
+      std::cout << std::endl;
+    }
+
+    // meta information output
+    if (!meta_output_filename.empty()) {
+      std::ofstream ofs(meta_output_filename);
+      ofs << "{\"name\":\"" << solver_name
+          << "\",\"wall_clock_time\":" << solve_s << "}\n";
+    }
   }
 
   return 0;
