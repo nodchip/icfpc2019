@@ -6,7 +6,7 @@
 
 #include "../base.h"
 
-TEST(actions, Game_test_actions) {
+TEST(ActionTest, AffectsOnGame) {
   // example-01.desc
   Game game("(0,0),(10,0),(10,10),(0,10)#(0,0)#(4,2),(6,2),(6,7),(4,7);(5,8),(6,8),(6,9),(5,9)#B(0,1);B(1,1);F(0,2);F(1,2);L(0,3);X(0,9)");
 
@@ -29,31 +29,29 @@ TEST(actions, Game_test_actions) {
     0, 0, 0, 0, 0, W, 0, 0, 0, 0,
     X, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   });
-  std::cout << game.map2d << std::endl;
-  std::cout << ground_truth << std::endl;
+  // TODO: Move this to Game or map parser's test.
   EXPECT_EQ(game.map2d, ground_truth);
 
   auto wrapper = game.wrappers[0];
-  wrapper->move(Wrapper::UP);
-  wrapper->move(Wrapper::UP); // B
-  wrapper->move(Wrapper::UP); // F
-  wrapper->move(Wrapper::UP); // L
-  wrapper->move(Wrapper::UP);
-  wrapper->move(Wrapper::UP);
-  wrapper->move(Wrapper::UP);
-  wrapper->move(Wrapper::UP);
-  wrapper->move(Wrapper::UP); // on X
-  wrapper->move(Wrapper::RIGHT);
-  wrapper->move(Wrapper::RIGHT);
-  wrapper->move(Wrapper::RIGHT);
-  wrapper->move(Wrapper::DOWN);
-  wrapper->turn(Wrapper::CW);
-  wrapper->turn(Wrapper::CCW);
+  wrapper->move(Action::UP);
+  wrapper->move(Action::UP); // B
+  wrapper->move(Action::UP); // F
+  wrapper->move(Action::UP); // L
+  wrapper->move(Action::UP);
+  wrapper->move(Action::UP);
+  wrapper->move(Action::UP);
+  wrapper->move(Action::UP);
+  wrapper->move(Action::UP); // on X
+  wrapper->move(Action::RIGHT);
+  wrapper->move(Action::RIGHT);
+  wrapper->move(Action::RIGHT);
+  wrapper->move(Action::DOWN);
+  wrapper->turn(Action::CW);
+  wrapper->turn(Action::CCW);
   wrapper->addManipulate({-2, -2});
-  wrapper->useBooster(Wrapper::FAST);
-  wrapper->useBooster(Wrapper::DRILL);
+  wrapper->useBooster(Action::FAST);
+  wrapper->useBooster(Action::DRILL);
 
-  //std::cout << game.map2d << std::endl;
-  //std::cout << game.map2d.W << "x" << game.map2d.H << std::endl;
+  // TODO: Test this output.
   std::cout << game << std::endl;
 }

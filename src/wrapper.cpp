@@ -36,16 +36,16 @@ void Wrapper::move(char c) {
   for (int i = 0; i < speed; ++i) {
     Point p {pos};
     switch (c) {
-    case UP:
+    case Action::UP:
       p.y += 1;
       break;
-    case DOWN:
+    case Action::DOWN:
       p.y -= 1;
       break;
-    case LEFT:
+    case Action::LEFT:
       p.x -= 1;
       break;
-    case RIGHT:
+    case Action::RIGHT:
       p.x += 1;
       break;
     }
@@ -83,7 +83,7 @@ void Wrapper::turn(char c) {
   Action a = getScaffoldAction();
   a.command = c;
 
-  if (c == CW) {
+  if (c == Action::CW) {
     for (auto& manip : manipulators) {
       auto orig(manip);
       manip.x = orig.y;
@@ -145,21 +145,21 @@ void Wrapper::useBooster(char c) {
   a.command = c;
 
   switch (c) {
-  case FAST: {
+  case Action::FAST: {
     assert (game->fast_wheels > 0);
     --game->fast_wheels;
     time_fast_wheels = 50;
     a.use_fast_wheel += 1;
     break;
   }
-  case DRILL: {
+  case Action::DRILL: {
     assert (game->drills > 0);
     --game->drills;
     time_drill = 30;
     a.use_drill += 1;
     break;
   }
-  case RESET: {
+  case Action::BEACON: {
     --game->teleports;
     a.use_teleport += 1;
     map2d(pos) |= CellType::kTeleportTargetBit;
