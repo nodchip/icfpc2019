@@ -4,7 +4,7 @@
 #include "getch.h"
 #include "solver_registry.h"
 
-std::string interactiveSolver(std::shared_ptr<Game> game) {
+std::string interactiveSolver(SolverParam param, std::shared_ptr<Game> game) {
   int iter = 0;
   bool terminate = false;
   while (!terminate) {

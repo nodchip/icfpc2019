@@ -25,10 +25,12 @@ int main(int argc, char* argv[]) {
   sub_convert->add_option("input_desc", desc_filename, "*.desc file input");
 
   auto sub_run = app.add_subcommand("run");
+  SolverParam solver_param;
   sub_run->add_option("solver", solver_name, "the solver name");
   sub_run->add_option("--desc", desc_filename, "*.desc file input");
   sub_run->add_option("--map", map_filename, "*.map file input");
   sub_run->add_option("--output", command_output_filename, "output commands to a file");
+  sub_run->add_option("--wait-ms", solver_param.wait_ms, "display and pause a while between frames");
 
   CLI11_PARSE(app, argc, argv);
 
@@ -74,7 +76,7 @@ int main(int argc, char* argv[]) {
 
     // Do something
     if (SolverFunction solver = SolverRegistry::getSolver(solver_name)) {
-      solver(game);
+      solver(solver_param, game);
     }
     // TODO: Check if no unwrapped cells are remained.
 
