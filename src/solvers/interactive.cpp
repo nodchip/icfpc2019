@@ -12,7 +12,7 @@ std::string interactiveSolver(std::shared_ptr<Game> game) {
     std::cout << *game << std::endl;
 
     bool did_undo = false;
-    for (int i = 0; !terminate && i < game->wrappers.size(); ++i) {
+    for (int i = 0; !did_undo && !terminate && i < game->wrappers.size(); ++i) {
       while (true) {
         std::cout << "# " << i << ": Command [!]quit [U]undo [W/A/S/D/Z]move [E/Q]turn [F/L/R/C]boost [M]manipulate [T]teleport >" << std::flush;
         auto w = game->wrappers[i];
