@@ -181,9 +181,10 @@ std::vector<std::string> dumpMapString(const Map2D& map2d, std::vector<Point> wr
     }
     charmap.push_back(line);
   }
-  for (auto& wrappy: wrappy_list) {
-    if (map2d.isInside(wrappy)) {
-      charmap[wrappy.y][wrappy.x] = WRAPPY;
+  for (int i = 0; i < wrappy_list.size(); ++i) {
+    if (map2d.isInside(wrappy_list[i])) {
+      const char number = '0' + char(i % 10);
+      charmap[wrappy_list[i].y][wrappy_list[i].x] = wrappy_list.size() == 1 ? WRAPPY : number;
     }
   }
 

@@ -81,7 +81,7 @@ void Game::paint(const Wrapper& w, Action& a) {
   }
   if (map2d(p) & CellType::kBoosterCloningBit) {
     a.pick_cloning.push_back(p);
-    ++drills;
+    ++clonings;
     map2d(p) &= ~CellType::kBoosterCloningBit;
   }
   if (map2d(p) & CellType::kBoosterTeleportBit) {
@@ -132,6 +132,7 @@ std::ostream& operator<<(std::ostream& os, const Game& game) {
   os << "Boosters: B(" << game.num_manipulators << ") "
      << "F(" << game.fast_wheels << ") "
      << "L(" << game.drills << ") "
+     << "C(" << game.clonings << ") "
      << "R(" << game.teleports << ")\n";
   os << "Wrappers: " << game.wrappers.size() << "\n";
   for (auto& w : game.wrappers) {

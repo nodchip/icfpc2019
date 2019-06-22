@@ -8,13 +8,13 @@ std::string interactiveSolver(std::shared_ptr<Game> game) {
   int iter = 0;
   bool terminate = false;
   while (!terminate) {
-    std::cout << "======= [iter: " << iter << "] ========" << std::endl;
+    std::cout << "======= [iter: " << iter << ". wrappers = " << game->wrappers.size() << "] ========" << std::endl;
     std::cout << *game << std::endl;
 
     bool did_undo = false;
     for (int i = 0; !terminate && i < game->wrappers.size(); ++i) {
       while (true) {
-        std::cout << "# " << i << ": Command [!:quit] [U:undo] [W/A/S/D] [E/Q] [F/L/R/Z] [M:manipulate] [T:teleport]>" << std::flush;
+        std::cout << "# " << i << ": Command [!]quit [U]undo [W/A/S/D/Z]move [E/Q]turn [F/L/R/C]boost [M]manipulate [T]teleport >" << std::flush;
         auto w = game->wrappers[i];
         char c = getch();
         c = std::toupper(c);
@@ -26,18 +26,20 @@ std::string interactiveSolver(std::shared_ptr<Game> game) {
           w->move(c);
           break;
         }
-        if (c == 'E' || c == 'Q') {
-          w->turn(c);
-          break;
-        }
         if (c == 'Z') {
           w->nop();
+          break;
+        }
+        if (c == 'E' || c == 'Q') {
+          w->turn(c);
           break;
         }
         if (c == 'F' && game->fast_wheels > 0) { w->useBooster(c); break; }
         if (c == 'L' && game->drills > 0) { w->useBooster(c); break; }
         if (c == 'R' && game->teleports > 0) { w->useBooster(c); break; }
-        if (c == 'C' && game->clonings > 0) { w->cloneWrapper(); break; }
+        if (c == 'C' && game->clonings > 0 && (game->map2d(w->pos) & CellType::kBoosterUnknownXBit) != 0) {
+           w->cloneWrapper(); break;
+        }
         if (c == 'M' && game->num_manipulators > 0) {
           int x, y;
           std::cout << "(X, Y) >" << std::flush;
@@ -67,7 +69,7 @@ std::string interactiveSolver(std::shared_ptr<Game> game) {
         std::cout << "???" << std::endl;
       }
     }
-    if (!did_undo) {
+    if (!terminate && !did_undo) {
       game->tick();
       ++iter;
     }
