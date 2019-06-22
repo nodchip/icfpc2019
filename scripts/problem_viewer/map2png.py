@@ -42,16 +42,13 @@ def main(patterns=[REPO_ROOT_DIR / 'dataset/problems/*.map']):
     metainfo = []
     for pattern in patterns:
         for f in glob.glob(str(pattern)):
-            #if len(metainfo) > 20:
-            #    break
-
             f = Path(f)
             print(f)
             m, counts = read_map(f)
-            fig, ax = plt.subplots(1, 1, figsize=(5, 5), dpi=72)
+            fig, ax = plt.subplots(1, 1, figsize=(10, 10), dpi=72)
             ax.set_yticks(np.arange(0.5, m.shape[0], 1), minor=True)
             ax.set_xticks(np.arange(0.5, m.shape[1], 1), minor=True)
-            ax.grid(which='minor', color='w', linestyle='-')
+            #ax.grid(which='minor', color='w', linestyle='-')
             ax.imshow(m, origin='lower')
             fig.tight_layout()
             fig.savefig(str(f.with_suffix('.png')))
