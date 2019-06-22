@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cctype>
+#include <cmath>
 
 #include "map_parse.h"
 #include "solver_registry.h"
