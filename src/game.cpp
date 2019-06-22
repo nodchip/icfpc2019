@@ -14,7 +14,13 @@
 #include "fill_polygon.h"
 #include "manipulator_reach.h"
 
-Game::Game(const std::string& task) {
+Game::Game() {
+  for (int i = 0; i < BoosterType::N; ++i) {
+    num_boosters[i] = {};
+  }
+}
+
+Game::Game(const std::string& task) : Game() {
   ParsedMap parsed = parseDescString(task);
   map2d = parsed.map2d;
 
@@ -23,7 +29,7 @@ Game::Game(const std::string& task) {
   wrappers.push_back(w);
 }
 
-Game::Game(const std::vector<std::string>& mp) {
+Game::Game(const std::vector<std::string>& mp) : Game() {
   ParsedMap parsed = parseMapString(mp);
   map2d = parsed.map2d;
 
