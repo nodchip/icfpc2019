@@ -81,6 +81,7 @@ int main(int argc, char* argv[]) {
 
     // Test output
     std::cout << game << "\n";
+    std::cout << "Command: " << game.getCommand() << "\n";
 
     // command output
     if (!command_output_filename.empty()) {
