@@ -12,8 +12,12 @@ void displayAndWait(SolverParam param, Game* game) {
   }
 }
 
-void SolverRegistry::displaySolvers() {
+template <typename Func>
+void SolverRegistry<Func>::displaySolvers() {
   for (auto it = getRegistry().begin(); it != getRegistry().end(); ++it) {
     std::cout << "solver: " << it->first << " @ " << it->second.file_name << std::endl;
   }
 }
+
+template class SolverRegistry<SolverFunction>;
+template class SolverRegistry<PuzzleSolverFunction>;
