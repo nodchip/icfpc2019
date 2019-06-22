@@ -48,7 +48,7 @@ std::vector<std::vector<Point>> ParseObstacles(char*& p) {
 }
 
 Booster ParseBooster(char*& p) {
-  assert (std::strchr("BFLXR", *p) != nullptr);
+  assert (std::strchr("BFLCXR", *p) != nullptr);
   char code = *p;
   Point point { ParsePoint(++p) };
   return {code, point};
@@ -56,7 +56,7 @@ Booster ParseBooster(char*& p) {
 
 std::vector<Booster> ParseBoosters(char*& p) {
   if (*p == '\0') return {};
-  assert (std::strchr("BFLXR", *p) != nullptr);
+  assert (std::strchr("BFLCXR", *p) != nullptr);
   std::vector<Booster> boosters;
   boosters.emplace_back(ParseBooster(p));
   while (*p == ';') {
@@ -101,6 +101,9 @@ ParsedMap parseDescString(std::string desc_string) {
       case BOOSTER_DRILL:
         map.map2d(booster.second) |= CellType::kBoosterDrillBit;
         break;
+      case BOOSTER_CLONING:
+        map.map2d(booster.second) |= CellType::kBoosterCloningBit;
+        break;
       case UNKNOWN:
         map.map2d(booster.second) |= CellType::kBoosterUnknownXBit;
         break;
@@ -140,6 +143,9 @@ ParsedMap parseMapString(std::vector<std::string> map_strings_top_to_bottom) {
         case BOOSTER_DRILL:
           map.map2d(x, y) = CellType::kBoosterDrillBit;
           break;
+        case BOOSTER_CLONING:
+          map.map2d(x, y) = CellType::kBoosterCloningBit;
+          break;
         case WALL:
           map.map2d(x, y) = CellType::kObstacleBit;
           break;
@@ -167,6 +173,7 @@ std::vector<std::string> dumpMapString(const Map2D& map2d, Point wrappy) {
       if (map2d(x, y) & CellType::kBoosterManipulatorBit) { c = BOOSTER_MANIPULATOR; }
       if (map2d(x, y) & CellType::kBoosterFastWheelBit) { c = BOOSTER_FAST_WHEEL; }
       if (map2d(x, y) & CellType::kBoosterDrillBit) { c = BOOSTER_DRILL; }
+      if (map2d(x, y) & CellType::kBoosterCloningBit) { c = BOOSTER_CLONING; }
       if (map2d(x, y) & CellType::kBoosterUnknownXBit) { c = UNKNOWN; }
       if (map2d(x, y) & CellType::kBoosterTeleportBit) { c = BOOSTER_TELEPORT; }
       if (map2d(x, y) & CellType::kObstacleBit) { c = WALL; } // highest priority

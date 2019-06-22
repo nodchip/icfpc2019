@@ -33,11 +33,13 @@ struct Action {
   std::vector<Point> pick_manipulator;
   std::vector<Point> pick_fast_wheel;
   std::vector<Point> pick_drill;
+  std::vector<Point> pick_cloning;
   std::vector<Point> pick_teleport;
   // using boosters
   int use_manipulator = 0;
   int use_fast_wheel = 0;
   int use_drill = 0;
+  int use_cloning = 0;
   int use_teleport = 0; // instaling, not teleporting.
   // active boosters
   bool fast_wheels_active = false;
@@ -64,6 +66,7 @@ struct Game {
   static const char FAST = 'F';
   static const char DRILL = 'L';
   static const char RESET = 'R';
+  static const char CLONE = 'C';
   void useBooster(char);  // input: FL
 
   bool undoAction(); // if no actions are stacked, fail and return false.
@@ -86,6 +89,7 @@ struct Game {
   int fast_wheels = 0;  // Increase if take 'F'
   int drills = 0;  // Increase if take 'L'
   int teleports = 0;  // Increase if take 'R'
+  int clonings = 0; // Increase if take 'C'
   // remained time of 'F'. While this is >0, speed becomes 2.
   int time_fast_wheels = 0;
   // remained time of 'L'. While this is >0, wrappy can go through obstacles.

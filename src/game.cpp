@@ -1,5 +1,6 @@
 #include "game.h"
 
+#include <iostream>
 #include <ostream>
 #include <algorithm>
 #include <limits>
@@ -184,6 +185,11 @@ void Game::moveAndPaint(Point p, Action& a) {
     ++drills;
     map2d(p) &= ~CellType::kBoosterDrillBit;
   }
+  if (map2d(p) & CellType::kBoosterCloningBit) {
+    a.pick_cloning.push_back(p);
+    ++drills;
+    map2d(p) &= ~CellType::kBoosterCloningBit;
+  }
   if (map2d(p) & CellType::kBoosterTeleportBit) {
     a.pick_teleport.push_back(p);
     ++teleports;
@@ -209,6 +215,12 @@ void Game::useBooster(char c) {
     --drills;
     time_drill = 30;
     a.use_drill += 1;
+    break;
+  }
+  case CLONE: {
+    --clonings;
+    std::cerr << "NOT IMPLEMENTED!!!" << std::endl;
+    a.use_cloning += 1;
     break;
   }
   case RESET: {
@@ -256,6 +268,10 @@ bool Game::undoAction() {
     assert (map2d.isInside(p) && (map2d(p) & CellType::kBoosterDrillBit) == 0);
     map2d(p) |= CellType::kBoosterDrillBit;
   }
+  for (auto p : a.pick_cloning) {
+    assert (map2d.isInside(p) && (map2d(p) & CellType::kBoosterCloningBit) == 0);
+    map2d(p) |= CellType::kBoosterCloningBit;
+  }
   for (auto p : a.pick_teleport) {
     assert (map2d.isInside(p) && (map2d(p) & CellType::kBoosterTeleportBit) == 0);
     map2d(p) |= CellType::kBoosterTeleportBit;
@@ -264,6 +280,7 @@ bool Game::undoAction() {
   num_manipulators += a.use_manipulator;
   fast_wheels += a.use_fast_wheel;
   drills += a.use_drill;
+  clonings += a.use_cloning;
   teleports += a.use_teleport;
   // undo placing teleports
   if (a.use_teleport) {

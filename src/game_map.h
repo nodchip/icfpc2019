@@ -24,7 +24,8 @@ namespace CellType {
   static constexpr int kBoosterDrillBit = 1 << 4; // L
   static constexpr int kBoosterUnknownXBit = 1 << 5; // X
   static constexpr int kBoosterTeleportBit = 1 << 6; // R
-  static constexpr int kTeleportTargetBit = 1 << 7; // installed teleport target
+  static constexpr int kBoosterCloningBit = 1 << 7; // C
+  static constexpr int kTeleportTargetBit = 1 << 8; // installed teleport target
 }
 
 // character representation of map ======================================
@@ -35,6 +36,7 @@ static const char BOOSTER_MANIPULATOR = 'B';
 static const char BOOSTER_FAST_WHEEL = 'F';
 static const char BOOSTER_DRILL = 'L';
 static const char BOOSTER_TELEPORT = 'R';
+static const char BOOSTER_CLONING = 'C';
 static const char WALL = '#';
 static const char UNKNOWN = 'X';
 
