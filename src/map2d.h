@@ -93,6 +93,6 @@ ParsedMap parseMapString(std::vector<std::string> map_strings_top_to_bottom);
 
 // dump map string for display. the first row corresponds to the highest y.
 // do not contain line terminator at the end of lines.
-std::vector<std::string> dumpMapString(const Map2D& map2d, Point wrappy);
+std::vector<std::string> dumpMapString(const Map2D& map2d, std::vector<Point> wrappy_list);
 
 std::ostream& operator<<(std::ostream&, const Map2D&);

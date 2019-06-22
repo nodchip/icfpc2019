@@ -1,4 +1,4 @@
-#include "game_map.h"
+#include "map2d.h"
 
 #include <iostream>
 #include <ostream>
@@ -162,7 +162,7 @@ ParsedMap parseMapString(std::vector<std::string> map_strings_top_to_bottom) {
   return map;
 }
 
-std::vector<std::string> dumpMapString(const Map2D& map2d, Point wrappy) {
+std::vector<std::string> dumpMapString(const Map2D& map2d, std::vector<Point> wrappy_list) {
   std::vector<std::vector<char>> charmap;
 
   for (int y = 0; y < map2d.H; ++y) {
@@ -181,8 +181,11 @@ std::vector<std::string> dumpMapString(const Map2D& map2d, Point wrappy) {
     }
     charmap.push_back(line);
   }
-  if (map2d.isInside(wrappy)) {
-    charmap[wrappy.y][wrappy.x] = WRAPPY;
+  for (int i = 0; i < wrappy_list.size(); ++i) {
+    if (map2d.isInside(wrappy_list[i])) {
+      const char number = '0' + char(i % 10);
+      charmap[wrappy_list[i].y][wrappy_list[i].x] = wrappy_list.size() == 1 ? WRAPPY : number;
+    }
   }
 
   std::reverse(charmap.begin(), charmap.end()); // now charmap[0] is the highest y.
@@ -196,7 +199,7 @@ std::vector<std::string> dumpMapString(const Map2D& map2d, Point wrappy) {
 }
 
 std::ostream& operator<<(std::ostream& os, const Map2D& map) {
-  for (auto line : dumpMapString(map, {-1, -1})) {
+  for (auto line : dumpMapString(map, {})) {
     os << line << std::endl;
   }
   return os;

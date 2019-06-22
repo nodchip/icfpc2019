@@ -13,7 +13,6 @@ TEST(manipulator_reach, requiredClearance) {
         // . * .
         // * . .
         auto res = requiredClearance({i * 2, j * 2});
-        // for (auto p : res) { std::cout << p << std::endl; }
         ASSERT_EQ(res.size(), 3);
         EXPECT_EQ(res[0], Point(i * 0, j * 0));
         EXPECT_EQ(res[1], Point(i * 1, j * 1));
@@ -23,7 +22,6 @@ TEST(manipulator_reach, requiredClearance) {
         // . . * *
         // * * . .
         auto res = requiredClearance({i * 3, j * 1});
-        // for (auto p : res) { std::cout << p << std::endl; }
         ASSERT_EQ(res.size(), 4);
         EXPECT_EQ(res[0], Point(i * 0, j * 0));
         EXPECT_EQ(res[1], Point(i * 1, j * 0));
@@ -39,7 +37,6 @@ TEST(manipulator_reach, requiredClearance) {
   for (int i = -1; i <= 1; i += 2) {
     for (int j = -1; j <= 1; j += 2) {
       auto res = requiredClearance({i * 2, j * 1});
-      // for (auto p : res) { std::cout << p << std::endl; }
       ASSERT_EQ(res.size(), 4);
       EXPECT_EQ(res[0], Point(i * 0, j * 0));
       EXPECT_EQ(res[1], Point(i * 1, j * 0));
@@ -52,10 +49,10 @@ TEST(manipulator_reach, requiredClearance) {
 TEST(manipulator_reach, absolutePositionOfReachableManipulators) {
   // Y^ 
   //  |
-  //  -----------
+  //  +---------+
   // x|o x # o o|x  
   //  |. . o @ .|
-  //  *------------->
+  //  *---------+--->
   //  ^             X
   //  (0,0)
   Map2D map(5, 2, {
@@ -73,7 +70,6 @@ TEST(manipulator_reach, absolutePositionOfReachableManipulators) {
     {{2, 1}, false},
   };
   for (auto test : manipulators) {
-    //std::cout << "Test: " <<  test.first << std::endl;
     auto res = absolutePositionOfReachableManipulators(map, wrappy, {test.first});
     if (test.second) {
       EXPECT_EQ(res.size(), 1ull);

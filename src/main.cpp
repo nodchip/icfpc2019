@@ -42,34 +42,34 @@ int main(int argc, char* argv[]) {
     assert (std::experimental::filesystem::is_regular_file(desc_filename));
     std::ifstream ifs(desc_filename);
     std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
-    Game game(str);
+    std::shared_ptr<Game> game = std::make_shared<Game>(str);
 
-    for (auto line : dumpMapString(game.map2d, game.wrappy)) {
+    for (auto line : dumpMapString(game->map2d, game->getWrapperPositions())) {
       std::cout << line << std::endl;
     }
   }
 
   // ================== run
   if (sub_run->parsed()) {
-    Game game; 
+    std::shared_ptr<Game> game; 
     if (std::experimental::filesystem::is_regular_file(desc_filename)) {
       std::ifstream ifs(desc_filename);
       std::string str((std::istreambuf_iterator<char>(ifs)),
                       std::istreambuf_iterator<char>());
-      game = Game(str);
+      game = std::make_shared<Game>(str);
     } else if (std::experimental::filesystem::is_regular_file(map_filename)) {
       std::ifstream ifs(map_filename);
       std::vector<std::string> input;
       for (std::string l; std::getline(ifs, l);)
         input.emplace_back(l);
-      game = Game(input);
+      game = std::make_shared<Game>(input);
     } else {
       // read *.map from stdin
       std::ifstream ifs(map_filename);
       std::vector<std::string> input;
       for (std::string l; std::getline(std::cin, l);)
         input.emplace_back(l);
-      game = Game(input);
+      game = std::make_shared<Game>(input);
     }
 
     // Do something
@@ -80,13 +80,13 @@ int main(int argc, char* argv[]) {
     }
 
     // Test output
-    std::cout << game << "\n";
-    std::cout << "Command: " << game.getCommand() << "\n";
+    std::cout << *game << "\n";
+    std::cout << "Command: " << game->getCommand() << "\n";
 
     // command output
     if (!command_output_filename.empty()) {
       std::ofstream ofs(command_output_filename);
-      ofs << game.getCommand();
+      ofs << game->getCommand();
     }
   }
 
