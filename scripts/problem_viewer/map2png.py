@@ -76,7 +76,7 @@ def image_file(name):
     return static_file(name, root=str(REPO_ROOT_DIR / 'dataset/problems'))
 
 def server():
-    run(host='localhost', port=18888)
+    run(host='0.0.0.0', port=18888)
 
 if __name__ == '__main__':
     if sys.argv[1] == 'png':
