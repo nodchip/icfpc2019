@@ -17,6 +17,7 @@ std::string bfsSolver(SolverParam param, Game* game) {
       displayAndWait(param, game);
     }
   }
+  std::cout<<*game<<std::endl;
   return game->getCommand();
 }
 

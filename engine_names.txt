@@ -2,3 +2,4 @@ bfs
 bfs2
 bfs3
 bfs4
+bfs3_plus_wipe
