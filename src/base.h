@@ -28,6 +28,7 @@ struct Point {
     Point operator+(const Point& rhs) const { return Point(x + rhs.x, y + rhs.y); }
     Point operator-(const Point& rhs) const { return Point(x - rhs.x, y - rhs.y); }
     int length2() const { return x * x + y * y; }
+    int lengthManhattan() const { return std::abs(x) + std::abs(y); }
 };
 extern const std::vector<Point> neighbors4;
 extern const std::vector<Point> neighbors8;
