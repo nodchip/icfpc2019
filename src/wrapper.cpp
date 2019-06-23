@@ -227,11 +227,11 @@ bool Wrapper::useBooster(char c) {
 
   switch (c) {
   case Action::FAST: {
-    time_fast_wheels = 50;
+    time_fast_wheels += 50; // rule specification has updated.
     break;
   }
   case Action::DRILL: {
-    time_drill = 30;
+    time_drill += 30; // rule specification has updated.
     break;
   }
   case Action::BEACON: {
@@ -303,6 +303,12 @@ bool Wrapper::undoAction() {
     }
     // undo using boosters
     game->num_boosters[booster.booster_type] += a.use_booster[booster.booster_type];
+  }
+  if (a.use_booster[BoosterType::FAST_WHEEL]) {
+    time_fast_wheels -= 50; // rule specification has updated.
+  }
+  if (a.use_booster[BoosterType::DRILL]) {
+    time_drill -= 30; // rule specification has updated.
   }
   // undo placing teleports
   if (a.use_booster[BoosterType::TELEPORT]) {
