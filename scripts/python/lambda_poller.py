@@ -156,6 +156,7 @@ def main():
             print('Skipped because the current block {} (< next {}) is old...'.format(mininginfo['block'], next_block), flush=True)
             time.sleep(SLEEP_TIME)
             continue
+        print('==== PROCESSING BLOCK [{}] ===='.format(next_block))
 
         if PUBLIC_ID in mininginfo['excluded']:
             print('Skipped because out team is execluded...', flush=True)
