@@ -59,3 +59,40 @@ struct FindFCRouteResult {
   int time_cost = 0; // approx.
 };
 std::unique_ptr<FindFCRouteResult> findGoodFCRoute(const Map2D& map, Point start);
+
+// =======================
+// tick()ごとに更新し、非連結領域がある場合はそれぞれを個別にwrapperにアサインする
+// 通常一手前の行動でごく近傍に少領域/大領域境界を生成する
+// 小さな塗り残しをさけつつ、また他のwrapperのほうが近くにい少領域を避けるため、領域重心に近いものにアサインされやすくする
+namespace detail {
+using weight = int;
+using matrix = std::vector<std::vector<weight>>;
+// http://www.prefield.com/algorithm/math/hungarian.html + mod.
+weight hungarian(const matrix &a, std::vector<int>& x, std::vector<int>& y);
+}
+struct ConnectedComponentAssignmentForParanoid {
+  static const int UNASSIGNED = -1;
+
+  int distance_threshold = 100;
+  bool delay_update_flag = false;
+  Game* game = nullptr;
+
+  ConnectedComponentAssignmentForParanoid(Game* game_, int distance_threshold_);
+
+  bool hasDisjointComponents() const;
+  bool isComponentAssignedToWrapper(int i) const;
+  Point getTargetOfWrapper(int i) const;
+
+  void delayUpdate();
+  bool update(); // true: delay-updated, false: not updated.
+
+private:
+  struct Component {
+    std::vector<Point> points;
+    Point center;
+  };
+  std::vector<Component> components;
+  std::vector<int> wrapper_to_component;
+
+  static Point approximateCenter(const std::vector<Point>& points);
+};

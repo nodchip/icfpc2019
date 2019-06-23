@@ -152,3 +152,111 @@ std::unique_ptr<FindFCRouteResult> findGoodFCRoute(const Map2D& map, Point start
   *result.get() = *it_min;
   return result;
 }
+
+namespace detail {
+// http://www.prefield.com/algorithm/math/hungarian.html + mod.
+using weight = int;
+using matrix = std::vector<std::vector<weight>>;
+weight hungarian(const matrix &a, std::vector<int>& x, std::vector<int>& y) {
+  using namespace std;
+  constexpr int INF = std::numeric_limits<int>::max();
+  int n = a.size(), p, q;
+  vector<int> fx(n, INF), fy(n, 0);
+  x.assign(n, -1);
+  y.assign(n, -1);
+  for (int i = 0; i < n; ++i)
+    for (int j = 0; j < n; ++j)
+      fx[i] = max(fx[i], a[i][j]);
+  for (int i = 0; i < n; ) {
+    vector<int> t(n, -1), s(n+1, i);
+    for (p = q = 0; p <= q && x[i] < 0; ++p)
+      for (int k = s[p], j = 0; j < n && x[i] < 0; ++j)
+        if (fx[k] + fy[j] == a[k][j] && t[j] < 0) {
+          s[++q] = y[j], t[j] = k;
+          if (s[q] < 0)
+            for (p = j; p >= 0; j = p)
+              y[j] = k = t[j], p = x[k], x[k] = j;
+        }
+    if (x[i] < 0) {
+      weight d = INF;
+      for (int k = 0; k <= q; ++k)
+        for (int j = 0; j < n; ++j)
+          if (t[j] < 0) d = min(d, fx[s[k]] + fy[j] - a[s[k]][j]);
+      for (int j = 0; j < n; ++j) fy[j] += (t[j] < 0 ? 0 : d);
+      for (int k = 0; k <= q; ++k) fx[s[k]] -= d;
+    } else ++i;
+  }
+  weight ret = 0;
+  for (int i = 0; i < n; ++i) ret += a[i][x[i]];
+  return ret;
+}
+} // detail
+
+ConnectedComponentAssignmentForParanoid::ConnectedComponentAssignmentForParanoid(Game* game_, int distance_threshold_)
+  : game(game_), distance_threshold(distance_threshold_) {
+}
+
+bool ConnectedComponentAssignmentForParanoid::hasDisjointComponents() const {
+  return components.size() > 1;
+}
+bool ConnectedComponentAssignmentForParanoid::isComponentAssignedToWrapper(int i) const {
+  return !wrapper_to_component.empty() // no assign
+    && 0 <= i && i < wrapper_to_component.size() // invalid
+    && 0 <= wrapper_to_component[i] && wrapper_to_component[i] < components.size() // #wrapper > #cc
+    && !components[wrapper_to_component[i]].points.empty() // non-empty component
+    ;
+}
+Point ConnectedComponentAssignmentForParanoid::getTargetOfWrapper(int i) const {
+  if (!isComponentAssignedToWrapper(i)) return Point {-1, -1};
+  return components[wrapper_to_component[i]].points.front();
+}
+
+void ConnectedComponentAssignmentForParanoid::delayUpdate() {
+  delay_update_flag = true;
+}
+
+bool ConnectedComponentAssignmentForParanoid::update() {
+  if (!delay_update_flag) return false;
+  delay_update_flag = false;
+
+  components.clear();
+  wrapper_to_component.clear();
+  auto ccs = disjointConnectedComponentsByMask(game->map2d, 0b11, 0b00);
+  if (ccs.empty()) {
+    return true;
+  }
+
+  for (auto cc : ccs) {
+    components.push_back({ cc, approximateCenter(cc) });
+  }
+
+  const int N = game->wrappers.size();
+  const int M = ccs.size();
+  std::vector<int> component_to_wrapper;
+
+  // hungarian method
+  const int sz = std::max(N, M);
+  detail::matrix preference(sz, std::vector<int>(sz, 0)); // preference[wrapper][component]
+  for (int i = 0; i < sz; ++i) {
+    for (int j = 0; j < sz; ++j) {
+      if (i < N && j < M) {
+        // 中心までの距離を見ることで、自然に小さいものを好むようにしつつ、遠くのwrapperの作業に気を取られないようにする
+        // 本来は中心までの距離ではなく、CCまでの最短経路長を見るべき
+        const int distance2 = (components[j].center - game->wrappers[i]->pos).length2();
+        if (distance2 < distance_threshold) {
+          preference[i][j] = distance_threshold - distance2;
+        }
+      }
+    }
+  }
+
+  detail::hungarian(preference, wrapper_to_component, component_to_wrapper);
+  return true;
+}
+
+Point ConnectedComponentAssignmentForParanoid::approximateCenter(const std::vector<Point>& points) {
+  double x = 0;
+  double y = 0;
+  for (auto p : points) x += p.x, y += p.y;
+  return {int(x / points.size()), int(y / points.size())};
+}
