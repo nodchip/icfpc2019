@@ -171,6 +171,9 @@ ParsedMap parseDescString(std::string desc_string) {
       case BOOSTER_DRILL:
         map.map2d(booster.second) |= CellType::kBoosterDrillBit;
         break;
+      case BOOSTER_TELEPORT:
+        map.map2d(booster.second) |= CellType::kBoosterTeleportBit;
+        break;
       case BOOSTER_CLONING:
         map.map2d(booster.second) |= CellType::kBoosterCloningBit;
         break;

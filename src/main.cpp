@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
   CLI::App app { "main module" };
   app.require_subcommand();
 
-  std::string solver_name = "simple";
+  std::string solver_name;
   std::string desc_filename;
   std::string map_filename;
   std::string command_output_filename;
