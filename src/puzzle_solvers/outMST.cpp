@@ -148,38 +148,12 @@ public:
 class Dijkstra
 {
   using pii = std::pair<int, int>;
-  static const int INF = INT_MAX >> 2;
+  static const int INF;
   std::vector<int> d;
   std::vector<int> prev;
 
 public:
-  Dijkstra(const std::vector<std::vector<Edge<int>>> &G, int V, int s)
-      : d(V, INF), prev(V, -1)
-  {
-    std::priority_queue<pii, std::vector<pii>, std::greater<pii>> pq;
-
-    d[s] = 0;
-    pq.push(pii(0, s));
-
-    while (!pq.empty())
-    {
-      pii p = pq.top();
-      pq.pop();
-      int v = p.second;
-      if (d[v] < p.first)
-        continue;
-      for (int i = 0; i < G[v].size(); i++)
-      {
-        auto &e = G[v][i];
-        if (d[e.to] > d[v] + e.cost)
-        {
-          d[e.to] = d[v] + e.cost;
-          prev[e.to] = v;
-          pq.push(pii(d[e.to], e.to));
-        }
-      }
-    }
-  }
+  Dijkstra(const std::vector<std::vector<Edge<int>>> &G, int V, int s);
 
   std::vector<int> shortest_path_cost() { return d; }
   int shortest_path_cost(int v) { return d[v]; }
@@ -193,6 +167,36 @@ public:
     return path;
   }
 };
+
+const int Dijkstra::INF = INT_MAX >> 2;
+
+Dijkstra::Dijkstra(const std::vector<std::vector<Edge<int>>> &G, int V, int s)
+  : d(V, INF), prev(V, -1)
+{
+  std::priority_queue<pii, std::vector<pii>, std::greater<pii>> pq;
+
+  d[s] = 0;
+  pq.push(pii(0, s));
+
+  while (!pq.empty())
+    {
+      pii p = pq.top();
+      pq.pop();
+      int v = p.second;
+      if (d[v] < p.first)
+        continue;
+      for (int i = 0; i < G[v].size(); i++)
+        {
+          auto &e = G[v][i];
+          if (d[e.to] > d[v] + e.cost)
+            {
+              d[e.to] = d[v] + e.cost;
+              prev[e.to] = v;
+              pq.push(pii(d[e.to], e.to));
+            }
+        }
+    }
+}
 
 std::vector<std::vector<Edge<int>>> createGridGraph(int H, int W)
 {
@@ -301,7 +305,6 @@ PuzzleSolution outMST(PuzzleSolverParam param, Puzzle puzzle)
     }
   }
 
-  constexpr int R = 1;
   Map2D map2d(H, W);
   for (int i = 0; i < H; i++)
   {
