@@ -44,10 +44,12 @@ int main(int argc, char* argv[]) {
 
   auto sub_puzzle_run = app.add_subcommand("puzzle_run", "solve a puzzle");
   PuzzleSolverParam puzzle_solver_param;
+  bool puzzle_validation = false;
   sub_puzzle_run->add_option("solver", solver_name, "the solver name");
   sub_puzzle_run->add_option("--cond", cond_filename, "*.cond file input");
   sub_puzzle_run->add_option("--output", command_output_filename, "output commands to a file");
   sub_puzzle_run->add_option("--meta", meta_output_filename, "output meta information to a JSON file");
+  sub_puzzle_run->add_flag("--validate", puzzle_validation, "validate puzzle solution");
 
   CLI11_PARSE(app, argc, argv);
 
@@ -149,7 +151,12 @@ int main(int argc, char* argv[]) {
     if (PuzzleSolverFunction solver = SolverRegistry<PuzzleSolverFunction>::getSolver(solver_name)) {
       puzzle_solution = solver(puzzle_solver_param, puzzle);
 
-      assert (puzzle.validateSolution(puzzle_solution));
+      if (puzzle_validation) {
+        std::cerr << "validation." << std::endl;
+        assert (puzzle.validateSolution(puzzle_solution));
+      } else {
+        std::cerr << "no validation." << std::endl;
+      }
     }
     const auto t1 = std::chrono::system_clock::now();
     const double solve_s = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count() * 1e-6;
