@@ -9,11 +9,11 @@ bfs5_4
 bfs5_5
 bfs5_6
 bfs5_6_paranoid
-bfs3_plus_wipe
-bfs5_plus_wipe
+#bfs3_plus_wipe
+#bfs5_plus_wipe
 bfs_parad
 bfs_clone
-evaluate_base
+#evaluate_base
 clone_fast
 clone_nonpara
 clone_strict_para
