@@ -156,6 +156,10 @@ def main():
             puzzle_solver_future = executor.submit(solve_puzzle, args)
             task_solver_futures = list()
             for engine_name in engine_names:
+                task_output_file_name = TASK_OUTPUT_FILE_NAME_FORMAT.format(engine_name=engine_name)
+                if os.path.isfile(task_output_file_name):
+                    print('remove old task output file: {}'.format(task_output_file_name))
+                    os.unlink(task_output_file_name)
                 task_solver_future = executor.submit(execute, engine_name, args)
                 task_solver_futures.append(task_solver_future)
 
@@ -163,21 +167,26 @@ def main():
             sys.exit('Some thing faild...  Read above...')
         for task_solver_future in task_solver_futures:
             if not task_solver_future.result():
-                sys.exit('Some thing faild...  Read above...')
+                #sys.exit('Some thing faild...  Read above...')
+                print("some engine failed but we'd like to continue with poor results..")
 
         best_time = INFINITE
         best_engine = None
         for engine_name in engine_names:
             task_output_file_name = TASK_OUTPUT_FILE_NAME_FORMAT.format(engine_name=engine_name)
-            time = execute_engines.calculate_time(task_output_file_name)
-            print('engine_name={engine_name:>10} time={time:>10}'.format(
-                engine_name=engine_name, time=time), flush=True)
-            if best_time <= time:
-                continue
-            best_time = time
-            best_engine = engine_name
+            if os.path.isfile(task_output_file_name):
+                time = execute_engines.calculate_time(task_output_file_name)
+                print('engine_name={engine_name:>10} time={time:>10}'.format(
+                    engine_name=engine_name, time=time), flush=True)
+                if best_time <= time:
+                    continue
+                best_time = time
+                best_engine = engine_name
+        
+        if best_engine is None:
+            sys.exit('no engines returned a valid result.')
 
-        task_output_file_name = TASK_OUTPUT_FILE_NAME_FORMAT.format(engine_name=engine_name)
+        task_output_file_name = TASK_OUTPUT_FILE_NAME_FORMAT.format(engine_name=best_engine)
 
         command = [python_path, 'lambda-cli.py', 'submit', str(mininginfo['block']),
                    task_output_file_name, PUZZLE_OUTPUT_FILE_NAME]
