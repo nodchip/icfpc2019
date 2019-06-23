@@ -27,6 +27,9 @@ public:
 
 namespace {
 
+constexpr int kMaxCostManipulator = 10;
+constexpr int kMaxCostFastWheel = 5;
+
 // Directions. Upper 4 bits is 'to', lower 4 bits is 'from'.
 using Direction = uint8_t;
 
@@ -131,6 +134,9 @@ inline bool isUnwrapped(int c) {
 }
 
 void decideWrapperAction(Wrapper* w, State& state) {
+  if (useBoosters(w))
+    return;
+
   auto& direction_map = state.direction_map;
 
   // If already the target is set, go there.
@@ -144,9 +150,7 @@ void decideWrapperAction(Wrapper* w, State& state) {
     return;
   }
 
-  if (useBoosters(w))
-    return;
-
+  // Look for something.
   direction_map.clear();
   Map2D& map = w->game->map2d;
 
@@ -185,6 +189,9 @@ void decideWrapperAction(Wrapper* w, State& state) {
 
     if (!target_bits)
       break;
+    if ((target_bits & CellType::kWrappedBit) == 0 &&
+        cost_map[from] > kMaxCostManipulator)
+      break;
 
     int cost = cost_map[from] + 1;
     static const struct {
@@ -211,9 +218,11 @@ void decideWrapperAction(Wrapper* w, State& state) {
   }
 
   Point& goal = state.target;
-  if (cost_map.count(targets[Target::kManipulator]) && cost_map[targets[Target::kManipulator]] < 10) {
+  if (cost_map.count(targets[Target::kManipulator]) &&
+      cost_map[targets[Target::kManipulator]] < kMaxCostManipulator) {
     goal = targets[Target::kManipulator];
-  } else if (cost_map.count(targets[Target::kFastWheel]) && cost_map[targets[Target::kFastWheel]] < 5) {
+  } else if (cost_map.count(targets[Target::kFastWheel]) &&
+             cost_map[targets[Target::kFastWheel]] < kMaxCostFastWheel) {
     goal = targets[Target::kFastWheel];
   } else {
     goal = targets[Target::kUnwrapped];
