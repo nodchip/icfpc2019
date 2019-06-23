@@ -4,7 +4,8 @@ GTEST_DIR=$(LIB_PATH)/googletest/googletest
 
 CXXFLAGS+=-O2 -Wall -Wno-sign-compare -std=c++14
 CXXFLAGS+=-I. -I$(GTEST_DIR) -I$(GTEST_DIR)/include -I$(LIB_PATH)/CLI11/include
-#CXXFLAGS+=-pg -DNDEBUG
+#CXXFLAGS+=-g
+#CXXFLAGS+=-DNDEBUG
 
 LDFLAGS=-lstdc++fs
 
