@@ -50,7 +50,11 @@ def main():
     parser.add_argument('sol_path')
     args = parser.parse_args()
 
-    desc_path = os.path.join(args.desc_dir, os.path.splitext(os.path.basename(args.sol_path))[0] + '.desc')
+    mo = re.search(r'(prob-\d{3})', os.path.basename(args.sol_path))
+    if mo is None:
+        desc_path = os.path.join(args.desc_dir, os.path.splitext(os.path.basename(args.sol_path))[0] + '.desc')
+    else:
+        desc_path = os.path.join(args.desc_dir, mo.groups()[0] + '.desc')
 
     v = Visualizer()
     v.visualize(os.path.abspath(desc_path), os.path.abspath(args.sol_path))
