@@ -138,8 +138,9 @@ def main():
         stdout = stdout.replace("'",'"')
         mininginfo = json.loads(stdout)
 
-        if get_next_block() > mininginfo['block']:
-            print('Skipped because the current block is old...', flush=True)
+        next_block = get_next_block()
+        if next_block > mininginfo['block']:
+            print('Skipped because the current block {} (< next {}) is old...'.format(mininginfo['block'], next_block), flush=True)
             continue
 
         if PUBLIC_ID in mininginfo['excluded']:
