@@ -230,7 +230,9 @@ bool ConnectedComponentAssignmentForParanoid::update() {
 
   components.clear();
   wrapper_to_component.clear();
-  auto ccs = disjointConnectedComponentsByMask(game->map2d, 0b11, 0b00);
+  auto ccs = disjointConnectedComponentsByMask(game->map2d,
+    CellType::kObstacleBit | CellType::kWrappedBit, 0);
+
   if (ccs.empty()) {
     return true;
   }

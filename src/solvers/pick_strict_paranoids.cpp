@@ -109,6 +109,10 @@ std::string pickStrictParanoidsSolver(SolverParam param, Game* game, SolverIterC
     //cout<<"clone found"<<endl;
   }
   while (!game->isEnd()) {
+    game->clearDebugKeyValues();
+    game->addDebugKeyValue("clone_exist", clone_exist);
+    game->addDebugKeyValue("clone_mode", clone_mode);
+
 //    cout << epoch << ": ";
     //cout<<*game<<endl;
     clone_exist = (enumerateCellsByMask(game->map2d, CellType::kBoosterCloningBit, CellType::kBoosterCloningBit).size() > 0);
@@ -145,6 +149,10 @@ std::string pickStrictParanoidsSolver(SolverParam param, Game* game, SolverIterC
         }
       }
     }
+
+    game->addDebugKeyValue("w0_has_tgt", cmat[0].size() != 0);
+    //game->addDebugKeyValue("n_cc", disjointConnectedComponentsByMask(game->map2d,
+    //  CellType::kObstacleBit | CellType::kWrappedBit, 0).size());
     
     epoch++;
     vector<int> cloned;
