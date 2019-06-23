@@ -82,6 +82,8 @@ def execute(engine_name, args):
             engine_name=engine_name, elapsed_s=t1-t0), flush=True)
         return False, t1 - t0
 
+    print('Okay... engine_name={engine_name} elapsed={elapsed_s}s'.format(
+            engine_name=engine_name, elapsed_s=t1-t0), flush=True)
     return True, t1 - t0
 
 
@@ -116,11 +118,12 @@ def main():
     engine_names = list()
     with open(args.engine_name_file_paths, 'r') as f:
         for engine_name in f:
+            engine_name = engine_name.strip()
             if engine_name.startswith('#'):
                 print('Skip engine: {}'.format(engine_name))
             else:
                 print('Use engine: {}'.format(engine_name))
-                engine_names.append(engine_name.strip())
+                engine_names.append(engine_name)
 
     python_path = 'python3'
     python_path_candidates = [
