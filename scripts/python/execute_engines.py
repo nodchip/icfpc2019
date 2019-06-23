@@ -13,7 +13,7 @@ import sys
 Result = collections.namedtuple('Result', ('problem_name', 'new_time', 'best_time'))
 
 
-TIMEOUT = 300.0
+TIMEOUT = 600.0
 INFINITE = 10**9
 FAILURE = False;
 
