@@ -141,10 +141,12 @@ def main():
         next_block = get_next_block()
         if next_block > mininginfo['block']:
             print('Skipped because the current block {} (< next {}) is old...'.format(mininginfo['block'], next_block), flush=True)
+            time.sleep(SLEEP_TIME)
             continue
 
         if PUBLIC_ID in mininginfo['excluded']:
             print('Skipped because out team is execluded...', flush=True)
+            time.sleep(SLEEP_TIME)
             continue
 
         with open(PUZZLE_INPUT_FILE_NAME, 'w') as f:
