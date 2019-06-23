@@ -44,6 +44,10 @@ bool Puzzle::validateSolution(const PuzzleSolution& solution) const {
   if (!fillPolygon(map, solution.wall, CellType::kEmpty)) {
     mark_invalid("unable to fill walls");
   }
+  // both walls and rooms are 4-connected.
+  if (!isConnected4(map)) {
+    mark_invalid("not 4-connected");
+  }
   // area.
   const int area = countCellsByMask(map, CellType::kObstacleBit, 0);
   if (area < (tSize * tSize * 2 + 10 - 1) / 10) {
