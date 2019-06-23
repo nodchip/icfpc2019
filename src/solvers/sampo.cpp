@@ -15,16 +15,6 @@
 std::string sampoSolver(SolverParam, Game*, SolverIterCallback);
 REGISTER_SOLVER("sampo", sampoSolver);
 
-namespace {
-
-struct State {
-  Point target = {-1, -1};
-};
-
-void decideWrapperAction(Wrapper*, State&);
-
-}  // namespace
-
 namespace std {
 
 template<>
@@ -35,17 +25,30 @@ public:
 
 }  // namespace std
 
+namespace {
+
+// Directions. Upper 4 bits is 'to', lower 4 bits is 'from'.
+using Direction = uint8_t;
+
+struct State {
+  Point target = {-1, -1};
+  std::unordered_map<Point, Direction> direction_map;
+};
+
+void decideWrapperAction(Wrapper*, State&);
+
+}  // namespace
+
 std::string sampoSolver(SolverParam param, Game* game, SolverIterCallback iter_callback) {
   std::vector<State> states(1);
+
   while (!game->isEnd()) {
     if (game->wrappers.size() != states.size()) {
       states.resize(game->wrappers.size());
     }
 
-    int i = 0;
     for (auto& wrapper : game->wrappers) {
-      decideWrapperAction(wrapper.get(), states[i]);
-      ++i;
+      decideWrapperAction(wrapper.get(), states[wrapper->index]);
     }
 
     game->tick();
@@ -57,6 +60,17 @@ std::string sampoSolver(SolverParam param, Game* game, SolverIterCallback iter_c
 }
 
 namespace {
+
+namespace Target {
+static constexpr int kUnwrapped = 0;
+static constexpr int kManipulator = 1;
+static constexpr int kFastWheel = 2;
+static constexpr int N = 3;
+// static constexpr int kDrill = 3;
+// static constexpr int kCloning = 4;
+// static constexpr int kBeacon = 5;
+// static constexpr int kSpawn = 6;
+};
 
 bool useBoosters(Wrapper* w) {
   Game* game = w->game;
@@ -92,13 +106,6 @@ bool useBoosters(Wrapper* w) {
   return false;
 }
 
-bool getCloseBoosters(Wrapper* w) {
-  return false;
-}
-
-// Directions. Upper 4 bits is 'to', lower 4 bits is 'from'.
-using Direction = uint8_t;
-
 constexpr Direction kUp    = 1;
 constexpr Direction kDown  = 2;
 constexpr Direction kLeft  = 3;
@@ -109,7 +116,7 @@ constexpr Direction kToMask = 0xf0;
 inline Direction setFrom(const Direction dir, const Direction from) {
   return (dir & kToMask) | from;
 }
-inline Direction getFrom(const Direction dir) {
+inline Direction getFrom(const Direction& dir) {
   return dir & kFromMask;
 }
 inline Direction setTo(const Direction dir, const Direction to) {
@@ -119,25 +126,65 @@ inline Direction getTo(const Direction dir) {
   return (dir >> 4) & kFromMask;
 }
 
+inline bool isUnwrapped(int c) {
+  return (c & (CellType::kObstacleBit | CellType::kWrappedBit)) == 0;
+}
+
 void decideWrapperAction(Wrapper* w, State& state) {
+  auto& direction_map = state.direction_map;
+
+  // If already the target is set, go there.
+  if (Direction to = getTo(direction_map[w->pos])) {
+    switch (to) {
+    case kUp:    w->move('W'); break;
+    case kDown:  w->move('S'); break;
+    case kLeft:  w->move('A'); break;
+    case kRight: w->move('D'); break;
+    }
+    return;
+  }
+
   if (useBoosters(w))
     return;
 
+  direction_map.clear();
+  Map2D& map = w->game->map2d;
+
+  // NOTE: This simplifies some searches. Do not forget to put it back.
+  const int current = map(w->pos);
+  map(w->pos) = CellType::kWrappedBit;
+
+  int target_bits = 0;
+  for (int x = 0; x < map.W; ++x) {
+    for (int y = 0; y < map.H; ++y) {
+      target_bits |= map(x, y);
+    }
+  }
+  target_bits &= (CellType::kWrappedBit | CellType::kBoosterManipulatorBit | CellType::kBoosterFastWheelBit);
+
   std::unordered_map<Point, int> cost_map;
-  std::unordered_map<Point, Direction> direction_map;
   std::queue<Point> q;
-  const Map2D& map = w->game->map2d;
   cost_map[w->pos] = 0;
   q.push(w->pos);
-  Point goal;
+  std::vector<Point> targets(Target::N, Point{-1, -1});
   while (!q.empty()) {
     Point from = q.front();
     q.pop();
 
-    if ((map(from) & CellType::kWrappedBit) == 0) {
-      goal = from;
-      break;
+    if ((target_bits & CellType::kWrappedBit) && isUnwrapped(map(from))) {
+      targets[Target::kUnwrapped] = from;
+      target_bits &= ~CellType::kWrappedBit;
     }
+    if (target_bits & CellType::kBoosterManipulatorBit & map(from)) {
+      targets[Target::kManipulator] = from;
+      target_bits &= ~CellType::kBoosterManipulatorBit;
+    } else if (target_bits & CellType::kBoosterFastWheelBit & map(from)) {
+      targets[Target::kFastWheel] = from;
+      target_bits &= ~CellType::kBoosterFastWheelBit;
+    }
+
+    if (!target_bits)
+      break;
 
     int cost = cost_map[from] + 1;
     static const struct {
@@ -162,8 +209,15 @@ void decideWrapperAction(Wrapper* w, State& state) {
       }
     }
   }
-  // TODO: Set several types of |goal| in one BFS.
-  // Pick up one useful goal, and re-generate route to there.
+
+  Point& goal = state.target;
+  if (cost_map.count(targets[Target::kManipulator]) && cost_map[targets[Target::kManipulator]] < 10) {
+    goal = targets[Target::kManipulator];
+  } else if (cost_map.count(targets[Target::kFastWheel]) && cost_map[targets[Target::kFastWheel]] < 5) {
+    goal = targets[Target::kFastWheel];
+  } else {
+    goal = targets[Target::kUnwrapped];
+  }
 
   for (Point p = goal; p != w->pos;) {
     switch (getFrom(direction_map[p])) {
@@ -171,6 +225,8 @@ void decideWrapperAction(Wrapper* w, State& state) {
     case kDown:  --p.y; direction_map[p] = setTo(direction_map[p], kUp); break;
     case kLeft:  --p.x; direction_map[p] = setTo(direction_map[p], kRight); break;
     case kRight: ++p.x; direction_map[p] = setTo(direction_map[p], kLeft); break;
+    default:
+      assert(false);
     }
   }
 
@@ -180,6 +236,8 @@ void decideWrapperAction(Wrapper* w, State& state) {
   case kLeft:  w->move('A'); break;
   case kRight: w->move('D'); break;
   }
+
+  map(w->pos) = current;
 }
 
 }  // namespace
