@@ -19,3 +19,4 @@ clone_nonpara
 clone_strict_para
 pick
 pick_strict_para
+pick_strict_paranoids
