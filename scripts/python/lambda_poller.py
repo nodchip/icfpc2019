@@ -46,7 +46,7 @@ def solve_puzzle(args):
         print('Puzzle solver failed...', flush=True)
         return False
 
-    if not os.path.isfile(solution_file_path):
+    if not os.path.isfile(PUZZLE_OUTPUT_FILE_NAME):
         print('Puzzle solver output file does not exist...', flush=True)
         return False
 
