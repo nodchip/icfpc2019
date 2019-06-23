@@ -6,6 +6,16 @@ const std::vector<Direction> all_directions = {
   Direction::W, Direction::A, Direction::S, Direction::D, 
 };
 
+const std::vector<Point> neighbors4 = {
+  {0, 1}, {-1, 0}, {0, -1}, {1, 0}
+};
+const std::vector<Point> neighbors8 = {
+  {-1, -1}, {-1, 0}, {-1, 1},
+  { 0, -1}, { 0, 0}, { 0, 1},
+  { 1, -1}, { 1, 0}, { 1, 1},
+};
+
+
 Direction turn(Direction dir, bool turn_cw) {
   switch (dir) {
     case Direction::W: return turn_cw ? Direction::D : Direction::A;
