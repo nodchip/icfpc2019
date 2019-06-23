@@ -7,6 +7,7 @@ import re
 import shutil
 import subprocess
 import multiprocessing
+import sys
 
 
 Result = collections.namedtuple('Result', ('problem_name', 'new_time', 'best_time'))
@@ -14,6 +15,7 @@ Result = collections.namedtuple('Result', ('problem_name', 'new_time', 'best_tim
 
 TIMEOUT = 300.0
 INFINITE = 10**9
+FAILURE = False;
 
 def calculate_time(solution_file_path):
     if not os.path.isfile(solution_file_path):
@@ -43,11 +45,20 @@ def calculate_time(solution_file_path):
 
 
 def execute(problem_name, args):
+    global FAILURE
+    if FAILURE:
+        return Result(problem_name, INFINITE, INFINITE)
+
     description_file_path = os.path.join(args.description_directory_path, problem_name + '.desc')
     solution_file_path = os.path.join(args.solution_directory_path, problem_name + '.sol')
     best_solution_file_path = os.path.join(args.best_solution_directory_path, problem_name + '.sol')
 
-    assert os.path.isfile(description_file_path), 'Description file does not exist. description_file_path={description_file_path}'.format(description_file_path=description_file_path)
+    if not os.path.isfile(description_file_path):
+        print('!' * 80, flush=True)
+        print('Description file does not exist. description_file_path={description_file_path}'.format(
+            description_file_path=description_file_path), flush=True)
+        FAILURE = True
+        return 
 
     command = [args.engine_file_path, 'run', args.solver_name, '--desc', description_file_path,
                '--output', solution_file_path]
@@ -55,15 +66,28 @@ def execute(problem_name, args):
     try:
         completed_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=TIMEOUT)
     except subprocess.TimeoutExpired:
+        print('!' * 80, flush=True)
+        print('Engine timeout... command={command} description_file_path={description_file_path} solution_file_path={solution_file_path}'.format(
+            command=command, description_file_path=description_file_path,
+            solution_file_path=solution_file_path), flush=True)
+        FAILURE = True
         return Result(problem_name, INFINITE, INFINITE)
 
-    assert completed_process.returncode == 0, 'Failed to execute the engine. command={command} description_file_path={description_file_path} solution_file_path={solution_file_path}'.format(
+    if completed_process.returncode:
+        print('!' * 80, flush=True)
+        print('Failed to execute the engine. command={command} description_file_path={description_file_path} solution_file_path={solution_file_path}'.format(
             command=command, description_file_path=description_file_path,
-            solution_file_path=solution_file_path)
+            solution_file_path=solution_file_path), flush=True)
+        FAILURE = True
+        return Result(problem_name, INFINITE, INFINITE)
 
-    assert os.path.isfile(solution_file_path), 'The engine did not output solutionfile. command={command} description_file_path={description_file_path} solution_file_path={solution_file_path}'.format(
+    if not os.path.isfile(solution_file_path):
+        print('!' * 80, flush=True)
+        print('The engine did not output solutionfile. command={command} description_file_path={description_file_path} solution_file_path={solution_file_path}'.format(
             command=command, description_file_path=description_file_path,
-            solution_file_path=solution_file_path)
+            solution_file_path=solution_file_path), flush=True)
+        FAILURE = True
+        return Result(problem_name, INFINITE, INFINITE)
 
     new_time = calculate_time(solution_file_path)
     best_time = calculate_time(best_solution_file_path)
@@ -76,6 +100,7 @@ def execute(problem_name, args):
 
 
 def main():
+    global FAILURE
     parser = argparse.ArgumentParser(description='Executes engines.')
     parser.add_argument('--description_directory_path',
                         help='Directory path containing input task descriptions.',
@@ -97,6 +122,7 @@ def main():
     os.makedirs(args.solution_directory_path, exist_ok=True)
     os.makedirs(args.best_solution_directory_path, exist_ok=True)
 
+    FAILURE = False
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as executor:
         futures = list()
         for file_name in os.listdir(args.description_directory_path):
@@ -119,7 +145,10 @@ def main():
         print('{problem_name:>10} {new_time:>10} {best_time:>10} {updated}'.format(
             problem_name=result.problem_name, new_time=result.new_time,
             best_time=result.best_time, updated=updated), flush=True)
-    
+
+    if FAILURE:
+        print('!' * 80, flush=True)
+        sys.exit('Some error occurred...')
 
 
 if __name__ == "__main__":
