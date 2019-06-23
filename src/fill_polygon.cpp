@@ -96,6 +96,14 @@ bool parsePolygon(Polygon& polygon, const Map2D& map, int value) {
                     const bool pa_on = map.isInside(pa) && map(pa) == value;
                     //std::cout << "point" << fine.back() << " dir is " << int(dir) << " ps:" << (ps_on ? 1 : 0) << " pa:" << (pa_on ? 1 : 0) << std::endl;
                     if (pa_on) {
+                        if (!ps_on) {
+                            std::cout << "not 4-connected! " << fine.back() << ps << pa << std::endl;
+                            auto sliced = map.slice(
+                                std::max(0, ps.x - 4), std::min(map.W, ps.x + 4),
+                                std::max(0, ps.y - 4), std::min(map.H, ps.y + 4));
+                            std::cout << sliced.toString(true, true, 2) << std::endl;
+                            exit(1);
+                        }
                         assert (ps_on); // 4-connected
                         dir = turnCW(dir);
                     } else if (!ps_on) {
