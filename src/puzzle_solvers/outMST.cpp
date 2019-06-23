@@ -148,13 +148,12 @@ public:
 class Dijkstra
 {
   using pii = std::pair<int, int>;
-  static const int INF = INT_MAX >> 2;
   std::vector<int> d;
   std::vector<int> prev;
 
 public:
   Dijkstra(const std::vector<std::vector<Edge<int>>> &G, int V, int s)
-      : d(V, INF), prev(V, -1)
+    : d(V, INT_MAX >> 2), prev(V, -1)
   {
     std::priority_queue<pii, std::vector<pii>, std::greater<pii>> pq;
 
