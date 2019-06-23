@@ -73,7 +73,10 @@ weight hungarian(const matrix &a, std::vector<int>& x, std::vector<int>& y);
 struct ConnectedComponentAssignmentForParanoid {
   static const int UNASSIGNED = -1;
 
-  ConnectedComponentAssignmentForParanoid(Game* game_, int distance_threshold_);
+  ConnectedComponentAssignmentForParanoid(Game* game_,
+    int distance_threshold_,
+    int small_region_bonus_
+    );
 
   bool hasDisjointComponents() const;
   bool isComponentAssignedToWrapper(int i) const;
@@ -93,9 +96,11 @@ private:
 
   Game* game = nullptr;
   int distance_threshold = 100;
+  int small_region_bonus = 100;
   bool delay_update_flag = false;
   std::vector<Component> components;
   std::vector<int> wrapper_to_component;
 
   static Point approximateCenter(const std::vector<Point>& points);
+  static std::vector<Point> findNearestPoints(const std::vector<Point>& haystack, Point needle);
 };

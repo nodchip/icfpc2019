@@ -101,7 +101,9 @@ std::string pickStrictParanoidsSolver(SolverParam param, Game* game, SolverIterC
   std::vector<std::vector<Trajectory>> cmat;
   cmat = std::vector<std::vector<Trajectory>>(game->wrappers.size());
 
-  ConnectedComponentAssignmentForParanoid cc_assignment(game, 10);
+  ConnectedComponentAssignmentForParanoid cc_assignment(game,
+    10 /* distance_threshold */,
+    100 /* small_region_bonus */);
 
   if(clone_exist){
     //cout<<"clone found"<<endl;

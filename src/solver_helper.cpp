@@ -195,8 +195,9 @@ weight hungarian(const matrix &a, std::vector<int>& x, std::vector<int>& y) {
 }
 } // detail
 
-ConnectedComponentAssignmentForParanoid::ConnectedComponentAssignmentForParanoid(Game* game_, int distance_threshold_)
-  : game(game_), distance_threshold(distance_threshold_) {
+ConnectedComponentAssignmentForParanoid::ConnectedComponentAssignmentForParanoid(
+  Game* game_, int distance_threshold_, int small_region_bonus_)
+  : game(game_), distance_threshold(distance_threshold_), small_region_bonus(small_region_bonus_) {
 }
 
 bool ConnectedComponentAssignmentForParanoid::hasDisjointComponents() const {
@@ -234,6 +235,9 @@ bool ConnectedComponentAssignmentForParanoid::update() {
     return true;
   }
 
+  // sort by its size. it is used later for small-region bonus.
+  std::sort(ccs.begin(), ccs.end(), [](auto& lhs, auto& rhs) { return lhs.size() < rhs.size(); });
+
   for (auto cc : ccs) {
     components.push_back({ cc, approximateCenter(cc) });
   }
@@ -262,6 +266,11 @@ bool ConnectedComponentAssignmentForParanoid::update() {
 #else
         // 簡易的に領域重心までの直線距離を用いていたが、最短経路と反する場合に振動する
         // 仕方ないので、正しく最短経路を計算する(重い)
+        // 今まさに小領域と大領域に分割してしまった場合、当初の小面積基準や重心距離基準では正しく選択できたが、
+        // 領域のどこかへの最短経路の場合はどちらも同程度(~ 1)となり、小領域を優先して潰すことにならないことがある。
+        //
+        // ターゲットは重心位置に最も近い領域内の点としつつ、距離は経路で測定するのが良さそうと思ったが、
+        // 何故か今の所うまく動いておらず逆に小領域が残る (1)
         int nearest_manhattan = game->map2d.W + game->map2d.H;
         for (auto p : components[j].points) {
           nearest_manhattan = std::min(nearest_manhattan, (pos - p).lengthManhattan());
@@ -270,10 +279,15 @@ bool ConnectedComponentAssignmentForParanoid::update() {
           Map2D map(game->map2d.W, game->map2d.H, 0);
           std::vector<Point> path = shortestPathByMaskBFS(game->map2d,
             CellType::kObstacleBit, 0, // inside room
-            pos, components[j].points,
-            distance_threshold);
+            //pos, findNearestPoints(components[j].points, components[j].center)); // (1)
+            pos, components[j].points);
           if (path.size() < distance_threshold) {
             preference[i][j] = distance_threshold - path.size();
+            if (true) {
+              // add small-region bonus.
+              // components are sorted. (j==0: smallest, j==M-1: largest.)
+              preference[i][j] += small_region_bonus * (M - j); // large preference for small j.
+            }
             if (path.size() >= 2) {
               suggested_motion[i][j] = path[1] - path[0];
               target[i][j] = path.back();
@@ -302,4 +316,19 @@ Point ConnectedComponentAssignmentForParanoid::approximateCenter(const std::vect
   double y = 0;
   for (auto p : points) x += p.x, y += p.y;
   return {int(x / points.size()), int(y / points.size())};
+}
+
+std::vector<Point> ConnectedComponentAssignmentForParanoid::findNearestPoints(const std::vector<Point>& haystack, Point needle) {
+  int best_dist = std::numeric_limits<int>::max();
+  std::vector<Point> best_points;
+  for (auto h : haystack) {
+    const int dist = (h - needle).lengthManhattan();
+    if (dist == best_dist) {
+      best_points.push_back(h);
+    } else if (dist < best_dist) {
+      best_dist = dist;
+      best_points = {h};
+    }
+  }
+  return best_points;
 }
