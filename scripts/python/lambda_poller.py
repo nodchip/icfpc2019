@@ -32,7 +32,7 @@ def solve_puzzle(args):
     if os.path.isfile(PUZZLE_OUTPUT_FILE_NAME):
         os.remove(PUZZLE_OUTPUT_FILE_NAME)
 
-    command = [args.puzzle_solver_file_path, 'puzzle_run', '--cond', PUZZLE_INPUT_FILE_NAME,
+    command = [args.puzzle_solver_file_path, 'puzzle_run', 'outBFS', '--cond', PUZZLE_INPUT_FILE_NAME,
                '--output', PUZZLE_OUTPUT_FILE_NAME]
     print(command, flush=True)
     try:
