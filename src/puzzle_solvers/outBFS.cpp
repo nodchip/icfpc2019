@@ -184,6 +184,44 @@ PuzzleSolution outBFS(PuzzleSolverParam param, Puzzle puzzle)
     x++;
   }
 
+  y = 1; x = 0;
+  while(simple_polygon.size() < puzzle.vMin && y < tSize - 1){
+    if(iSqsMat[y][x]) continue;
+    // くしを追加すると頂点が 4 増える
+    bool flag = true;
+    for(int dy = -1; dy <= 1; dy++){
+      for(int dx = 0; dx <= 1; dx++){
+        //if(board[dy][x + dx] == OUT) flag = false;
+        if(map2d.data[(y + dy) * tSize + (x + dx)] == 0) flag = false;
+      }
+    }
+    if(flag){
+      map2d.data[y * tSize + x] = 0;
+      parsePolygon(fine_polygon, map2d, 1);
+      simple_polygon = simplifyPolygon(fine_polygon);
+    }
+    y++;
+  }
+
+  y = 1; x = tSize - 1;
+  while(simple_polygon.size() < puzzle.vMin && y < tSize - 1){
+    if(iSqsMat[y][x]) continue;
+    // くしを追加すると頂点が 4 増える
+    bool flag = true;
+    for(int dy = -1; dy <= 1; dy++){
+      for(int dx = -1; dx <= 0; dx++){
+        //if(board[dy][x + dx] == OUT) flag = false;
+        if(map2d.data[(y + dy) * tSize + (x + dx)] == 0) flag = false;
+      }
+    }
+    if(flag){
+      map2d.data[y * tSize + x] = 0;
+      parsePolygon(fine_polygon, map2d, 1);
+      simple_polygon = simplifyPolygon(fine_polygon);
+    }
+    y++;
+  }
+
   //dumpBoard(map2d);
   //std::cerr << simple_polygon.size() << std::endl;
   assert(simple_polygon.size() >= puzzle.vMin);
