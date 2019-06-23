@@ -149,7 +149,7 @@ int main(int argc, char* argv[]) {
     if (PuzzleSolverFunction solver = SolverRegistry<PuzzleSolverFunction>::getSolver(solver_name)) {
       puzzle_solution = solver(puzzle_solver_param, puzzle);
 
-      // TODO: validation.
+      assert (puzzle.validateSolution(puzzle_solution));
     }
     const auto t1 = std::chrono::system_clock::now();
     const double solve_s = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count() * 1e-6;
