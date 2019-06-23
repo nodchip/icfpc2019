@@ -13,6 +13,7 @@ namespace {
 struct WrapperEngine {
   WrapperEngine(Game *game, int id) : m_game(game), m_id(id), m_wrapper(game->wrappers[id].get()), m_num_manipulators(0) { m_total_wrappers++; };
   Wrapper *action(double x, double y) {
+    
     if (m_game->num_boosters[BoosterType::MANIPULATOR] > 0 && (m_game->num_boosters[BoosterType::MANIPULATOR] + m_total_manipulators > m_total_wrappers * m_num_manipulators)) {
       if (m_num_manipulators % 2 == 0) {
         m_wrapper->addManipulator(Point(0, 1 + m_num_manipulators / 2));
@@ -127,6 +128,21 @@ int WrapperEngine::m_total_manipulators = 0;
 int WrapperEngine::m_total_wrappers = 0;
 };
 
+std::vector<std::vector<std::vector<Trajectory> >> getItemMatrix(Game* game, const int mask, const int bit){
+  std::vector<Point> Items = enumerateCellsByMask(game->map2d, mask, bit);
+  const int wsize = game->wrappers.size();
+  std::vector<std::vector<std::vector<Trajectory> >> output;
+  output.resize(Items.size());
+  for(int i=0;i<Items.size();++i){
+    output[i].resize(wsize);
+    for(int j=0;j<wsize;++j){
+      std::vector<Trajectory> trajs = map_parse::findNearestByBit(*game, game->wrappers[j]->pos, DISTANCE_INF, mask);
+      output[i][j] = trajs;
+    }
+  }
+  return output;
+}
+
 std::string bfs_paradSolver(SolverParam param, Game* game, SolverIterCallback iter_callback) {
   int num_wrappers = 1;
   vector<WrapperEngine> ws;
@@ -135,6 +151,11 @@ std::string bfs_paradSolver(SolverParam param, Game* game, SolverIterCallback it
   while (!game->isEnd()) {
 //    cout << epoch << ": ";
     // cout<<*game<<endl;
+
+    // std::vector<std::vector<std::vector<Trajectory>>> bmat = getItemMatrix(game, CellType::kBoosterManipulatorBit, CellType::kBoosterManipulatorBit);
+
+    // std::vector<std::vector<std::vector<Trajectory>>> cmat = getItemMatrix(game, CellType::kBoosterCloningBit, CellType::kBoosterCloningBit);
+    
     epoch++;
     vector<int> cloned;
     double x(0.0), y(0.0);
