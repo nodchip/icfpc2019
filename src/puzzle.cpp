@@ -33,10 +33,10 @@ bool Puzzle::validateSolution(const PuzzleSolution& solution) const {
   if (ymax > tSize) {
     mark_invalid("large H");
   }
-  if (xmax < tSize / 10) {
+  if (xmax < tSize - tSize / 10) {
     mark_invalid("small W");
   }
-  if (ymax < tSize / 10) {
+  if (ymax < tSize - tSize / 10) {
     mark_invalid("small H");
   }
   // fill walls.
@@ -46,7 +46,7 @@ bool Puzzle::validateSolution(const PuzzleSolution& solution) const {
   }
   // area.
   const int area = countCellsByMask(map, CellType::kObstacleBit, 0);
-  if (area >= (tSize * tSize * 2 + 10 - 1) / 10) {
+  if (area < (tSize * tSize * 2 + 10 - 1) / 10) {
     mark_invalid("small area");
   }
   // in/out
@@ -73,11 +73,11 @@ bool Puzzle::validateSolution(const PuzzleSolution& solution) const {
   }
   // boosters
   if (solution.Bs.size() != mNum) { mark_invalid("booster B size mismatch"); }
-  if (solution.Fs.size() != mNum) { mark_invalid("booster F size mismatch"); }
-  if (solution.Ls.size() != mNum) { mark_invalid("booster L size mismatch"); }
-  if (solution.Rs.size() != mNum) { mark_invalid("booster R size mismatch"); }
-  if (solution.Cs.size() != mNum) { mark_invalid("booster C size mismatch"); }
-  if (solution.Xs.size() != mNum) { mark_invalid("booster X size mismatch"); }
+  if (solution.Fs.size() != fNum) { mark_invalid("booster F size mismatch"); }
+  if (solution.Ls.size() != dNum) { mark_invalid("booster L size mismatch"); }
+  if (solution.Rs.size() != rNum) { mark_invalid("booster R size mismatch"); }
+  if (solution.Cs.size() != cNum) { mark_invalid("booster C size mismatch"); }
+  if (solution.Xs.size() != xNum) { mark_invalid("booster X size mismatch"); }
   std::vector<std::vector<Point>> boosters_list = {
     solution.Bs,
     solution.Fs,
