@@ -107,6 +107,9 @@ def main():
                         default='src/solver')
     args = parser.parse_args()
 
+    # HACK: Process the latest block on startup always.
+    set_next_block(-1)
+
     engine_names = list()
     with open(args.engine_name_file_paths, 'r') as f:
         for engine_name in f:
