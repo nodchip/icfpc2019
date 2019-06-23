@@ -33,14 +33,20 @@ TrajectoryMap generateTrajectoryMap(const Game &game,
   const int kYMax = game.map2d.H;
 
   TrajectoryMap traj_map(kYMax, std::vector<Trajectory>(kXMax));
-  std::queue<Trajectory> que;
+  std::vector<std::vector<Trajectory>> q(1);
   traj_map[from.y][from.x] =
     Trajectory{Direction::W, from, 0, false};
 
-  que.push(traj_map[from.y][from.x]);
-  while (!que.empty()) {
-    Trajectory traj = que.front();
-    que.pop();
+  int current_cost = 0;
+  q[0].push_back(traj_map[from.y][from.x]);
+  while (current_cost < q.size()) {
+    if (q[current_cost].empty()) {
+      ++current_cost;
+      continue;
+    }
+
+    Trajectory traj = q[current_cost].back();
+    q[current_cost].pop_back();
     // std::cout<<"spawn "<<traj<<std::endl;
     if (traj.distance > max_dist) {
       continue;
@@ -64,13 +70,19 @@ TrajectoryMap generateTrajectoryMap(const Game &game,
         return;
       }
 
+      // If the destination cell is already wrapped, add an extra cost.
+      int cost = (game.map2d(x_try, y_try) & CellType::kWrappedBit) ? 2 : 1;
+
       Trajectory traj_try = traj;
-      traj_try.distance += 1;
+      traj_try.distance += cost;
       traj_try.last_move = dir;
       traj_try.pos = {x_try, y_try};
       // std::cout<<"try "<<traj_try<<std::endl;
       if (update_callback(traj_try, traj_map[y_try][x_try])) {
-        que.push(traj_try);
+        while (q.size() <= traj_try.distance) {
+          q.emplace_back();
+        }
+        q[traj_try.distance].push_back(traj_try);
 	// std::cout<<"ok"<<std::endl;
       }
     };
@@ -98,11 +110,11 @@ std::vector<Trajectory> findTrajectory(const Game &game, const Point &from, cons
 
 
   const int dist_out = traj_map[to.y][to.x].distance;
-  std::vector<Trajectory> trajs(dist_out);
+  std::vector<Trajectory> trajs;
 
   Point pos(to.x, to.y);
-  for(int i=0; i<dist_out; ++i){
-    trajs[dist_out - i - 1] = traj_map[pos.y][pos.x];
+  while (pos.x != from.x || pos.y != from.y) {
+    trajs.push_back(traj_map[pos.y][pos.x]);
     switch (traj_map[pos.y][pos.x].last_move) {
     case Direction::W: --pos.y; break;
     case Direction::S: ++pos.y; break;
@@ -110,6 +122,7 @@ std::vector<Trajectory> findTrajectory(const Game &game, const Point &from, cons
     case Direction::A: ++pos.x; break;
     }
   }
+  std::reverse(trajs.begin(), trajs.end());
   return trajs;  
 }
 
@@ -127,7 +140,7 @@ std::vector<Trajectory> findNearestUnwrapped(const Game &game, const Point& from
               traj_new.distance < nearest) {
             nearest_point = traj_new.pos;
             nearest = traj_new.distance;
-          } else if(traj_new.distance < nearest){
+          } else if(nearest == DISTANCE_INF){
 	    return true;  // Will enqueue |traj_new|
           }
         }
@@ -139,11 +152,11 @@ std::vector<Trajectory> findNearestUnwrapped(const Game &game, const Point& from
   }
 
   const int dist_out = traj_map[nearest_point.y][nearest_point.x].distance;
-  std::vector<Trajectory> trajs(dist_out);
+  std::vector<Trajectory> trajs;
 
   Point pos(nearest_point.x, nearest_point.y);
-  for(int i=0; i<dist_out; ++i){
-    trajs[dist_out - i - 1] = traj_map[pos.y][pos.x];
+  while (pos.x != from.x || pos.y != from.y) {
+    trajs.push_back(traj_map[pos.y][pos.x]);
     switch (traj_map[pos.y][pos.x].last_move) {
     case Direction::W: --pos.y; break;
     case Direction::S: ++pos.y; break;
@@ -151,6 +164,7 @@ std::vector<Trajectory> findNearestUnwrapped(const Game &game, const Point& from
     case Direction::A: ++pos.x; break;
     }
   }
+  std::reverse(trajs.begin(), trajs.end());
   return trajs;
 
 }
@@ -181,11 +195,11 @@ std::vector<Trajectory> findNearestUnwrapped(const Game &game, const Point& from
   }
 
   const int dist_out = traj_map[nearest_point.y][nearest_point.x].distance;
-  std::vector<Trajectory> trajs(dist_out);
+  std::vector<Trajectory> trajs;
 
   Point pos(nearest_point.x, nearest_point.y);
-  for(int i=0; i<dist_out; ++i){
-    trajs[dist_out - i - 1] = traj_map[pos.y][pos.x];
+  while (pos.x != from.x || pos.y != from.y) {
+    trajs.push_back(traj_map[pos.y][pos.x]);
     switch (traj_map[pos.y][pos.x].last_move) {
     case Direction::W: --pos.y; break;
     case Direction::S: ++pos.y; break;
