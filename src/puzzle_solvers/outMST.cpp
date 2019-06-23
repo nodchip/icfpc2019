@@ -356,7 +356,8 @@ PuzzleSolution outMST(PuzzleSolverParam param, Puzzle puzzle)
     return Point(j, i);
   };
 
-  int vTarget = (puzzle.vMin + puzzle.vMax) / 2;
+  //int vTarget = (puzzle.vMin + puzzle.vMax) / 2;
+  int vTarget = puzzle.vMin;
   while(simple_polygon.size() < vTarget){
     popUnwrappedBound();
     parsePolygon(fine_polygon, map2d, 1);
