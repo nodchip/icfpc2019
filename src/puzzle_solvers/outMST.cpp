@@ -382,7 +382,7 @@ PuzzleSolution outMST(PuzzleSolverParam param, Puzzle puzzle)
   // static const char SPAWN_POINT = 'X';
 
   {
-    int bNum = puzzle.bNum;
+    int bNum = puzzle.mNum;
     int fNum = puzzle.fNum;
     int lNum = puzzle.dNum;
     int rNum = puzzle.rNum;
