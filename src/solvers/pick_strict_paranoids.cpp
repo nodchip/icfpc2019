@@ -40,6 +40,11 @@ struct WrapperEngine {
 
       cc_assignment.update();
       if (cc_assignment.hasDisjointComponents() && cc_assignment.isComponentAssignedToWrapper(m_id)) {
+        Trajectory t;
+        if (pointToDirection(t.last_move, cc_assignment.getSuggestedMotionOfWrapper(m_id))) {
+          trajs = { t };
+        }
+        /*
         // 割り当てられた領域に向かう
         auto target = cc_assignment.getTargetOfWrapper(m_id);
         trajs = map_parse::findTrajectory(*m_game, pos, target, DISTANCE_INF, false, false);
@@ -47,6 +52,7 @@ struct WrapperEngine {
         if (trajs.size() > 100) {
           trajs.clear();
         }
+        */
       }
       if (trajs.empty()) {
         // なければbfs5_6と同じ
@@ -99,7 +105,7 @@ std::string pickStrictParanoidsSolver(SolverParam param, Game* game, SolverIterC
   std::vector<std::vector<Trajectory>> cmat;
   cmat = std::vector<std::vector<Trajectory>>(game->wrappers.size());
 
-  ConnectedComponentAssignmentForParanoid cc_assignment(game, 100);
+  ConnectedComponentAssignmentForParanoid cc_assignment(game, 10);
 
   if(clone_exist){
     //cout<<"clone found"<<endl;
@@ -129,16 +135,16 @@ std::string pickStrictParanoidsSolver(SolverParam param, Game* game, SolverIterC
       std::vector<std::vector<Trajectory>> bmat;
       bmat = getItemMatrixpick(game, CellType::kBoosterManipulatorBit, 3, false);
       for(int i=0; i<game->wrappers.size();++i){
-	if(bmat[i].size()!=0 && cmat[i].size()==0){
-	  /*
-	  cout<<"wrapper "<<i<<" item traj"<<endl;
-	  for(auto tj : bmat[i]){
-	    cout<<tj<<" ";
-	  }
-	  cout<<endl;
-	  */
-	  cmat[i] = bmat[i]; // push traj to get item
-	}
+        if(bmat[i].size()!=0 && cmat[i].size()==0){
+          /*
+          cout<<"wrapper "<<i<<" item traj"<<endl;
+          for(auto tj : bmat[i]){
+            cout<<tj<<" ";
+          }
+          cout<<endl;
+          */
+          cmat[i] = bmat[i]; // push traj to get item
+        }
       }
     }
     

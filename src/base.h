@@ -33,6 +33,14 @@ struct Point {
 extern const std::vector<Point> neighbors4;
 extern const std::vector<Point> neighbors8;
 
+inline bool pointToDirection(Direction& d, const Point& p) {
+    if (p == Point { 0,  1}) { d = Direction::W; return true; }
+    if (p == Point {-1,  0}) { d = Direction::A; return true; }
+    if (p == Point { 0, -1}) { d = Direction::S; return true; }
+    if (p == Point { 1,  0}) { d = Direction::D; return true; }
+    return false;
+}
+
 std::ostream& operator<<(std::ostream&, const Point&);
 
 using Polygon = std::vector<Point>;

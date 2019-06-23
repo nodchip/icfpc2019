@@ -211,6 +211,11 @@ Point ConnectedComponentAssignmentForParanoid::getTargetOfWrapper(int i) const {
   return components[wrapper_to_component[i]].points.front();
 }
 
+Point ConnectedComponentAssignmentForParanoid::getSuggestedMotionOfWrapper(int i) const {
+  if (!isComponentAssignedToWrapper(i)) return Point {0, 0};
+  return components[wrapper_to_component[i]].suggested_motion;
+}
+
 void ConnectedComponentAssignmentForParanoid::delayUpdate() {
   delay_update_flag = true;
 }
@@ -237,20 +242,54 @@ bool ConnectedComponentAssignmentForParanoid::update() {
   // hungarian method
   const int sz = std::max(N, M);
   detail::matrix preference(sz, std::vector<int>(sz, 0)); // preference[wrapper][component]
+  // to avoid occilation, it is suggested to use the motion found in the nearestPathByMaskBFS.
+  std::vector<std::vector<Point>> suggested_motion(sz, std::vector<Point>(sz, {0, 0}));
+  std::vector<std::vector<Point>> target(sz, std::vector<Point>(sz, {-1, -1}));
   for (int i = 0; i < sz; ++i) {
     for (int j = 0; j < sz; ++j) {
       if (i < N && j < M) {
+        Point pos = game->wrappers[i]->pos;
         // 中心までの距離を見ることで、自然に小さいものを好むようにしつつ、遠くのwrapperの作業に気を取られないようにする
+#if 0
         // 本来は中心までの距離ではなく、CCまでの最短経路長を見るべき
-        const int distance2 = (components[j].center - game->wrappers[i]->pos).length2();
+        const int distance2 = (components[j].center - pos).length2();
         if (distance2 < distance_threshold) {
           preference[i][j] = distance_threshold - distance2;
         }
+#else
+        // 簡易的に領域重心までの直線距離を用いていたが、最短経路と反する場合に振動する
+        // 仕方ないので、正しく最短経路を計算する(重い)
+        int nearest_manhattan = game->map2d.W + game->map2d.H;
+        for (auto p : components[j].points) {
+          nearest_manhattan = std::min(nearest_manhattan, (pos - p).lengthManhattan());
+        }
+        if (nearest_manhattan < distance_threshold) {
+          Map2D map(game->map2d.W, game->map2d.H, 0);
+          std::vector<Point> path = nearestPathByMaskBFS(game->map2d,
+            CellType::kObstacleBit, 0, // inside room
+            pos, components[j].points);
+          if (path.size() < distance_threshold) {
+            preference[i][j] = distance_threshold - path.size();
+            if (path.size() >= 2) {
+              suggested_motion[i][j] = path[1] - path[0];
+              target[i][j] = path.back();
+            }
+          }
+        }
+#endif
       }
     }
   }
 
   detail::hungarian(preference, wrapper_to_component, component_to_wrapper);
+  for (int i = 0; i < sz; ++i) {
+    const int j = wrapper_to_component[i];
+    if (j != UNASSIGNED && j < M) {
+      components[j].suggested_motion = suggested_motion[i][j];
+      components[j].target = target[i][j];
+    }
+  }
+
   return true;
 }
 

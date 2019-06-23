@@ -179,8 +179,26 @@ void Game::addClonedWrapperForNextFrame(std::unique_ptr<Wrapper> wrapper) {
 
 std::ostream& operator<<(std::ostream& os, const Game& game) {
   os << "Time: " << game.time << "\n";
-  for (auto& line : dumpMapString(game.map2d, game.getWrapperPositions())) {
-    os << line << "\n";
+  const int W = game.map2d.W, H = game.map2d.H;
+  if (W < 200 && H < 200) {
+    // whole map
+    for (auto& line : dumpMapString(game.map2d, game.getWrapperPositions())) {
+      os << line << "\n";
+    }
+  } else {
+    // in window
+    const int window = 40;
+    const int fx = std::max(0, game.wrappers[0]->pos.x - window);
+    const int tx = std::min(W, game.wrappers[0]->pos.x + window);
+    const int fy = std::max(0, game.wrappers[0]->pos.y - window);
+    const int ty = std::min(H, game.wrappers[0]->pos.y + window);
+    std::vector<Point> wrappers_in_window;
+    for (auto p : game.getWrapperPositions()) {
+      wrappers_in_window.push_back({p.x - fx, p.y - fy});
+    }
+    for (auto& line : dumpMapString(game.map2d.slice(fx, tx, fy, ty), wrappers_in_window)) {
+      os << line << "\n";
+    }
   }
   os << "Unwrapped: " << game.map2d.num_unwrapped << "\n";
 
@@ -208,7 +226,8 @@ std::ostream& operator<<(std::ostream& os, const Game& game) {
     }
     os << "\n";
   }
-  os << "Commad: " << game.getCommand() << "\n";
+  os << "Commad: " << game.getCommand().size() << "\n";
+  //os << "Commad: " << game.getCommand() << "\n";
 
   return os;
 }
