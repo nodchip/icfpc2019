@@ -34,10 +34,10 @@ class Validator(object):
     def validate(self, desc_path, sol_path):
 
         desc_file = self.driver.find_element_by_id('submit_task')
-        desc_file.send_keys(desc_path)
+        desc_file.send_keys(os.path.abspath(desc_path))
 
         sol_file = self.driver.find_element_by_id('submit_solution')
-        sol_file.send_keys(sol_path)
+        sol_file.send_keys(os.path.abspath(sol_path))
 
         button = self.driver.find_element_by_id('execute_solution')
         button.click()
