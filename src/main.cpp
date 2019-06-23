@@ -13,6 +13,25 @@
 #include "fill_polygon.h"
 #include "solver_registry.h"
 
+std::string resolveDescPath(std::string desc_path_hint) {
+  // parse various input:
+  // ../dataset/problems/prob-001.desc
+  // prob-001
+  // 001
+  std::vector<std::string> candidates = {
+    desc_path_hint,
+    std::string("../dataset/problems/") + desc_path_hint,
+    std::string("../dataset/problems/") + desc_path_hint + std::string(".desc"),
+    std::string("../dataset/problems/prob-") + desc_path_hint + std::string(".desc"),
+  };
+  for (auto c : candidates) {
+    if (std::experimental::filesystem::is_regular_file(c)) {
+      return c;
+    }
+  }
+  return desc_path_hint;
+}
+
 int main(int argc, char* argv[]) {
   int return_code = 0;
   CLI::App app { "main module" };
@@ -65,6 +84,7 @@ int main(int argc, char* argv[]) {
 
   // ================== convert
   if (sub_convert->parsed()) {
+    desc_filename = resolveDescPath(desc_filename);
     assert (std::experimental::filesystem::is_regular_file(desc_filename));
     std::ifstream ifs(desc_filename);
     std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
@@ -80,6 +100,7 @@ int main(int argc, char* argv[]) {
   // ================== run
   if (sub_run->parsed()) {
     std::unique_ptr<Game> game; 
+    desc_filename = resolveDescPath(desc_filename);
     if (std::experimental::filesystem::is_regular_file(desc_filename)) {
       std::ifstream ifs(desc_filename);
       std::string str((std::istreambuf_iterator<char>(ifs)),
