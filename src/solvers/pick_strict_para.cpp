@@ -11,6 +11,10 @@ using namespace std;
 
 // clone_fastが雛形。近くにあるアイテムを拾うようにする。
 
+static bool operator<(const Point& lh, const Point& rh) {
+  return lh.x != rh.x ? lh.x < rh.x : lh.y < rh.y;
+}
+
 namespace {
 struct WrapperEngine {
   WrapperEngine(Game *game, int id) : m_game(game), m_id(id), m_wrapper(game->wrappers[id].get()), m_num_manipulators(0) { m_total_wrappers++; };
@@ -51,9 +55,14 @@ struct WrapperEngine {
         std::vector<Trajectory> trajs;
 
         auto ccs = disjointConnectedComponentsByMask(m_game->map2d, 0b11, 0b00);
+        for (auto& c : ccs) {
+          std::sort(c.begin(), c.end());
+        }
         if (ccs.size() > 1 && m_id == 0 && m_game->wrappers.size() == 1) {
           // 孤立領域があれば最小のものに向かう
-          std::sort(ccs.begin(), ccs.end(), [](const auto& lhs, const auto& rhs) { return lhs.size() < rhs.size(); });
+          std::sort(ccs.begin(), ccs.end(), [](const auto& lhs, const auto& rhs) {
+            return lhs.size() != rhs.size() ? lhs.size() < rhs.size() : lhs < rhs;
+            });
           auto small_cc = ccs.front();
           assert (!small_cc.empty());
           auto target = small_cc.front();
@@ -101,7 +110,7 @@ static std::vector<std::vector<Trajectory>> getItemMatrixpick(Game* game, const 
   return output;
 }
 
-std::string pickSolver(SolverParam param, Game* game, SolverIterCallback iter_callback) {
+std::string pickStrictParaSolver(SolverParam param, Game* game, SolverIterCallback iter_callback) {
   int num_wrappers = 1;
   vector<WrapperEngine> ws;
   bool clone_mode = false;
@@ -182,4 +191,4 @@ std::string pickSolver(SolverParam param, Game* game, SolverIterCallback iter_ca
   return game->getCommand();
 }
 
-REGISTER_SOLVER("pick", pickSolver);
+REGISTER_SOLVER("pick_strict_para", pickStrictParaSolver);
