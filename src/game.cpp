@@ -177,6 +177,22 @@ void Game::addClonedWrapperForNextFrame(std::unique_ptr<Wrapper> wrapper) {
   next_wrappers.push_back(std::move(wrapper));
 }
 
+bool checkCommandString(std::string cmd) {
+  auto check_noexist = [&](std::string pattern) {
+    if (cmd.find(pattern) != std::string::npos) {
+      std::cerr << "Suspicious command: " << pattern << std::endl;
+      return false;
+    }
+    return true;
+  };
+
+  bool okay = true;
+  okay = check_noexist("WSWS") && okay;
+  okay = check_noexist("ADAD") && okay;
+  okay = check_noexist("EQEQ") && okay;
+  return okay;
+}
+
 std::ostream& operator<<(std::ostream& os, const Game& game) {
   os << "Time: " << game.time << "\n";
   const int W = game.map2d.W, H = game.map2d.H;

@@ -64,5 +64,7 @@ private:
   std::vector<std::unique_ptr<Wrapper>> next_wrappers;
 };
 
+bool checkCommandString(std::string);
+
 // Outputs game status
 std::ostream& operator<<(std::ostream&, const Game&);

@@ -68,6 +68,10 @@ int main(int argc, char* argv[]) {
   sub_run->add_option("--buy", buy_database_dir, "use a buy directory");
   sub_run->add_option("--wait-ms", solver_param.wait_ms, "display and pause a while between frames");
 
+  auto sub_check_command = app.add_subcommand("check_command");
+  std::string solution_filename;
+  sub_check_command->add_option("solution_file", solution_filename, "input .sol file");
+
   std::string cond_filename;
 
   auto sub_puzzle_convert = app.add_subcommand("puzzle_convert", "read *.cond file and print pmap format");
@@ -114,12 +118,14 @@ int main(int argc, char* argv[]) {
     std::unique_ptr<Game> game; 
     desc_filename = resolveDescPath(desc_filename);
     if (std::experimental::filesystem::is_regular_file(desc_filename)) {
+      std::cerr << "Input: " << desc_filename << "\n";
       stem = toString(std::experimental::filesystem::path(desc_filename).stem());
       std::ifstream ifs(desc_filename);
       std::string str((std::istreambuf_iterator<char>(ifs)),
                       std::istreambuf_iterator<char>());
       game.reset(new Game(str));
     } else if (std::experimental::filesystem::is_regular_file(map_filename)) {
+      std::cerr << "Input: " << map_filename << "\n";
       stem = toString(std::experimental::filesystem::path(map_filename).stem());
       std::ifstream ifs(map_filename);
       std::vector<std::string> input;
@@ -128,6 +134,7 @@ int main(int argc, char* argv[]) {
       game.reset(new Game(input));
     } else {
       // read *.map from stdin
+      std::cerr << "Input: stdin" << "\n";
       std::ifstream ifs(map_filename);
       std::vector<std::string> input;
       for (std::string l; std::getline(std::cin, l);)
@@ -146,7 +153,7 @@ int main(int argc, char* argv[]) {
       }
     }
 
-    // Do something
+    // solve the task.
     const auto t0 = std::chrono::system_clock::now();
     if (SolverFunction solver = SolverRegistry<SolverFunction>::getSolver(solver_name)) {
       solver(solver_param, game.get(), [](Game*) { return true; });
@@ -157,6 +164,9 @@ int main(int argc, char* argv[]) {
     }
     const auto t1 = std::chrono::system_clock::now();
     const double solve_s = std::chrono::duration_cast<std::chrono::microseconds>(t1 - t0).count() * 1e-6;
+
+    // check suspicous commands.
+    checkCommandString(game->getCommand());
 
     // command output
     if (!command_output_filename.empty()) {
@@ -172,6 +182,20 @@ int main(int argc, char* argv[]) {
     }
     std::cout << "Time step: " << game->time << "\n";
     std::cout << "Elapsed  : " << solve_s << " s\n";
+  }
+
+  if (sub_check_command->parsed()) {
+    assert (std::experimental::filesystem::is_regular_file(solution_filename));
+    std::ifstream ifs(solution_filename);
+    std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+    std::cerr << "Command: " << str << std::endl;
+    if (checkCommandString(str)) {
+      std::cerr << "[O] the command looks OK!" << std::endl;
+      return_code = 0;
+    } else {
+      std::cerr << "[X] the command is suspicious!" << std::endl;
+      return_code = 1;
+    }
   }
 
   // ================== puzzle_convert
