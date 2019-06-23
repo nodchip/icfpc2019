@@ -20,6 +20,7 @@ from selenium.webdriver.chrome.options import Options
 
 CHROMEDRIVER_PATH = os.path.join(os.path.dirname(__file__), 'chromedriver.exe')
 
+
 class Validator(object):
     OFFICIAL_CHECKER_URL = 'https://icfpcontest2019.github.io/solution_checker/'
     def __init__(self):
@@ -77,6 +78,8 @@ def validate(desc_path, sol_path):
     else:
         res = v.validate(desc_path, sol_path)
         
+    del v
+
     problem_index = -1
     mo = re.match(r'prob-(\d+)\.desc', os.path.basename(desc_path))
     if mo:
@@ -112,7 +115,6 @@ def main():
 
     results = [future.result() for future in result_futures]
     
-    del v
     print(json.dumps(results, indent=4), file=open(args.output, 'w'))
 
 
