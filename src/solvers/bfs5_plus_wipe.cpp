@@ -82,7 +82,7 @@ std::string bfs5_plus_wipe_Solver(SolverParam param, Game* game, SolverIterCallb
   vector<WrapperEngine> ws;
   ws.emplace_back(WrapperEngine(game, 0));
   int epoch(0);
-  while (game->countUnWrapped() != 0) {
+  while (!game->isEnd()) {
 //    cout << epoch << ": ";
     epoch++;
     vector<int> cloned;

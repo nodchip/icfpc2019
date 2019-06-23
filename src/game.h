@@ -23,7 +23,7 @@ struct Game {
   // Returns True if no unwrapped cells are remained.
   bool isEnd() const;
 
-  int countUnWrapped() const;
+  int countUnwrapped() const { return map2d.num_unwrapped; }
 
   std::string getCommand() const; // extended solution command.
 
