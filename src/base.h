@@ -29,6 +29,9 @@ struct Point {
     Point operator-(const Point& rhs) const { return Point(x - rhs.x, y - rhs.y); }
     int length2() const { return x * x + y * y; }
 };
+extern const std::vector<Point> neighbors4;
+extern const std::vector<Point> neighbors8;
+
 std::ostream& operator<<(std::ostream&, const Point&);
 
 using Polygon = std::vector<Point>;

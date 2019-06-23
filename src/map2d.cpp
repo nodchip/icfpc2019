@@ -1,5 +1,7 @@
 #include "map2d.h"
 
+#include <sstream>
+#include <iomanip>
 #include <iostream>
 #include <ostream>
 #include <algorithm>
@@ -11,6 +13,46 @@
 
 #include "fill_polygon.h"
 
+std::string Map2D::toString(bool lower_origin, bool frame, int digits) const {
+  std::ostringstream oss;
+  if (frame) {
+    if (lower_origin) {
+      oss << "^ y\n";
+      oss << "|\n";
+    }
+    oss << "+";
+    for (int x = 0; x < W * (digits + 1) - 1; ++x) oss << "-";
+    if (!lower_origin) {
+      oss << "+--> x\n";
+    } else {
+      oss << "+\n";
+    }
+  }
+  for (int y = 0; y < H; ++y) {
+    if (frame) oss << "|";
+    for (int x = 0; x < W; ++x) {
+      oss << std::setfill(' ') << std::setw(digits) << operator()(x, lower_origin ? H - 1 - y : y);
+      if (x + 1 != W) {
+        oss << ' ';
+      }
+    }
+    if (frame) oss << "|";
+    oss << "\n";
+  }
+  if (frame) {
+    oss << "+";
+    for (int x = 0; x < W * (digits + 1) - 1; ++x) oss << "-";
+    if (lower_origin) {
+      oss << "+--> x\n";
+    } else {
+      oss << "+\n";
+      oss << "|\n";
+      oss << "v y\n";
+    }
+  }
+  return oss.str();
+}
+
 std::vector<Point> enumerateCellsByMask(const Map2D& map, int mask, int bits) {
   std::vector<Point> res;
   for (int y = 0; y < map.H; ++y)
@@ -18,6 +60,25 @@ std::vector<Point> enumerateCellsByMask(const Map2D& map, int mask, int bits) {
       if ((map(x, y) & mask) == bits)
         res.emplace_back(x, y);
   return res;
+}
+
+bool isConnected4(const Map2D& map) {
+  const std::vector<Point> diagonal = {
+    {-1, -1}, {-1, 1}, {1, -1}, {1, 1}
+  };
+  for (int y = 0; y < map.H; ++y) {
+    for (int x = 0; x < map.W; ++x) {
+      for (auto n : diagonal) {
+        auto o = Point{x, y} + n;
+        if (map.isInside(o) && map(o) == map(x, y)) {
+          if (map(x + n.x, y) != map(x, y) && map(x, y + n.y) != map(x, y)) {
+            return false;
+          }
+        }
+      }
+    }
+  }
+  return true;
 }
 
 namespace {

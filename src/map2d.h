@@ -74,6 +74,19 @@ struct Map2D {
     bool isInside(Point p) const {
         return isInside(p.x, p.y);
     }
+    Map2D slice(int fx, int tx, int fy, int ty) const {
+        if (fx < 0 || tx <= fx || W < tx) return {};
+        if (fy < 0 || ty <= fy || H < ty) return {};
+        Map2D sliced(tx - fx, ty - fy);
+        for (int y = 0; y < sliced.H; ++y) {
+            for (int x = 0; x < sliced.W; ++x) {
+                sliced(x, y) = operator()(fx + x, fy + y);
+            }
+        }
+        return sliced;
+    }
+
+    std::string toString(bool lower_origin, bool frame, int digits) const;
 
   private:
     static constexpr int kUnwrappedMask = CellType::kObstacleBit | CellType::kWrappedBit;
@@ -84,6 +97,15 @@ using Booster = std::pair<char, Point>;
 // return all points (x, y) with (map(x, y) & mask) == bits
 std::vector<Point> enumerateCellsByMask(const Map2D& map, int mask, int bits);
 inline int countCellsByMask(const Map2D& map, int mask, int bits) { return enumerateCellsByMask(map, mask, bits).size(); }
+
+// return true if there are no 8-connected pixel pairs which are not 4-connected.
+// e.g.)
+//  2 3 3
+//  3 1 1 : false.
+// e.g.)
+//  2 2 3
+//  3 1 1 : true.
+bool isConnected4(const Map2D& map);
 
 struct ParsedMap {
     Map2D map2d;

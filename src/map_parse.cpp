@@ -28,7 +28,7 @@ using UpdateCallback = std::function<bool(Trajectory&, Trajectory&)>;
 TrajectoryMap generateTrajectoryMap(const Game &game,
                                     const Point &from,
                                     const int max_dist,
-                                    const UpdateCallback& update_callback) {
+                                    const UpdateCallback& update_callback, const bool dstart=false, const bool astart=false) {
   const int kXMax = game.map2d.W;
   const int kYMax = game.map2d.H;
 
@@ -87,17 +87,32 @@ TrajectoryMap generateTrajectoryMap(const Game &game,
       }
     };
 
-    try_expand(Direction::W);
-    try_expand(Direction::A);
-    try_expand(Direction::S);
-    try_expand(Direction::D);
+    if(dstart){
+      try_expand(Direction::D);
+      try_expand(Direction::W);
+      try_expand(Direction::A);
+      try_expand(Direction::S);
+
+    }else if(astart){
+      try_expand(Direction::A);
+      try_expand(Direction::S);
+      try_expand(Direction::D);
+      try_expand(Direction::W);
+
+    }else{
+      try_expand(Direction::W);
+      try_expand(Direction::A);
+      try_expand(Direction::S);
+      try_expand(Direction::D);
+    }
+      
   }
 
   return traj_map;
 }
 
 std::vector<Trajectory> findTrajectory(const Game &game, const Point &from, const Point &to,
-                          const int max_dist) {
+                          const int max_dist, const bool dstart, const bool astart) {
   TrajectoryMap traj_map = generateTrajectoryMap(
       game, from, max_dist,
       [](Trajectory& traj_new, Trajectory& traj_orig) {
@@ -106,7 +121,7 @@ std::vector<Trajectory> findTrajectory(const Game &game, const Point &from, cons
           return true;  // Will enqueue |traj_new|
         }
         return false;  // Won't enqueue |traj_new|
-      });
+      }, dstart, astart);
 
 
   const int dist_out = traj_map[to.y][to.x].distance;
@@ -126,7 +141,7 @@ std::vector<Trajectory> findTrajectory(const Game &game, const Point &from, cons
   return trajs;  
 }
 
-std::vector<Trajectory> findNearestUnwrapped(const Game &game, const Point& from, const int max_dist) {
+std::vector<Trajectory> findNearestUnwrapped(const Game &game, const Point& from, const int max_dist, const bool dstart, const bool astart) {
   static constexpr int kMask = CellType::kObstacleBit | CellType::kWrappedBit;
   int nearest = DISTANCE_INF;
   Point nearest_point = {-1, -1};
@@ -145,7 +160,7 @@ std::vector<Trajectory> findNearestUnwrapped(const Game &game, const Point& from
           }
         }
         return false;  // Won't enqueue |traj_new|
-      });
+      }, dstart, astart);
 
   if (nearest == DISTANCE_INF){
     return std::vector<Trajectory>(0);
@@ -169,7 +184,7 @@ std::vector<Trajectory> findNearestUnwrapped(const Game &game, const Point& from
 
 }
 
-  std::vector<Trajectory> findNearestByBit(const Game &game, const Point& from, const int max_dist, const int kMask) {
+  std::vector<Trajectory> findNearestByBit(const Game &game, const Point& from, const int max_dist, const int kMask, const bool dstart, const bool astart) {
 
   int nearest = DISTANCE_INF;
   Point nearest_point = {-1, -1};
@@ -188,7 +203,7 @@ std::vector<Trajectory> findNearestUnwrapped(const Game &game, const Point& from
           }
         }
         return false;  // Won't enqueue |traj_new|
-      });
+      }, dstart, astart);
 
   if (nearest == DISTANCE_INF){
     return std::vector<Trajectory>(0);

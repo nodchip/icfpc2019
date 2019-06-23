@@ -40,6 +40,7 @@ struct ManipulatorExtender {
 
   // this will always emit an action.
   void extend();
+  int count() const { return num_attached_manipulators; }
 private:
   Game *game;
   Wrapper *wrapper;
