@@ -211,6 +211,8 @@ Wrapper* Wrapper::cloneWrapper() {
   assert ((game->map2d(pos) & CellType::kSpawnPointBit) != 0);
   std::unique_ptr<Wrapper> new_wrapper(new Wrapper(game, pos, game->nextWrapperIndex())); 
   Wrapper* spawned = new_wrapper.get();
+  spawned->direction = direction;
+  spawned->manipulators = manipulators;
   a.spawned_index = spawned->index;
   game->addClonedWrapperForNextFrame(std::move(new_wrapper));
 

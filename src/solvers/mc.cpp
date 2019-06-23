@@ -16,8 +16,8 @@ std::string mcSolver(SolverParam param, Game* game, SolverIterCallback iter_call
   Wrapper* w = game->wrappers[0].get();
   manipulator_extender[w] = new ManipulatorExtender(game, w);
   bool collect_b = true;
-  bool collect_c = Cs.size() > 0 && Xs.size() > 0;
-  bool spawn_x = Cs.size() > 0 && Xs.size() > 0;
+  bool collect_c = false && Cs.size() > 0 && Xs.size() > 0;
+  bool spawn_x = false && Cs.size() > 0 && Xs.size() > 0;
 
   return functorSolver(param, game, iter_callback, [&](Wrapper* w) -> Wrapper* {
     if (game->num_boosters[BoosterType::MANIPULATOR] > 0) { // Bがあれば使う
@@ -71,16 +71,40 @@ std::string mcSolver(SolverParam param, Game* game, SolverIterCallback iter_call
     // B, C, X を終えたので好きに動く
     const std::vector<Trajectory> trajs = map_parse::findNearestUnwrapped(*game, w->pos, DISTANCE_INF);
 
-    int count = game->countUnWrapped();
-    if (trajs.size() == 0)
-      return nullptr;
-
-    for(auto t : trajs){
-      const char c = Direction2Char(t.last_move);
-      w->move(c);
-      return nullptr;
+    if (trajs.size() > 0) {
+      // k stepの間に塗れる数が増えるならturnする
+      const int k = 8;
+      int painted[4] = {0};
+      int best_iturn = 0;
+      for (int iturn = 0; iturn < 4; ++iturn) {
+        int n_undo = 0;
+        // iturn回の回転
+        for (; n_undo < iturn; ++n_undo) {
+          w->turn(Action::CCW);
+          painted[iturn] += w->getLastNumWrapped();
+        }
+        // 残りを移動に使う
+        for (; n_undo < std::min<int>(k, trajs.size()); ++n_undo) {
+          const char c = Direction2Char(trajs[n_undo].last_move);
+          w->move(c);
+          painted[iturn] += w->getLastNumWrapped();
+        }
+        while (n_undo--) {
+          w->undoAction();
+        }
+        if (painted[best_iturn] < painted[iturn]) {
+          best_iturn = iturn;
+        }
+      }
+      // 最も良いものを選ぶ
+      // iturn回の回転
+      for (int i = 0; i < best_iturn; ++i) {
+        w->turn(Action::CCW);
+        game->tick();
+      }
     }
 
+    w->nop();
     return nullptr;
   });
 }
