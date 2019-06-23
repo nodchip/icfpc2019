@@ -16,7 +16,7 @@ def read_map(f):
     lines = []
     with open(f, 'r') as fi:
         for line in fi.readlines():
-            line = line.strip('\n')
+            line = line.strip('\n').upper()
             lines.append(line)
     W = len(line)
     H = len(lines)
