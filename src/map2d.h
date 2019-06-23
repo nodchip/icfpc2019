@@ -108,13 +108,13 @@ inline int countCellsByMask(const Map2D& map, int mask, int bits) { return enume
 bool isConnected4(const Map2D& map);
 
 // return [start, ..., stop]
-std::vector<Point> nearestPathByMaskBFS(const Map2D& map,
+std::vector<Point> shortestPathByMaskBFS(const Map2D& map,
   int free_mask, int free_bits,
   int target_mask, int target_bits,
   Point start);
 
 // return [start, ..., stop]
-std::vector<Point> nearestPathByMaskBFS(const Map2D& map,
+std::vector<Point> shortestPathByMaskBFS(const Map2D& map,
   int free_mask, int free_bits,
   Point start, const std::vector<Point>& targets);
 

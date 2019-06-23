@@ -52,7 +52,7 @@ PuzzleSolution minimumExcludePuzzleSolver(PuzzleSolverParam param, Puzzle puzzle
   for (auto p : puzzle.oSqs) {
     if (work(offset + p) == WALL) { continue; }
     // find nearest wall.
-    auto path = nearestPathByMaskBFS(work,
+    auto path = shortestPathByMaskBFS(work,
       0b11, 0b00, // room, not include
       0b11, 0b01, // wall, not include
       offset + p);

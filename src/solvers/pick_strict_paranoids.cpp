@@ -12,10 +12,6 @@ using namespace std;
 
 // clone_fastが雛形。近くにあるアイテムを拾うようにする。
 
-static bool operator<(const Point& lh, const Point& rh) {
-  return lh.x != rh.x ? lh.x < rh.x : lh.y < rh.y;
-}
-
 namespace {
 
 struct WrapperEngine {

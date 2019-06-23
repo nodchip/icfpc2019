@@ -106,15 +106,17 @@ std::unique_ptr<FindFCRouteResult> findGoodFCRoute(const Map2D& map, Point start
   std::vector<FindFCRouteResult> res;
   // start -> Fs[i]
   for (int i = 0; i < Fs.size(); ++i) {
-    auto path_to_F = nearestPathByMaskBFS(map, CellType::kObstacleBit, 0, start, {Fs[i]});
+    auto path_to_F = shortestPathByMaskBFS(map, CellType::kObstacleBit, 0, start, {Fs[i]});
     std::cout << "path_to_F:" << path_to_F.size() << std::endl;
-    for (auto p : path_to_F) std::cout << p; std::cout << std::endl;
+    for (auto p : path_to_F) std::cout << p;
+    std::cout << std::endl;
     if (!path_to_F.empty() && path_to_F.front() == start && path_to_F.back() == Fs[i]) {
       // start -> Fs[i]
       for (int j = 0; j < Cs.size(); ++j) {
-        auto path_to_C = nearestPathByMaskBFS(map, CellType::kObstacleBit, 0, Fs[i], {Cs[j]});
+        auto path_to_C = shortestPathByMaskBFS(map, CellType::kObstacleBit, 0, Fs[i], {Cs[j]});
         std::cout << "path_to_C:" << path_to_C.size() << std::endl;
-        for (auto p : path_to_C) std::cout << p; std::cout << std::endl;
+        for (auto p : path_to_C) std::cout << p;
+        std::cout << std::endl;
         if (!path_to_C.empty() && path_to_C.front() == Fs[i] && path_to_C.back() == Cs[j]) {
           std::cout << "s-F:" << path_to_F.size() << " F-C:" << path_to_C.size() << std::endl;
           FindFCRouteResult candidate;
@@ -133,9 +135,10 @@ std::unique_ptr<FindFCRouteResult> findGoodFCRoute(const Map2D& map, Point start
   // start -> Cs[j]
   const Point invalid {-1, -1};
   for (int j = 0; j < Cs.size(); ++j) {
-    auto path_to_C = nearestPathByMaskBFS(map, CellType::kObstacleBit, 0, start, {Cs[j]});
+    auto path_to_C = shortestPathByMaskBFS(map, CellType::kObstacleBit, 0, start, {Cs[j]});
     std::cout << "direct path_to_C:" << path_to_C.size() << std::endl;
-    for (auto p : path_to_C) std::cout << p; std::cout << std::endl;
+    for (auto p : path_to_C) std::cout << p;
+    std::cout << std::endl;
     if (!path_to_C.empty() && path_to_C.front() == start && path_to_C.back() == Fs[j]) {
       FindFCRouteResult candidate;
       candidate.F_pos = invalid;
@@ -242,7 +245,7 @@ bool ConnectedComponentAssignmentForParanoid::update() {
   // hungarian method
   const int sz = std::max(N, M);
   detail::matrix preference(sz, std::vector<int>(sz, 0)); // preference[wrapper][component]
-  // to avoid occilation, it is suggested to use the motion found in the nearestPathByMaskBFS.
+  // to avoid occilation, it is suggested to use the motion found in the shortestPathByMaskBFS.
   std::vector<std::vector<Point>> suggested_motion(sz, std::vector<Point>(sz, {0, 0}));
   std::vector<std::vector<Point>> target(sz, std::vector<Point>(sz, {-1, -1}));
   for (int i = 0; i < sz; ++i) {
@@ -265,7 +268,7 @@ bool ConnectedComponentAssignmentForParanoid::update() {
         }
         if (nearest_manhattan < distance_threshold) {
           Map2D map(game->map2d.W, game->map2d.H, 0);
-          std::vector<Point> path = nearestPathByMaskBFS(game->map2d,
+          std::vector<Point> path = shortestPathByMaskBFS(game->map2d,
             CellType::kObstacleBit, 0, // inside room
             pos, components[j].points);
           if (path.size() < distance_threshold) {
