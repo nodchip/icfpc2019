@@ -232,11 +232,11 @@ PuzzleSolution outMST(PuzzleSolverParam param, Puzzle puzzle)
   std::map<int, int> ij2v;
   std::map<int, int> v2ij;
   std::vector<std::vector<bool>> poly2d(H, std::vector<bool>(W, true));
-  //std::vector<std::vector<bool>> in2d(H, std::vector<bool>(W, false));
+  std::vector<std::vector<bool>> in2d(H, std::vector<bool>(W, false));
   std::vector<std::vector<bool>> out2d(H, std::vector<bool>(W, false));
-  // for(const Point& in : iSqs){
-  //   in2d[in.y][in.x] = true;
-  // }
+  for(const Point& in : iSqs){
+    in2d[in.y][in.x] = true;
+  }
   for (const Point &out : oSqs)
   {
     out2d[out.y][out.x] = true;
@@ -308,12 +308,14 @@ PuzzleSolution outMST(PuzzleSolverParam param, Puzzle puzzle)
     for (int j = 0; j < W; j++)
     {
       if (poly2d[i][j])
-        map2d.data[IJ(i, j)] = R;
+        map2d.data[IJ(i, j)] = 1;
+      else
+        map2d.data[IJ(i, j)] = 0;
     }
   }
 
   Polygon fine_polygon;
-  assert(parsePolygon(fine_polygon, map2d, R));
+  assert(parsePolygon(fine_polygon, map2d, 1));
 
   Polygon simple_polygon = simplifyPolygon(fine_polygon);
 
@@ -324,7 +326,7 @@ PuzzleSolution outMST(PuzzleSolverParam param, Puzzle puzzle)
     do{
       i = rnd.nextUInt(H);
       j = rnd.nextUInt(W);
-    } while(!poly2d[i][j]);
+    } while(!poly2d[i][j] || in2d[i][j]);
     poly2d[i][j] = false;
     map2d.data[IJ(i, j)] = 0;
     return Point(j, i);
@@ -338,7 +340,7 @@ PuzzleSolution outMST(PuzzleSolverParam param, Puzzle puzzle)
       do{
         i = rnd.nextUInt(H);
         j = rnd.nextUInt(W);
-      } while(!poly2d[i][j]);
+      } while(!poly2d[i][j] || in2d[i][j]);
       int d = rnd.nextUInt(4);
       int fi, fj, bi, bj;
       fi = i + di[d];
@@ -354,20 +356,15 @@ PuzzleSolution outMST(PuzzleSolverParam param, Puzzle puzzle)
     return Point(j, i);
   };
 
-  std::cerr << "hoge" << std::endl;
   int vTarget = (puzzle.vMin + puzzle.vMax) / 2;
   while(simple_polygon.size() < vTarget){
     popUnwrappedBound();
-    parsePolygon(fine_polygon, map2d, R);
+    parsePolygon(fine_polygon, map2d, 1);
     simple_polygon = simplifyPolygon(fine_polygon);
-    std::cerr << simple_polygon.size() << std::endl;
   }
   
   PuzzleSolution solution;
   solution.wall = simplifyPolygon(fine_polygon);
-
-  std::cerr << fine_polygon.size() << std::endl;
-  std::cerr << solution.wall.size() << std::endl;
 
   // // character representation of map ======================================
   // static const char NON_WRAPPED = '.';
@@ -395,7 +392,8 @@ PuzzleSolution outMST(PuzzleSolverParam param, Puzzle puzzle)
     for(int i = 0; i < cNum; i++) solution.Cs.push_back(popUnwrapped());
     for(int i = 0; i < xNum; i++) solution.Xs.push_back(popUnwrapped());
     solution.wrapper = popUnwrapped();
-  }
+  };
+
   return solution;
 }
 
