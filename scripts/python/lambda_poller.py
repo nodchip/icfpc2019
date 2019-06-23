@@ -177,7 +177,7 @@ def main():
             sys.exit('Some thing faild...  Read above...')
         engine_elapsed_s = collections.defaultdict(lambda: -1)
         for engine_name, task_solver_future in task_solver_futures:
-            succeeded, elapsed_s = task_solver_future.result():
+            succeeded, elapsed_s = task_solver_future.result()
             engine_elapsed_s[engine_name] = elapsed_s
             if not succeeded:
                 #sys.exit('Some thing faild...  Read above...')
