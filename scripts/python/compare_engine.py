@@ -33,6 +33,11 @@ def main():
         print('''<html>
 <head>
 <title>Engine comparison result</title>
+<style>
+tr:hover {
+  background-color: lightgray;
+}
+</style>
 </head>
 <body>
 <table border="1" cellspacing="0" cellpadding="0">
