@@ -9,8 +9,8 @@
 
 using namespace std;
 
-bool operator<(const Point& p0, const Point& p1) {
-  return p0.x != p1.x ? p0.x < p1.x : p1.x < p1.y;
+static bool operator<(const Point& lh, const Point& rh) {
+  return lh.x != rh.x ? lh.x < rh.x : lh.y < rh.y;
 }
 
 namespace {
@@ -109,14 +109,13 @@ struct WrapperEngine {
         std::vector<Trajectory> trajs;
 
         auto ccs = disjointConnectedComponentsByMask(m_game->map2d, 0b11, 0b00);
-        for (auto& connected_component : ccs) {
-          std::sort(connected_component.begin(), connected_component.end());
+        for (auto& c : ccs) {
+          std::sort(c.begin(), c.end());
         }
         if (ccs.size() > 1 && m_id == 0) {
           // 孤立領域があれば最小のものに向かう
           std::sort(ccs.begin(), ccs.end(), [](const auto& lhs, const auto& rhs) {
-            return lhs.size() != rhs.size() ? lhs.size() < rhs.size()
-              : lhs < rhs;
+            return lhs.size() != rhs.size() ? lhs.size() < rhs.size() : lhs < rhs;
             });
           auto small_cc = ccs.front();
           assert (!small_cc.empty());
