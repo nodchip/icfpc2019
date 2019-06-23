@@ -7,6 +7,7 @@
 #include <map>
 #include <vector>
 #include <set>
+#include <cassert>
 
 #include "puzzle.h"
 #include "fill_polygon.h"
@@ -314,8 +315,59 @@ PuzzleSolution outMST(PuzzleSolverParam param, Puzzle puzzle)
   Polygon fine_polygon;
   assert(parsePolygon(fine_polygon, map2d, R));
 
+  Polygon simple_polygon = simplifyPolygon(fine_polygon);
+
+  assert(simple_polygon.size() <= puzzle.vMax);
+
+  auto popUnwrapped = [&](){
+    int i, j;
+    do{
+      i = rnd.nextUInt(H);
+      j = rnd.nextUInt(W);
+    } while(!poly2d[i][j]);
+    poly2d[i][j] = false;
+    map2d.data[IJ(i, j)] = 0;
+    return Point(j, i);
+  };
+
+  auto popUnwrappedBound = [&](){
+    const int di[] = {0, -1, 0, 1};
+    const int dj[] = {1, 0, -1, 0};
+    int i, j;
+    while(true){
+      do{
+        i = rnd.nextUInt(H);
+        j = rnd.nextUInt(W);
+      } while(!poly2d[i][j]);
+      int d = rnd.nextUInt(4);
+      int fi, fj, bi, bj;
+      fi = i + di[d];
+      fj = j + dj[d];
+      if(fi >= 0 && fi < H && fj >= 0 && fj < W && poly2d[fi][fj]) continue; // outbound
+      bi = i - di[d];
+      bj = j - dj[d];
+      if(bi < 0 || bi >= H || bj < 0 || bj >= W || !poly2d[bi][bj]) continue; // inbound
+      break;
+    }
+    poly2d[i][j] = false;
+    map2d.data[IJ(i, j)] = 0;
+    return Point(j, i);
+  };
+
+  std::cerr << "hoge" << std::endl;
+  int vTarget = (puzzle.vMin + puzzle.vMax) / 2;
+  while(simple_polygon.size() < vTarget){
+    popUnwrappedBound();
+    parsePolygon(fine_polygon, map2d, R);
+    simple_polygon = simplifyPolygon(fine_polygon);
+    std::cerr << simple_polygon.size() << std::endl;
+  }
+  
   PuzzleSolution solution;
   solution.wall = simplifyPolygon(fine_polygon);
+
+  std::cerr << fine_polygon.size() << std::endl;
+  std::cerr << solution.wall.size() << std::endl;
 
   // // character representation of map ======================================
   // static const char NON_WRAPPED = '.';
@@ -329,30 +381,20 @@ PuzzleSolution outMST(PuzzleSolverParam param, Puzzle puzzle)
   // static const char WALL = '#';
   // static const char SPAWN_POINT = 'X';
 
-  auto findUnwrapped = [&](){
-    int i, j;
-    do{
-      i = rnd.nextUInt(H);
-      j = rnd.nextUInt(W);
-    } while(!poly2d[i][j]);
-    poly2d[i][j] = false;
-    return Point(j, i);
-  };
-
   {
-    int bNum = puzzle.bNum;
+    int bNum = puzzle.mNum;
     int fNum = puzzle.fNum;
     int lNum = puzzle.dNum;
     int rNum = puzzle.rNum;
     int cNum = puzzle.cNum;
     int xNum = puzzle.xNum;
-    for(int i = 0; i < bNum; i++) solution.Bs.push_back(findUnwrapped());
-    for(int i = 0; i < fNum; i++) solution.Fs.push_back(findUnwrapped());
-    for(int i = 0; i < lNum; i++) solution.Ls.push_back(findUnwrapped());
-    for(int i = 0; i < rNum; i++) solution.Rs.push_back(findUnwrapped());
-    for(int i = 0; i < cNum; i++) solution.Cs.push_back(findUnwrapped());
-    for(int i = 0; i < xNum; i++) solution.Xs.push_back(findUnwrapped());
-    solution.wrapper = findUnwrapped();
+    for(int i = 0; i < bNum; i++) solution.Bs.push_back(popUnwrapped());
+    for(int i = 0; i < fNum; i++) solution.Fs.push_back(popUnwrapped());
+    for(int i = 0; i < lNum; i++) solution.Ls.push_back(popUnwrapped());
+    for(int i = 0; i < rNum; i++) solution.Rs.push_back(popUnwrapped());
+    for(int i = 0; i < cNum; i++) solution.Cs.push_back(popUnwrapped());
+    for(int i = 0; i < xNum; i++) solution.Xs.push_back(popUnwrapped());
+    solution.wrapper = popUnwrapped();
   }
   return solution;
 }
