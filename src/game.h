@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ostream>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <memory>
@@ -22,6 +23,15 @@ struct Game {
   Game(const std::vector<std::string>& map); // initialize by a raster *.map file.
 
   void buyBoosters(const Buy& buy);
+
+  void clearDebugKeyValues() { debug_keyvalues.clear(); }
+
+  template <typename T>
+  void addDebugKeyValue(std::string key, T val) {
+    std::ostringstream oss;
+    oss << val;
+    debug_keyvalues.emplace_back(key, oss.str());
+  }
 
   // move time frame. make sure you provided commands for each wrapper.
   bool tick();
@@ -62,6 +72,8 @@ struct Game {
 private:
   Game();
   std::vector<std::unique_ptr<Wrapper>> next_wrappers;
+  std::vector<std::pair<std::string, std::string>> debug_keyvalues;
+  friend std::ostream& operator<<(std::ostream&, const Game&);
 };
 
 bool checkCommandString(std::string);
