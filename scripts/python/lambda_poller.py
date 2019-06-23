@@ -116,11 +116,12 @@ def main():
     engine_names = list()
     with open(args.engine_name_file_paths, 'r') as f:
         for engine_name in f:
+            engine_name = engine_name.strip()
             if engine_name.startswith('#'):
                 print('Skip engine: {}'.format(engine_name))
             else:
                 print('Use engine: {}'.format(engine_name))
-                engine_names.append(engine_name.strip())
+                engine_names.append(engine_name)
 
     python_path = 'python3'
     python_path_candidates = [
