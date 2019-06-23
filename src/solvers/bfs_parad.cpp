@@ -12,7 +12,7 @@ using namespace std;
 namespace {
 struct WrapperEngine {
   WrapperEngine(Game *game, int id) : m_game(game), m_id(id), m_wrapper(game->wrappers[id].get()), m_num_manipulators(0) { m_total_wrappers++; };
-  Wrapper *action(double x, double y) {
+  Wrapper *action(double x, double y, const std::vector<Trajectory> &to_go) {
     
     if (m_game->num_boosters[BoosterType::MANIPULATOR] > 0 && (m_game->num_boosters[BoosterType::MANIPULATOR] + m_total_manipulators > m_total_wrappers * m_num_manipulators)) {
       if (m_num_manipulators % 2 == 0) {
@@ -24,7 +24,15 @@ struct WrapperEngine {
       }
       m_num_manipulators++;
       m_total_manipulators++;
-    } else if (((m_game->map2d(m_wrapper->pos) & CellType::kSpawnPointBit) != 0) && m_game->num_boosters[BoosterType::CLONING]) {
+    } else if(to_go.size()!=0){
+      /*
+      for(auto tg : to_go){
+	out<<tg<<" ";
+      }
+      cout<<endl;
+      */
+      m_wrapper->move(Direction2Char(to_go[0].last_move));
+    }else if (((m_game->map2d(m_wrapper->pos) & CellType::kSpawnPointBit) != 0) && m_game->num_boosters[BoosterType::CLONING]) {
 //      cout << m_id << ": clone: " << m_wrapper->pos << endl;
       return m_wrapper->cloneWrapper();
     } else {
@@ -100,10 +108,10 @@ struct WrapperEngine {
           assert (!small_cc.empty());
           auto target = small_cc.front();
         
-          trajs = map_parse::findTrajectory(*m_game, m_wrapper->pos, target, DISTANCE_INF, true, false);
+          trajs = map_parse::findTrajectory(*m_game, m_wrapper->pos, target, DISTANCE_INF, false, false);
         } else {
           // なければbfs5_6と同じ
-          trajs = map_parse::findNearestUnwrapped(*m_game, m_wrapper->pos, DISTANCE_INF, true, false);
+          trajs = map_parse::findNearestUnwrapped(*m_game, m_wrapper->pos, DISTANCE_INF, false, false);
         }
         if (trajs.size() == 0) {
           m_wrapper->nop();
@@ -128,17 +136,13 @@ int WrapperEngine::m_total_manipulators = 0;
 int WrapperEngine::m_total_wrappers = 0;
 };
 
-std::vector<std::vector<std::vector<Trajectory> >> getItemMatrix(Game* game, const int mask, const int bit){
-  std::vector<Point> Items = enumerateCellsByMask(game->map2d, mask, bit);
+std::vector<std::vector<Trajectory>> getItemMatrix(Game* game, const int mask, const int bit){
+  std::vector<std::vector<Trajectory>> output;
   const int wsize = game->wrappers.size();
-  std::vector<std::vector<std::vector<Trajectory> >> output;
-  output.resize(Items.size());
-  for(int i=0;i<Items.size();++i){
-    output[i].resize(wsize);
-    for(int j=0;j<wsize;++j){
-      std::vector<Trajectory> trajs = map_parse::findNearestByBit(*game, game->wrappers[j]->pos, DISTANCE_INF, mask);
-      output[i][j] = trajs;
-    }
+  output.resize(wsize);
+  for(int j=0;j<wsize;++j){
+    std::vector<Trajectory> trajs = map_parse::findNearestByBit(*game, game->wrappers[j]->pos, DISTANCE_INF, mask);
+    output[j] = trajs;
   }
   return output;
 }
@@ -150,10 +154,12 @@ std::string bfs_paradSolver(SolverParam param, Game* game, SolverIterCallback it
   int epoch(0);
   while (!game->isEnd()) {
 //    cout << epoch << ": ";
-    // cout<<*game<<endl;
+    //cout<<*game<<endl;
 
-    // std::vector<std::vector<std::vector<Trajectory>>> bmat = getItemMatrix(game, CellType::kBoosterManipulatorBit, CellType::kBoosterManipulatorBit);
+    std::vector<std::vector<Trajectory>> bmat = getItemMatrix(game, CellType::kBoosterManipulatorBit, CellType::kBoosterManipulatorBit);
 
+    std::vector<std::vector<Trajectory>> to_gos = bmat;
+    
     // std::vector<std::vector<std::vector<Trajectory>>> cmat = getItemMatrix(game, CellType::kBoosterCloningBit, CellType::kBoosterCloningBit);
     
     epoch++;
@@ -165,12 +171,15 @@ std::string bfs_paradSolver(SolverParam param, Game* game, SolverIterCallback it
     }
     x /= ws.size();
     y /= ws.size();
+
+    int ws_itr = 0;
     for (auto &w : ws) {
-      auto wc = w.action(x, y);
+      auto wc = w.action(x, y, ws_itr==0 ? to_gos[0] : std::vector<Trajectory>(0));
       if (wc != NULL) {
         cloned.emplace_back(num_wrappers);
         num_wrappers++;
       }
+      ws_itr += 1;
     }
     game->tick();
     displayAndWait(param, game);
