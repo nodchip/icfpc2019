@@ -32,7 +32,7 @@ def solve_puzzle(args):
     if os.path.isfile(PUZZLE_OUTPUT_FILE_NAME):
         os.remove(PUZZLE_OUTPUT_FILE_NAME)
 
-    command = [args.puzzle_solver_file_path, '--input', PUZZLE_INPUT_FILE_NAME,
+    command = [args.puzzle_solver_file_path, 'puzzle_run', '--cond', PUZZLE_INPUT_FILE_NAME,
                '--output', PUZZLE_OUTPUT_FILE_NAME]
     print(command, flush=True)
     try:
@@ -100,7 +100,7 @@ def main():
                         help='File path containing engine name. One engine name per one line.',
                         default='engine_names.txt')
     parser.add_argument('--puzzle_solver_file_path', help='File path of the puzzle solver.',
-                        default='src/puzzle_solver')
+                        default='src/solver')
     parser.add_argument('--jobs', type=int, help='Number of jobs,',
                         default=multiprocessing.cpu_count())
     parser.add_argument('--engine_file_path', help='File path of the engine.',
