@@ -15,3 +15,4 @@ bfs_parad
 bfs_clone
 evaluate_base
 clone_fast
+clone_nonpara
