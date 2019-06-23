@@ -108,15 +108,19 @@ inline int countCellsByMask(const Map2D& map, int mask, int bits) { return enume
 bool isConnected4(const Map2D& map);
 
 // return [start, ..., stop]
+// if max_distance < 0, do not stop by distance.
 std::vector<Point> shortestPathByMaskBFS(const Map2D& map,
   int free_mask, int free_bits,
+  Point start,
   int target_mask, int target_bits,
-  Point start);
+  int max_distance = -1);
 
 // return [start, ..., stop]
+// if max_distance < 0, do not stop by distance.
 std::vector<Point> shortestPathByMaskBFS(const Map2D& map,
   int free_mask, int free_bits,
-  Point start, const std::vector<Point>& targets);
+  Point start, const std::vector<Point>& targets,
+  int max_distance = -1);
 
 struct ParsedMap {
     Map2D map2d;

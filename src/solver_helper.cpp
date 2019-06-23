@@ -270,7 +270,8 @@ bool ConnectedComponentAssignmentForParanoid::update() {
           Map2D map(game->map2d.W, game->map2d.H, 0);
           std::vector<Point> path = shortestPathByMaskBFS(game->map2d,
             CellType::kObstacleBit, 0, // inside room
-            pos, components[j].points);
+            pos, components[j].points,
+            distance_threshold);
           if (path.size() < distance_threshold) {
             preference[i][j] = distance_threshold - path.size();
             if (path.size() >= 2) {

@@ -54,8 +54,8 @@ PuzzleSolution minimumExcludePuzzleSolver(PuzzleSolverParam param, Puzzle puzzle
     // find nearest wall.
     auto path = shortestPathByMaskBFS(work,
       0b11, 0b00, // room, not include
-      0b11, 0b01, // wall, not include
-      offset + p);
+      offset + p,
+      0b11, 0b01); // wall, not include
     assert (!path.empty());
     for (auto way_plus_offset : path) {
       assert ((work(way_plus_offset) & INCLUDE) == 0);

@@ -85,8 +85,9 @@ bool isConnected4(const Map2D& map) {
 // return [start, ..., stop]
 std::vector<Point> shortestPathByMaskBFS(const Map2D& map,
   int free_mask, int free_bits,
+  Point start,
   int target_mask, int target_bits,
-  Point start) {
+  int max_distance) {
 
   if (!map.isInside(start)) {
     std::cout << "invalid start" << std::endl;
@@ -107,6 +108,7 @@ std::vector<Point> shortestPathByMaskBFS(const Map2D& map,
     }
   }
 
+  Map2D distance(map.W, map.H, -1);
   std::vector<Point> _parent(map.W * map.H, {-9, -9});
   auto parent = [&](Point p) -> Point& { return _parent[p.y * map.W + p.x]; };
 
@@ -115,6 +117,7 @@ std::vector<Point> shortestPathByMaskBFS(const Map2D& map,
     que.push(start);
     work(start) |= VISITED;
     parent(start) = start;
+    distance(start) = 0;
   }
   while (!que.empty()) {
     Point p = que.front(); que.pop();
@@ -129,12 +132,16 @@ std::vector<Point> shortestPathByMaskBFS(const Map2D& map,
       std::reverse(path.begin(), path.end());
       return path;
     }
-    for (auto offset : all_directions) {
-      Point n = p + Point(offset);
-      if (work.isInside(n) && (work(n) & VISITED) == 0 && (work(n) & FOREGROUND)) {
-        que.push(n);
-        work(n) |= VISITED;
-        parent(n) = p;
+    const int next_distance = distance(p) + 1;
+    if (max_distance < 0 /* no limit */ || next_distance <= max_distance) {
+      for (auto offset : all_directions) {
+        Point n = p + Point(offset);
+        if (work.isInside(n) && (work(n) & VISITED) == 0 && (work(n) & FOREGROUND)) {
+          que.push(n);
+          work(n) |= VISITED;
+          parent(n) = p;
+          distance(n) = next_distance;
+        }
       }
     }
   }
@@ -146,7 +153,8 @@ std::vector<Point> shortestPathByMaskBFS(const Map2D& map,
 
 std::vector<Point> shortestPathByMaskBFS(const Map2D& map,
   int free_mask, int free_bits,
-  Point start, const std::vector<Point>& targets) {
+  Point start, const std::vector<Point>& targets,
+  int max_distance) {
 
   constexpr int FOREGROUND = 1;
   constexpr int TARGET = 2;
@@ -161,7 +169,7 @@ std::vector<Point> shortestPathByMaskBFS(const Map2D& map,
   for (auto target : targets) {
     work(target) |= FOREGROUND | TARGET;
   }
-  return shortestPathByMaskBFS(work, FOREGROUND, FOREGROUND, TARGET, TARGET, start);
+  return shortestPathByMaskBFS(work, FOREGROUND, FOREGROUND, start, TARGET, TARGET, max_distance);
 }
 
 namespace {
