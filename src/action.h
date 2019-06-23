@@ -8,12 +8,14 @@
 #include "booster.h"
 
 struct Action {
-  Action(int timestamp_, bool fast_wheels_active_, bool drill_active_, Point before_pos, const std::vector<Point>& before_manipulator_offsets)
+  Action(int timestamp_, bool fast_wheels_active_, bool drill_active_, Point before_pos, Direction before_dir, const std::vector<Point>& before_manipulator_offsets)
     : timestamp(timestamp_)
     , fast_wheels_active(fast_wheels_active_)
     , drill_active(drill_active_) {
     old_position = before_pos;
     new_position = before_pos;
+    old_direction = before_dir;
+    new_direction = before_dir;
     old_manipulator_offsets = before_manipulator_offsets;
     new_manipulator_offsets = before_manipulator_offsets;
     for (int i = 0; i < BoosterType::N; ++i) {
@@ -24,11 +26,13 @@ struct Action {
   int timestamp;
   // old state
   Point old_position;
+  Direction old_direction;
   std::vector<Point> old_manipulator_offsets;
   // command string
   std::string command;
   // motion (including teleport)
   Point new_position;
+  Direction new_direction;
   // wrapped (only new ones)
   std::vector<Point> absolute_new_wrapped_positions;
   // manipulators
@@ -56,4 +60,6 @@ struct Action {
   static const char DRILL = 'L';
   static const char BEACON = 'R';
   static const char CLONE = 'C';
+
+  int wrappedCount() const { return absolute_new_wrapped_positions.size(); }
 };

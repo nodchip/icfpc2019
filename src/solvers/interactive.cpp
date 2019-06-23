@@ -4,7 +4,7 @@
 #include "getch.h"
 #include "solver_registry.h"
 
-std::string interactiveSolver(SolverParam param, Game::Ptr game) {
+std::string interactiveSolver(SolverParam param, Game* game, SolverIterCallback iter_callback) {
   int iter = 0;
   bool terminate = false;
   while (!terminate) {
@@ -15,7 +15,7 @@ std::string interactiveSolver(SolverParam param, Game::Ptr game) {
     for (int i = 0; !did_undo && !terminate && i < game->wrappers.size(); ++i) {
       while (true) {
         std::cout << "# " << i << ": Command [!]quit [U]undo [W/A/S/D/Z]move [E/Q]turn [F/L/R/C]boost [M]manipulate [T]teleport >" << std::flush;
-        auto w = game->wrappers[i];
+        Wrapper* w = game->wrappers[i].get();
 #if defined(_MSC_VER)
 #define getch _getch
 #endif
@@ -47,7 +47,7 @@ std::string interactiveSolver(SolverParam param, Game::Ptr game) {
           int x, y;
           std::cout << "(X, Y) >" << std::flush;
           std::cin >> x >> y;
-          w->addManipulate({x, y});
+          w->addManipulator({x, y});
           break;
         }
         if (c == 'T') {
@@ -74,6 +74,7 @@ std::string interactiveSolver(SolverParam param, Game::Ptr game) {
     }
     if (!terminate && !did_undo) {
       game->tick();
+      if (!iter_callback(game)) return game->getCommand();
       ++iter;
     }
   }

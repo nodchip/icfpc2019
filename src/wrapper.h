@@ -13,26 +13,31 @@
 struct Game;
 
 struct Wrapper {
-  using Ptr = std::shared_ptr<Wrapper>;
   Wrapper(Game* game_, Point pos_, int wrapper_spawn_index_);
 
   // Control Wrappy
   void move(char);  // input: WSAD
   void nop();  // input: Z
   void turn(char);  // input: EQ
-  void addManipulate(const Point&);  // input: x,y
+  void addManipulator(const Point&);  // input: x,y relative to wrapper position.
   void teleport(const Point&);  // input: x,y
   void useBooster(char);  // input: FLR
-  Ptr cloneWrapper(); 
+  Wrapper* cloneWrapper(); 
 
   Action getScaffoldAction();
   std::string getCommand() const; // command for this wrapper.
   bool undoAction(); // if no actions are stacked, fail and return false.
 
+  bool canAddManipulator(const Point&);
+  int getLastNumWrapped() {
+    return actions.empty() ? 0 : actions.back().absolute_new_wrapped_positions.size();
+  }
+
   Game* game;
   Map2D& map2d;
   Point pos;
   int index;
+  Direction direction;
   std::vector<Action> actions;
   std::vector<Point> manipulators;
 
@@ -42,6 +47,7 @@ struct Wrapper {
   int time_drill = 0;
 
 private:
+  void pick(Action& a);
   void moveAndPaint(Point p, Action& a);
   void doAction(Action a);
 };

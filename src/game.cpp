@@ -24,18 +24,20 @@ Game::Game(const std::string& task) : Game() {
   ParsedMap parsed = parseDescString(task);
   map2d = parsed.map2d;
 
-  auto w = std::make_shared<Wrapper>(this, parsed.wrappy, 0);
-  paintAndPick(*w, nullptr);
-  wrappers.push_back(w);
+  auto w = std::make_unique<Wrapper>(this, parsed.wrappy, 0);
+  pick(*w, nullptr);
+  paint(*w, nullptr);
+  wrappers.push_back(std::move(w));
 }
 
 Game::Game(const std::vector<std::string>& mp) : Game() {
   ParsedMap parsed = parseMapString(mp);
   map2d = parsed.map2d;
 
-  auto w = std::make_shared<Wrapper>(this, parsed.wrappy, 0);
-  paintAndPick(*w, nullptr);
-  wrappers.push_back(w);
+  auto w = std::make_unique<Wrapper>(this, parsed.wrappy, 0);
+  pick(*w, nullptr);
+  paint(*w, nullptr);
+  wrappers.push_back(std::move(w));
 }
 
 bool Game::tick() {
@@ -45,10 +47,30 @@ bool Game::tick() {
     assert (wrapper->actions.back().timestamp == time + 1);
   }
   ++time;
+  // add new wrappers.
+  for (auto&& w : next_wrappers) {
+    wrappers.push_back(std::move(w));
+  }
+  next_wrappers.clear();
   return true;
 }
 
-void Game::paintAndPick(const Wrapper& w, Action* a_optional) {
+void Game::pick(const Wrapper& w, Action* a_optional) {
+  // automatically pick up boosters with no additional time cost.
+  for (auto booster : boosters) {
+    if (map2d(w.pos) & booster.map_bit) {
+      if (a_optional) {
+        assert (booster.booster_type < a_optional->pick_boosters.size());
+        a_optional->pick_boosters[booster.booster_type].push_back(w.pos);
+      }
+      assert (booster.booster_type < num_boosters.size());
+      ++num_boosters[booster.booster_type];
+      map2d(w.pos) &= ~booster.map_bit;
+    }
+  }
+}
+
+void Game::paint(const Wrapper& w, Action* a_optional) {
   auto p = w.pos;
   assert (map2d.isInside(p));
 
@@ -63,19 +85,6 @@ void Game::paintAndPick(const Wrapper& w, Action* a_optional) {
     if ((map2d(manip) & CellType::kWrappedBit) == 0) {
       if (a_optional) a_optional->absolute_new_wrapped_positions.push_back(manip);
       map2d(manip) |= CellType::kWrappedBit;
-    }
-  }
-
-  // automatically pick up boosters with no additional time cost.
-  for (auto booster : boosters) {
-    if (map2d(p) & booster.map_bit) {
-      if (a_optional) {
-        assert (booster.booster_type < a_optional->pick_boosters.size());
-        a_optional->pick_boosters[booster.booster_type].push_back(p);
-      }
-      assert (booster.booster_type < num_boosters.size());
-      ++num_boosters[booster.booster_type];
-      map2d(p) &= ~booster.map_bit;
     }
   }
 }
@@ -136,6 +145,10 @@ std::vector<Point> Game::getWrapperPositions() const {
   return wrapper_positions;
 }
 
+void Game::addClonedWrapperForNextFrame(std::unique_ptr<Wrapper> wrapper) { 
+  next_wrappers.push_back(std::move(wrapper));
+}
+
 std::ostream& operator<<(std::ostream& os, const Game& game) {
   os << "Time: " << game.time << "\n";
   for (auto& line : dumpMapString(game.map2d, game.getWrapperPositions())) {
@@ -150,6 +163,14 @@ std::ostream& operator<<(std::ostream& os, const Game& game) {
   os << "Wrappers: " << game.wrappers.size() << "\n";
   for (auto& w : game.wrappers) {
     os << w->index << " : ";
+    os << "Dir[";
+    switch (w->direction) {
+      case Direction::W: os << "↑"; break;
+      case Direction::A: os << "←"; break;
+      case Direction::S: os << "↓"; break;
+      case Direction::D: os << "→"; break;
+    }
+    os << "]";
     if (w->time_fast_wheels > 0) {
       os << " Speedup (" << w->time_fast_wheels << ")\n";
     }

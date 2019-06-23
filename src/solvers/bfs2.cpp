@@ -4,16 +4,10 @@
 #include "map_parse.h"
 #include "solver_registry.h"
 
-std::string bfs2Solver(SolverParam param, Game::Ptr game) {
+std::string bfs2Solver(SolverParam param, Game* game, SolverIterCallback iter_callback) {
   while (true) {
-    auto w = game->wrappers[0];
+    Wrapper* w = game->wrappers[0].get();
     const std::vector<Trajectory> trajs = map_parse::findNearestUnwrapped(*game, w->pos, DISTANCE_INF);
-    /*
-    for(auto t : trajs){
-      std::cout<<t<<" ";
-    }
-    std::cout<<std::endl;
-    */
     int count = game->countUnWrapped();
     if (trajs.size() == 0)
       break;
@@ -22,6 +16,7 @@ std::string bfs2Solver(SolverParam param, Game::Ptr game) {
       w->move(c);
       game->tick();
       displayAndWait(param, game);
+      if (iter_callback && !iter_callback(game)) return game->getCommand();
       if (count != game->countUnWrapped()) {
         break;
       }

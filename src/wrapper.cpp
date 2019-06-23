@@ -16,7 +16,11 @@
 #include "game.h"
 
 Wrapper::Wrapper(Game* game_, Point pos_, int wrapper_spawn_index_)
-  : game(game_), map2d(game_->map2d), pos(pos_), index(wrapper_spawn_index_) {
+  : game(game_), map2d(game_->map2d), pos(pos_), index(wrapper_spawn_index_), direction(Direction::D) {
+  // initial manipulator position. it looks like the wrapper is facing right (D).
+  //   *
+  // @ *
+  //   *
   manipulators.push_back(Point {1, 0});
   manipulators.push_back(Point {1, 1});
   manipulators.push_back(Point {1, -1});
@@ -24,7 +28,9 @@ Wrapper::Wrapper(Game* game_, Point pos_, int wrapper_spawn_index_)
 
 Action Wrapper::getScaffoldAction() {
   // +1 for next action.
-  return {game->time + 1, time_fast_wheels > 0, time_drill > 0, pos, manipulators};
+  Action a = {game->time + 1, time_fast_wheels > 0, time_drill > 0, pos, direction, manipulators};
+  pick(a); // pick boosters before move!
+  return a;
 }
 
 void Wrapper::move(char c) {
@@ -85,12 +91,14 @@ void Wrapper::turn(char c) {
   a.command = c;
 
   if (c == Action::CW) {
+    direction = turnCW(direction);
     for (auto& manip : manipulators) {
       auto orig(manip);
       manip.x = orig.y;
       manip.y = -orig.x;
     }
   } else {
+    direction = turnCCW(direction);
     for (auto& manip : manipulators) {
       auto orig(manip);
       manip.x = -orig.y;
@@ -101,10 +109,13 @@ void Wrapper::turn(char c) {
   moveAndPaint(pos, a);
 
   a.new_manipulator_offsets = manipulators;
+  a.new_direction = direction;
   doAction(a);
 }
 
-void Wrapper::addManipulate(const Point& p) {
+void Wrapper::addManipulator(const Point& p) {
+  assert (canAddManipulator(p));
+
   Action a = getScaffoldAction();
   assert (game->num_boosters[BoosterType::MANIPULATOR] > 0);
 
@@ -122,6 +133,22 @@ void Wrapper::addManipulate(const Point& p) {
   doAction(a);
 }
 
+bool Wrapper::canAddManipulator(const Point& p) {
+  // cannot place over an existing manipulator (or the wrapper itself).
+  if (p == Point{0, 0}) return false;
+  for (auto m : manipulators) {
+    if (m == p) return false;
+  }
+  // it has to be 4-connected to existing manipulator (or the wrapper itself).
+  for (auto dir : all_directions) {
+    if (p + Point(dir) == Point{0, 0}) return true;
+    for (auto m : manipulators) {
+      if (p + Point(dir) == m) return true;
+    }
+  }
+  return false;
+}
+
 void Wrapper::teleport(const Point& p) {
   Action a = getScaffoldAction();
 
@@ -134,11 +161,16 @@ void Wrapper::teleport(const Point& p) {
   doAction(a);
 }
 
+void Wrapper::pick(Action& a) {
+  assert (map2d.isInside(pos));
+  game->pick(*this, &a);
+}
+
 void Wrapper::moveAndPaint(Point p, Action& a) {
   assert (map2d.isInside(p));
 
   pos = p;
-  game->paintAndPick(*this, &a);
+  game->paint(*this, &a);
 }
 
 void Wrapper::useBooster(char c) {
@@ -168,7 +200,7 @@ void Wrapper::useBooster(char c) {
   doAction(a);
 }
 
-Wrapper::Ptr Wrapper::cloneWrapper() {
+Wrapper* Wrapper::cloneWrapper() {
   assert (game->num_boosters[BoosterType::CLONING] > 0);
   --game->num_boosters[BoosterType::CLONING];
 
@@ -177,9 +209,10 @@ Wrapper::Ptr Wrapper::cloneWrapper() {
   a.use_booster[BoosterType::CLONING] += 1;
 
   assert ((game->map2d(pos) & CellType::kSpawnPointBit) != 0);
-  auto spawned = std::make_shared<Wrapper>(game, pos, game->nextWrapperIndex());
+  std::unique_ptr<Wrapper> new_wrapper(new Wrapper(game, pos, game->nextWrapperIndex())); 
+  Wrapper* spawned = new_wrapper.get();
   a.spawned_index = spawned->index;
-  game->wrappers.push_back(spawned);
+  game->addClonedWrapperForNextFrame(std::move(new_wrapper));
 
   doAction(a);
   return spawned;
@@ -202,6 +235,7 @@ bool Wrapper::undoAction() {
   actions.pop_back();
   // undo motion
   pos = a.old_position;
+  direction = a.old_direction;
   // undo rotation and manipulator addition
   manipulators = a.old_manipulator_offsets;
   // undo paint
@@ -219,6 +253,8 @@ bool Wrapper::undoAction() {
     for (auto p : a.pick_boosters[booster.booster_type]) {
       assert (map2d.isInside(p) && (map2d(p) & booster.map_bit) == 0);
       map2d(p) |= booster.map_bit;
+      game->num_boosters[booster.booster_type] -= 1;
+      assert (game->num_boosters[booster.booster_type] >= 0);
     }
     // undo using boosters
     game->num_boosters[booster.booster_type] += a.use_booster[booster.booster_type];

@@ -2,6 +2,20 @@
 
 #include <algorithm>
 
+const std::vector<Direction> all_directions = {
+  Direction::W, Direction::A, Direction::S, Direction::D, 
+};
+
+Direction turn(Direction dir, bool turn_cw) {
+  switch (dir) {
+    case Direction::W: return turn_cw ? Direction::D : Direction::A;
+    case Direction::A: return turn_cw ? Direction::W : Direction::S;
+    case Direction::S: return turn_cw ? Direction::A : Direction::D;
+    case Direction::D: return turn_cw ? Direction::S : Direction::W;
+    default: return Direction::D;
+  }
+}
+
 std::ostream& operator<<(std::ostream& os, const Point& p) {
     os << "(" << p.x << "," << p.y << ")";
     return os;

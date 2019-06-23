@@ -4,29 +4,22 @@
 #include "map_parse.h"
 #include "solver_registry.h"
 
-std::string bfs3Solver(SolverParam param, Game::Ptr game) {
+std::string bfs3Solver(SolverParam param, Game* game, SolverIterCallback iter_callback) {
   int num_add_manipulators = 0;
   while (true) {
-    auto w = game->wrappers[0];
+    Wrapper* w = game->wrappers[0].get();
     if (game->num_boosters[BoosterType::MANIPULATOR] > 0) {
       if (num_add_manipulators % 2 == 0) {
-//        w->addManipulate(Point())
-        w->addManipulate(Point(1, 2 + num_add_manipulators / 2));
+        w->addManipulator(Point(1, 2 + num_add_manipulators / 2));
       } else {
-//        w->addManipulate();
-        w->addManipulate(Point(1, - 2 - num_add_manipulators / 2));
+        w->addManipulator(Point(1, - 2 - num_add_manipulators / 2));
       }
       game->tick();
       displayAndWait(param, game);
+      if (iter_callback && !iter_callback(game)) return game->getCommand();
       num_add_manipulators++;
     }
     const std::vector<Trajectory> trajs = map_parse::findNearestUnwrapped(*game, w->pos, DISTANCE_INF);
-    /*
-    for(auto t : trajs){
-      std::cout<<t<<" ";
-    }
-    std::cout<<std::endl;
-    */
     int count = game->countUnWrapped();
     if (trajs.size() == 0)
       break;
@@ -35,6 +28,7 @@ std::string bfs3Solver(SolverParam param, Game::Ptr game) {
       w->move(c);
       game->tick();
       displayAndWait(param, game);
+      if (iter_callback && !iter_callback(game)) return game->getCommand();
       if (count != game->countUnWrapped()) {
         break;
       }
