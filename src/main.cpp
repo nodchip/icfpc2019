@@ -14,6 +14,7 @@
 #include "solver_registry.h"
 
 int main(int argc, char* argv[]) {
+  int return_code = 0;
   CLI::App app { "main module" };
   app.require_subcommand();
 
@@ -152,8 +153,13 @@ int main(int argc, char* argv[]) {
       puzzle_solution = solver(puzzle_solver_param, puzzle);
 
       if (puzzle_validation) {
-        std::cerr << "validation." << std::endl;
-        assert (puzzle.validateSolution(puzzle_solution));
+        if (puzzle.validateSolution(puzzle_solution)) {
+          std::cerr << "validation succeeded!" << std::endl;
+          return_code = 0;
+        } else {
+          std::cerr << "validation failed!" << std::endl;
+          return_code = 1;
+        }
       } else {
         std::cerr << "no validation." << std::endl;
       }
@@ -177,5 +183,5 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  return 0;
+  return return_code;
 }
