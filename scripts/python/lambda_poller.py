@@ -82,6 +82,8 @@ def execute(engine_name, args):
             engine_name=engine_name, elapsed_s=t1-t0), flush=True)
         return False, t1 - t0
 
+    print('Okay... engine_name={engine_name} elapsed={elapsed_s}s'.format(
+            engine_name=engine_name, elapsed_s=t1-t0), flush=True)
     return True, t1 - t0
 
 
