@@ -17,68 +17,6 @@
 #include "solver_registry.h"
 #include "solver_helper.h"
 
-// return [start, ..., stop]
-std::vector<Point> nearestPathByMaskBFS(const Map2D& map,
-  int free_mask, int free_bits,
-  int target_mask, int target_bits,
-  Point start) {
-
-  if (!map.isInside(start)) {
-    std::cout << "invalid start" << std::endl;
-    return {};
-  }
-  constexpr int FOREGROUND = 1;
-  constexpr int TARGET = 2;
-  constexpr int VISITED = 4;
-  Map2D work(map.W, map.H, 0);
-  for (int y = 0; y < map.H; ++y) {
-    for (int x = 0; x < map.W; ++x) {
-      if ((map(x, y) & free_mask) == free_bits) {
-        work(x, y) |= FOREGROUND;
-      }
-      if ((map(x, y) & target_mask) == target_bits) {
-        work(x, y) |= FOREGROUND | TARGET;
-      }
-    }
-  }
-
-  std::vector<Point> _parent(map.W * map.H, {-9, -9});
-  auto parent = [&](Point p) -> Point& { return _parent[p.y * map.W + p.x]; };
-
-  std::queue<Point> que;
-  if (work(start) & FOREGROUND) {
-    que.push(start);
-    work(start) |= VISITED;
-    parent(start) = start;
-  }
-  while (!que.empty()) {
-    Point p = que.front(); que.pop();
-    if (work(p) & TARGET) {
-      // backtrack.
-      std::vector<Point> path { p };
-      while (parent(path.back()) != path.back()) {
-        auto new_point = parent(path.back());
-        assert (work.isInside(new_point));
-        path.push_back(new_point);
-      }
-      std::reverse(path.begin(), path.end());
-      return path;
-    }
-    for (auto offset : all_directions) {
-      Point n = p + Point(offset);
-      if (work.isInside(n) && (work(n) & VISITED) == 0 && (work(n) & FOREGROUND)) {
-        que.push(n);
-        work(n) |= VISITED;
-        parent(n) = p;
-      }
-    }
-  }
-
-  // couldn't reach.
-  std::cout << "couldn't reach. " << std::endl;
-  return {};
-}
-
 PuzzleSolution minimumExcludePuzzleSolver(PuzzleSolverParam param, Puzzle puzzle) {
   int W = 0, H = 0;
   for (auto p : puzzle.iSqs) {
