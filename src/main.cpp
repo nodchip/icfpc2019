@@ -32,6 +32,15 @@ std::string resolveDescPath(std::string desc_path_hint) {
   return desc_path_hint;
 }
 
+const std::string& toString(const std::string& s) {
+  return s;
+}
+
+std::string toString(const std::wstring& s) {
+  std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> cv;
+  return cv.to_bytes(s);
+}
+
 int main(int argc, char* argv[]) {
   int return_code = 0;
   CLI::App app { "main module" };
@@ -105,13 +114,13 @@ int main(int argc, char* argv[]) {
     std::unique_ptr<Game> game; 
     desc_filename = resolveDescPath(desc_filename);
     if (std::experimental::filesystem::is_regular_file(desc_filename)) {
-      stem = std::experimental::filesystem::path(desc_filename).stem();
+      stem = toString(std::experimental::filesystem::path(desc_filename).stem());
       std::ifstream ifs(desc_filename);
       std::string str((std::istreambuf_iterator<char>(ifs)),
                       std::istreambuf_iterator<char>());
       game.reset(new Game(str));
     } else if (std::experimental::filesystem::is_regular_file(map_filename)) {
-      stem = std::experimental::filesystem::path(map_filename).stem();
+      stem = toString(std::experimental::filesystem::path(map_filename).stem());
       std::ifstream ifs(map_filename);
       std::vector<std::string> input;
       for (std::string l; std::getline(ifs, l);)
