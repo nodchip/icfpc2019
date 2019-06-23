@@ -25,7 +25,7 @@ NEXT_BLOCK_FILE = os.path.abspath('next_block_file.txt')
 PUZZLE_INPUT_FILE_NAME = os.path.abspath('puzzle.input.txt')
 PUZZLE_OUTPUT_FILE_NAME = os.path.abspath('puzzle.output.desc')
 TASK_INPUT_FILE_NAME = os.path.abspath('task.input.txt')
-TASK_OUTPUT_FILE_NAME_FORMAT = os.path.abspath('task.output.{engine_name}.txt')
+TASK_OUTPUT_FILE_NAME_FORMAT = os.path.abspath('task.output.{engine_name}.sol')
 
 
 def solve_puzzle(args):
@@ -107,6 +107,9 @@ def main():
                         default='src/solver')
     args = parser.parse_args()
 
+    # HACK: Process the latest block on startup always.
+    set_next_block(-1)
+
     engine_names = list()
     with open(args.engine_name_file_paths, 'r') as f:
         for engine_name in f:
@@ -141,10 +144,12 @@ def main():
         next_block = get_next_block()
         if next_block > mininginfo['block']:
             print('Skipped because the current block {} (< next {}) is old...'.format(mininginfo['block'], next_block), flush=True)
+            time.sleep(SLEEP_TIME)
             continue
 
         if PUBLIC_ID in mininginfo['excluded']:
             print('Skipped because out team is execluded...', flush=True)
+            time.sleep(SLEEP_TIME)
             continue
 
         with open(PUZZLE_INPUT_FILE_NAME, 'w') as f:
