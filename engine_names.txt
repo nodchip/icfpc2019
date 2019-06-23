@@ -13,3 +13,4 @@ bfs3_plus_wipe
 bfs5_plus_wipe
 bfs_parad
 bfs_clone
+evaluate
