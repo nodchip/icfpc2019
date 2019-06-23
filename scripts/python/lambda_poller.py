@@ -61,25 +61,28 @@ def execute(engine_name, args):
     command = [args.engine_file_path, 'run', engine_name, '--desc', TASK_INPUT_FILE_NAME,
                '--output', task_output_file_name]
     print(command, flush=True)
+    t0 = time.time()
     try:
         completed_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                            timeout=TIMEOUT)
     except subprocess.TimeoutExpired:
-        print('Task solver timed out... engine_name={engine_name}'.format(
-            engine_name=engine_name), flush=True)
-        return False
+        t1 = time.time()
+        print('Task solver timed out... engine_name={engine_name} elapsed={elapsed_s}s'.format(
+            engine_name=engine_name, elapsed_s=t1-t0), flush=True)
+        return False, t1 - t0
+    t1 = time.time()
 
     if completed_process.returncode:
-        print('Task solver failed... engine_name={engine_name}'.format(engine_name=engine_name),
+        print('Task solver failed... engine_name={engine_name} elapsed={elapsed_s}s'.format(engine_name=engine_name, elapsed_s=t1-t0),
               flush=True)
-        return False
+        return False, t1 - t0
 
     if not os.path.isfile(task_output_file_name):
-        print('Output file does not exist... engine_name={engine_name}'.format(
-            engine_name=engine_name), flush=True)
-        return False
+        print('Output file does not exist... engine_name={engine_name} elapsed={elapsed_s}s'.format(
+            engine_name=engine_name, elapsed_s=t1-t0), flush=True)
+        return False, t1 - t0
 
-    return True
+    return True, t1 - t0
 
 
 def get_next_block():
@@ -151,6 +154,7 @@ def main():
             print('Skipped because out team is execluded...', flush=True)
             time.sleep(SLEEP_TIME)
             continue
+        t_block_processing_0 = time.time()
 
         with open(PUZZLE_INPUT_FILE_NAME, 'w') as f:
             f.write(mininginfo['puzzle'])
@@ -167,12 +171,15 @@ def main():
                     print('remove old task output file: {}'.format(task_output_file_name))
                     os.unlink(task_output_file_name)
                 task_solver_future = executor.submit(execute, engine_name, args)
-                task_solver_futures.append(task_solver_future)
+                task_solver_futures.append((engine_name, task_solver_future))
 
         if not puzzle_solver_future.result():
             sys.exit('Some thing faild...  Read above...')
-        for task_solver_future in task_solver_futures:
-            if not task_solver_future.result():
+        engine_elapsed_s = collections.defaultdict(lambda: -1)
+        for engine_name, task_solver_future in task_solver_futures:
+            succeeded, elapsed_s = task_solver_future.result():
+            engine_elapsed_s[engine_name] = elapsed_s
+            if not succeeded:
                 #sys.exit('Some thing faild...  Read above...')
                 print("some engine failed but we'd like to continue with poor results..")
 
@@ -182,8 +189,8 @@ def main():
             task_output_file_name = TASK_OUTPUT_FILE_NAME_FORMAT.format(engine_name=engine_name)
             if os.path.isfile(task_output_file_name):
                 engine_time = execute_engines.calculate_time(task_output_file_name)
-                print('engine_name={engine_name:>10} time={time:>10}'.format(
-                    engine_name=engine_name, time=engine_time), flush=True)
+                print('engine_name={engine_name:>10} time={time:>10} elapsed_time={elapsed_s}s'.format(
+                    engine_name=engine_name, time=engine_time, elapsed_s=engine_elapsed_s[engine_name]), flush=True)
                 if best_time <= engine_time:
                     continue
                 best_time = engine_time
@@ -200,10 +207,12 @@ def main():
         print(command, flush=True)
         completed_process = subprocess.run(command, cwd='dataset/lambda-client',
                                            universal_newlines=True)
-        if completed_process.returncode:
-            sys.exit('Failed to execute lambda-cli.py submit')
+        t_block_processing_1 = time.time()
 
-        print('Submission succeeded...', flush=True)
+        if completed_process.returncode:
+            sys.exit('Failed to execute lambda-cli.py submit. took {}s'.format(t_block_processing_1 - t_block_processing_1))
+
+        print('Submission succeeded... took {}s'.format(t_block_processing_1 - t_block_processing_1), flush=True)
 
         set_next_block(mininginfo['block'] + 1)
 
