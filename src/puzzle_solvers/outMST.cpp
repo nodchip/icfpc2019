@@ -148,12 +148,38 @@ public:
 class Dijkstra
 {
   using pii = std::pair<int, int>;
-  static const int INF;
+  static const int INF = INT_MAX >> 2;
   std::vector<int> d;
   std::vector<int> prev;
 
 public:
-  Dijkstra(const std::vector<std::vector<Edge<int>>> &G, int V, int s);
+  Dijkstra(const std::vector<std::vector<Edge<int>>> &G, int V, int s)
+      : d(V, INF), prev(V, -1)
+  {
+    std::priority_queue<pii, std::vector<pii>, std::greater<pii>> pq;
+
+    d[s] = 0;
+    pq.push(pii(0, s));
+
+    while (!pq.empty())
+    {
+      pii p = pq.top();
+      pq.pop();
+      int v = p.second;
+      if (d[v] < p.first)
+        continue;
+      for (int i = 0; i < G[v].size(); i++)
+      {
+        auto &e = G[v][i];
+        if (d[e.to] > d[v] + e.cost)
+        {
+          d[e.to] = d[v] + e.cost;
+          prev[e.to] = v;
+          pq.push(pii(d[e.to], e.to));
+        }
+      }
+    }
+  }
 
   std::vector<int> shortest_path_cost() { return d; }
   int shortest_path_cost(int v) { return d[v]; }
@@ -167,36 +193,6 @@ public:
     return path;
   }
 };
-
-const int Dijkstra::INF = INT_MAX >> 2;
-
-Dijkstra::Dijkstra(const std::vector<std::vector<Edge<int>>> &G, int V, int s)
-  : d(V, INF), prev(V, -1)
-{
-  std::priority_queue<pii, std::vector<pii>, std::greater<pii>> pq;
-
-  d[s] = 0;
-  pq.push(pii(0, s));
-
-  while (!pq.empty())
-    {
-      pii p = pq.top();
-      pq.pop();
-      int v = p.second;
-      if (d[v] < p.first)
-        continue;
-      for (int i = 0; i < G[v].size(); i++)
-        {
-          auto &e = G[v][i];
-          if (d[e.to] > d[v] + e.cost)
-            {
-              d[e.to] = d[v] + e.cost;
-              prev[e.to] = v;
-              pq.push(pii(d[e.to], e.to));
-            }
-        }
-    }
-}
 
 std::vector<std::vector<Edge<int>>> createGridGraph(int H, int W)
 {
@@ -225,6 +221,11 @@ std::vector<std::vector<Edge<int>>> createGridGraph(int H, int W)
   return G;
 }
 
+template<typename T>
+int findBridge(const std::vector<Edge<T>>& edges){
+  
+}
+
 } //namespace
 
 PuzzleSolution outMST(PuzzleSolverParam param, Puzzle puzzle)
@@ -233,19 +234,7 @@ PuzzleSolution outMST(PuzzleSolverParam param, Puzzle puzzle)
   auto &iSqs = puzzle.iSqs;
   auto oSqs = puzzle.oSqs;
 
-  std::map<int, int> ij2v;
-  std::map<int, int> v2ij;
-  std::vector<std::vector<bool>> poly2d(H, std::vector<bool>(W, true));
-  std::vector<std::vector<bool>> in2d(H, std::vector<bool>(W, false));
-  std::vector<std::vector<bool>> out2d(H, std::vector<bool>(W, false));
-  for(const Point& in : iSqs){
-    in2d[in.y][in.x] = true;
-  }
-  for (const Point &out : oSqs)
-  {
-    out2d[out.y][out.x] = true;
-  }
-
+  // 座圧
   auto IJ = [&](int i, int j) {
     return i * tSize + j;
   };
@@ -257,10 +246,23 @@ PuzzleSolution outMST(PuzzleSolverParam param, Puzzle puzzle)
   auto J = [&](int ij) {
     return ij % tSize;
   };
+  std::map<int, int> ij2v;
+  std::map<int, int> v2ij;
+
+  std::vector<std::vector<bool>> poly2d(H, std::vector<bool>(W, true));
+  std::vector<std::vector<bool>> in2d(H, std::vector<bool>(W, false));
+  std::vector<std::vector<bool>> out2d(H, std::vector<bool>(W, false));
+
+  for(const Point& in : iSqs){
+    in2d[in.y][in.x] = true;
+  }
+  for (const Point &out : oSqs)
+  {
+    out2d[out.y][out.x] = true;
+  }
 
   int V = 0;
-  if (!out2d[0][0])
-    oSqs.emplace_back(0, 0);
+  if (!out2d[0][0]) oSqs.emplace_back(0, 0); // wall を領域外に繋げるため
   for (const Point &p : oSqs)
   {
     int ij = IJ(p.y, p.x);
@@ -269,6 +271,7 @@ PuzzleSolution outMST(PuzzleSolverParam param, Puzzle puzzle)
     V++;
   }
 
+  // MST
   std::vector<Edge<double>> edges;
   for (int u = 0; u < V - 1; u++)
   {
@@ -281,10 +284,10 @@ PuzzleSolution outMST(PuzzleSolverParam param, Puzzle puzzle)
       edges.emplace_back(u, v, cost);
     }
   }
-
   Kruskal<double> mst(edges, V);
   std::vector<Edge<double>> mstEdges = mst.getEdges();
 
+  // to rectilinear
   std::set<int> pset;
   std::vector<std::vector<Edge<int>>> G = createGridGraph(H, W);
   for (const Point &p : iSqs)
@@ -317,23 +320,15 @@ PuzzleSolution outMST(PuzzleSolverParam param, Puzzle puzzle)
     }
   }
 
+  auto dmp =  dumpMapString(map2d, Polygon());
+  for(auto& s : dmp) std::cerr << s << std::endl;
+
   Polygon fine_polygon;
   assert(parsePolygon(fine_polygon, map2d, 1));
-
   Polygon simple_polygon = simplifyPolygon(fine_polygon);
 
+  // vMax 条件を満たさない場合はこの解法では修正が厳しい
   assert(simple_polygon.size() <= puzzle.vMax);
-
-  auto popUnwrapped = [&](){
-    int i, j;
-    do{
-      i = rnd.nextUInt(H);
-      j = rnd.nextUInt(W);
-    } while(!poly2d[i][j] || in2d[i][j]);
-    poly2d[i][j] = false;
-    map2d.data[IJ(i, j)] = 0;
-    return Point(j, i);
-  };
 
   auto popUnwrappedBound = [&](){
     const int di[] = {0, -1, 0, 1};
@@ -359,6 +354,7 @@ PuzzleSolution outMST(PuzzleSolverParam param, Puzzle puzzle)
     return Point(j, i);
   };
 
+  // vMin 条件を満たすまで外周をデコボコにする
   //int vTarget = (puzzle.vMin + puzzle.vMax) / 2;
   int vTarget = puzzle.vMin;
   while(simple_polygon.size() < vTarget){
@@ -370,17 +366,17 @@ PuzzleSolution outMST(PuzzleSolverParam param, Puzzle puzzle)
   PuzzleSolution solution;
   solution.wall = simplifyPolygon(fine_polygon);
 
-  // // character representation of map ======================================
-  // static const char NON_WRAPPED = '.';
-  // static const char WRAPPED = ' ';
-  // static const char WRAPPY = '@';
-  // static const char BOOSTER_MANIPULATOR = 'B';
-  // static const char BOOSTER_FAST_WHEEL = 'F';
-  // static const char BOOSTER_DRILL = 'L';
-  // static const char BOOSTER_TELEPORT = 'R';
-  // static const char BOOSTER_CLONING = 'C';
-  // static const char WALL = '#';
-  // static const char SPAWN_POINT = 'X';
+  // scatter wrappy and boosters
+  auto popUnwrapped = [&](){
+    int i, j;
+    do{
+      i = rnd.nextUInt(H);
+      j = rnd.nextUInt(W);
+    } while(!poly2d[i][j] || in2d[i][j]);
+    poly2d[i][j] = false;
+    map2d.data[IJ(i, j)] = 0;
+    return Point(j, i);
+  };
 
   {
     int bNum = puzzle.mNum;
@@ -396,7 +392,7 @@ PuzzleSolution outMST(PuzzleSolverParam param, Puzzle puzzle)
     for(int i = 0; i < cNum; i++) solution.Cs.push_back(popUnwrapped());
     for(int i = 0; i < xNum; i++) solution.Xs.push_back(popUnwrapped());
     solution.wrapper = popUnwrapped();
-  };
+  }
 
   return solution;
 }

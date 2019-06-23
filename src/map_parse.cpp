@@ -222,8 +222,9 @@ std::vector<Trajectory> findNearestUnwrapped(const Game &game, const Point& from
     case Direction::A: ++pos.x; break;
     }
   }
+  std::reverse(trajs.begin(), trajs.end());
   return trajs;
 
-}
+  }
   
 } // namespace map_parse
