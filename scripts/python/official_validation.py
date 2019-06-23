@@ -107,7 +107,7 @@ def main():
         pairs.append((desc_path, sol_path))
 
     result_futures = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as executor:
+    with concurrent.futures.ProcessPoolExecutor(max_workers=args.jobs) as executor:
         for desc_path, sol_path in tqdm.tqdm(pairs):
             #validate(desc_path, sol_path)
             future = executor.submit(validate, desc_path, sol_path)
