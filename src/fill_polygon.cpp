@@ -97,6 +97,9 @@ bool parsePolygon(Polygon& polygon, const Map2D& map, int value) {
                     fine.push_back(fine.back() + Point(dir));
                 } while (fine.back() != Point {x, y});
 
+                assert (!fine.empty());
+                fine.pop_back();
+
                 polygon = fine;
                 return true;
             }

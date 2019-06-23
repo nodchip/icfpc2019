@@ -131,3 +131,40 @@ TEST(fill_polygon, simplifyPolygon) {
         std::cout << p;
     }
 }
+
+TEST(fill_polygon, reconstructPolygon) {
+    Map2D map1(10, 10, {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 2, 2, 0, 2, 0, 0, 0, 0,
+        0, 2, 2, 2, 2, 2, 2, 2, 2, 0,
+        0, 0, 0, 2, 0, 0, 2, 0, 2, 0,
+        0, 2, 0, 0, 0, 0, 2, 0, 0, 0,
+        0, 2, 2, 2, 0, 0, 2, 2, 0, 0,
+        0, 0, 2, 2, 0, 0, 2, 2, 2, 0,
+        0, 0, 2, 2, 2, 2, 2, 2, 0, 0,
+        0, 0, 2, 0, 2, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 2, 0, 0, 0, 0, 0,
+    });
+    Polygon polygon1;
+    EXPECT_TRUE(parsePolygon(polygon1, map1, 2));
+    std::cout << "polygon1 = ";
+    for (auto p : polygon1) { std::cout << p; }
+    std::cout << std::endl;
+
+    Map2D map2(map1.W, map1.H);
+    EXPECT_TRUE(fillPolygon(map2, polygon1, 2));
+    std::cout << "map1" << std::endl;
+    std::cout << map1 << std::endl;
+    std::cout << "map2" << std::endl;
+    std::cout << map2 << std::endl;
+    EXPECT_EQ(map1, map2);
+
+    Map2D map3(map1.W, map1.H);
+    EXPECT_TRUE(fillPolygon(map3, simplifyPolygon(polygon1), 2));
+    EXPECT_EQ(map1, map3);
+
+    Polygon polygon2;
+    EXPECT_TRUE(parsePolygon(polygon2, map2, 2));
+    EXPECT_EQ(polygon1, polygon2);
+    EXPECT_EQ(simplifyPolygon(polygon1), simplifyPolygon(polygon2));
+}
