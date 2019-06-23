@@ -98,7 +98,7 @@ def main():
     parser = argparse.ArgumentParser(description='Polls lambda.')
     parser.add_argument('--engine_name_file_paths',
                         help='File path containing engine name. One engine name per one line.',
-                        default='engine_names.txt')
+                        default='mining_engine_names.txt')
     parser.add_argument('--puzzle_solver_file_path', help='File path of the puzzle solver.',
                         default='src/solver')
     parser.add_argument('--jobs', type=int, help='Number of jobs,',
