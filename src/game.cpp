@@ -5,14 +5,46 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include <fstream>
 #include <limits>
 #include <ostream>
 #include <sstream>
 #include <string>
 #include <vector>
+#include <experimental/filesystem>
 
 #include "fill_polygon.h"
 #include "manipulator_reach.h"
+
+Buy::Buy() {
+  for (int i = 0; i < BoosterType::N; ++i) {
+    boosters[i] = 0;
+  }
+}
+Buy::Buy(const std::string& buy_desc) : Buy() {
+  for (char ch : buy_desc) {
+    switch (ch) {
+      case 'B': boosters[BoosterType::MANIPULATOR] += 1; break;
+      case 'F': boosters[BoosterType::FAST_WHEEL] += 1; break;
+      case 'L': boosters[BoosterType::DRILL] += 1; break;
+      case 'R': boosters[BoosterType::TELEPORT] += 1; break;
+      case 'C': boosters[BoosterType::CLONING] += 1; break;
+      case '\r':
+      case '\n':
+      case ' ':
+        break;
+      default:
+        assert (false);
+    }
+  }
+}
+Buy Buy::fromFile(const std::string& file_path) {
+  assert (std::experimental::filesystem::is_regular_file(file_path));
+  std::ifstream ifs(file_path);
+  std::string str((std::istreambuf_iterator<char>(ifs)),
+                  std::istreambuf_iterator<char>());
+  return Buy(str);
+}
 
 Game::Game() {
   for (int i = 0; i < BoosterType::N; ++i) {
@@ -38,6 +70,12 @@ Game::Game(const std::vector<std::string>& mp) : Game() {
   pick(*w, nullptr);
   paint(*w, nullptr);
   wrappers.push_back(std::move(w));
+}
+
+void Game::buyBoosters(const Buy& buy) {
+  for (int i = 0; i < BoosterType::N; ++i) {
+    num_boosters[i] += buy.boosters[i];
+  }
 }
 
 bool Game::tick() {
