@@ -17,7 +17,7 @@ PuzzleResult = collections.namedtuple('EngineResult', ('engine_name', 'time'))
 EngineResult = collections.namedtuple('EngineResult', ('engine_name', 'time'))
 
 
-TIMEOUT = 600.0
+TIMEOUT = 400.0
 INFINITE = 10**9
 SLEEP_TIME = 60.0
 PUBLIC_ID = '164'
