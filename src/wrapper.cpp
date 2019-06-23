@@ -241,6 +241,7 @@ bool Wrapper::undoAction() {
   // undo paint
   for (auto p : a.absolute_new_wrapped_positions) {
     assert (map2d.isInside(p) && (map2d(p) & CellType::kWrappedBit) != 0);
+    ++map2d.num_unwrapped;
     map2d(p) &= ~CellType::kWrappedBit;
   }
   // undo drill

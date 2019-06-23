@@ -211,7 +211,7 @@ std::vector<std::string> dumpMapString(const Map2D& map2d, std::vector<Point> wr
 
 std::ostream& operator<<(std::ostream& os, const Map2D& map) {
   for (auto line : dumpMapString(map, {})) {
-    os << line << std::endl;
+    os << line << "\n";
   }
   return os;
 }

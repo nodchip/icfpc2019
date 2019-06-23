@@ -37,7 +37,7 @@ std::string bfs5_5Solver(SolverParam param, Game* game, SolverIterCallback iter_
   vector<WrapperEngine> ws;
   ws.emplace_back(WrapperEngine(game, 0));
   int epoch(0);
-  while (game->countUnWrapped() != 0) {
+  while (!game->isEnd()) {
 //    cout << epoch << ": ";
     epoch++;
     vector<int> cloned;

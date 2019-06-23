@@ -33,11 +33,17 @@ struct Map2D {
     using T = int;
     int W = 0;
     int H = 0;
+    int num_unwrapped = 0;
     std::vector<T> data;
 
     Map2D() : Map2D(0, 0) {}
-    Map2D(int W_, int H_, int value = 0) : W(std::max(W_, 0)), H(std::max(H_, 0)) {
+    Map2D(int W_, int H_, int value = 0)
+      : W(std::max(W_, 0)),
+        H(std::max(H_, 0)) {
         data.assign(W * H, value);
+        if ((value & kUnwrappedMask) == 0) {
+          num_unwrapped = W * H;
+        }
     }
     Map2D(int W_, int H_, std::initializer_list<int> vals) : Map2D(W_, H_) {
         assert (vals.size() == W * H);
@@ -45,6 +51,9 @@ struct Map2D {
         for (int y = 0; y < H; ++y) {
             for (int x = 0; x < W; ++x, ++it) {
                 (*this)(x, y) = *it;
+                if ((*it & kUnwrappedMask) == 0) {
+                    ++num_unwrapped;
+                }
             }
         }
     }
@@ -65,6 +74,9 @@ struct Map2D {
     bool isInside(Point p) const {
         return isInside(p.x, p.y);
     }
+
+  private:
+    static constexpr int kUnwrappedMask = CellType::kObstacleBit | CellType::kWrappedBit;
 };
 
 using Booster = std::pair<char, Point>;

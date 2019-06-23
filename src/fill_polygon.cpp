@@ -33,29 +33,36 @@ bool pointsOnAxisAlignedLine(Point p0, Point p1, Point p2) {
 
 // scan-line method
 bool fillPolygon(Map2D& map, const Polygon& polygon, int value) {
-    using namespace detail;
-    for (int y = 0; y < map.H; ++y) {
-        auto intersections = enumerateIntersectionsToHorizontalLine(y, polygon);
-        std::sort(intersections.begin(), intersections.end(), [](const VerticalLine& lhs, const VerticalLine& rhs) {
-            return lhs.x < rhs.x;
-        });
-        bool inside = false;
-        int last_x = -1;
-        for (auto line : intersections) {
-            if (inside) {
-                // paint [last, current)
-                for (int x = last_x; x < line.x; ++x) {
-                    map(x, y) = value;
-                }
-            } else {
-                last_x = line.x;
-            }
-            inside = !inside;
-
+  static constexpr int kUnwrappedMask = CellType::kObstacleBit | CellType::kWrappedBit;
+  using namespace detail;
+  for (int y = 0; y < map.H; ++y) {
+    auto intersections = enumerateIntersectionsToHorizontalLine(y, polygon);
+    std::sort(intersections.begin(), intersections.end(),
+              [](const VerticalLine& lhs, const VerticalLine& rhs) {
+                return lhs.x < rhs.x;
+              });
+    bool inside = false;
+    int last_x = -1;
+    for (auto line : intersections) {
+      if (inside) {
+        // paint [last, current)
+        for (int x = last_x; x < line.x; ++x) {
+          if ((map(x, y) & kUnwrappedMask) && !(value & kUnwrappedMask)) {
+            ++map.num_unwrapped;
+          } else if (!(map(x, y) & kUnwrappedMask) && (value & kUnwrappedMask)) {
+            --map.num_unwrapped;
+          }
+          map(x, y) = value;
         }
-    }
+      } else {
+        last_x = line.x;
+      }
+      inside = !inside;
 
-    return true;
+    }
+  }
+
+  return true;
 }
 
 bool parsePolygon(Polygon& polygon, const Map2D& map, int value) {

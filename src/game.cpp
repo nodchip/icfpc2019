@@ -42,10 +42,12 @@ Game::Game(const std::vector<std::string>& mp) : Game() {
 
 bool Game::tick() {
   // make sure all wrappers has provided a command.
+#ifndef NDEBUG
   for (auto& wrapper : wrappers) {
     assert (!wrapper->actions.empty());
     assert (wrapper->actions.back().timestamp == time + 1);
   }
+#endif  // !defined(NDEBUG)
   ++time;
   // add new wrappers.
   for (auto&& w : next_wrappers) {
@@ -77,6 +79,7 @@ void Game::paint(const Wrapper& w, Action* a_optional) {
   // paint
   if ((map2d(p) & CellType::kWrappedBit) == 0) {
     map2d(p) |= CellType::kWrappedBit;
+    --map2d.num_unwrapped;
     if (a_optional) a_optional->absolute_new_wrapped_positions.push_back(p);
   }
 
@@ -85,6 +88,7 @@ void Game::paint(const Wrapper& w, Action* a_optional) {
     if ((map2d(manip) & CellType::kWrappedBit) == 0) {
       if (a_optional) a_optional->absolute_new_wrapped_positions.push_back(manip);
       map2d(manip) |= CellType::kWrappedBit;
+      --map2d.num_unwrapped;
     }
   }
 }
@@ -120,21 +124,7 @@ std::string Game::getCommand() const {
 }
 
 bool Game::isEnd() const {
-  return countUnWrapped() == 0;
-}
-
-int Game::countUnWrapped() const {
-  static const int kMask = CellType::kObstacleBit | CellType::kWrappedBit;
-  const int H = map2d.H;
-  const int W = map2d.W;
-  int count = 0;
-  for (int x = 0; x < W; ++x) {
-    for (int y = 0; y < H; ++y) {
-      if ((map2d(x, y) & kMask) == 0)
-        ++count;
-    }
-  }
-  return count;
+  return countUnwrapped() == 0;
 }
 
 std::vector<Point> Game::getWrapperPositions() const {
@@ -154,6 +144,7 @@ std::ostream& operator<<(std::ostream& os, const Game& game) {
   for (auto& line : dumpMapString(game.map2d, game.getWrapperPositions())) {
     os << line << "\n";
   }
+  os << "Unwrapped: " << game.map2d.num_unwrapped << "\n";
 
   os << "Boosters: B(" << game.num_boosters[BoosterType::MANIPULATOR] << ") "
      << "F(" << game.num_boosters[BoosterType::FAST_WHEEL] << ") "

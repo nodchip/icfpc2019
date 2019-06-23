@@ -5,7 +5,7 @@ std::string wrapperEngineSolver(SolverParam param, Game* game, SolverIterCallbac
   std::vector<WrapperEngineBase::Ptr> engines;
   engines.emplace_back(prototype->create(game, game->wrappers[0].get()));
 
-  while (game->countUnWrapped() != 0) {
+  while (!game->isEnd()) {
     std::vector<int> cloned_ids;
     for (auto& e : engines) {
       std::vector<WrapperEngineBase*> other_engines;
@@ -31,7 +31,7 @@ std::string wrapperEngineSolver(SolverParam param, Game* game, SolverIterCallbac
 }
 
 std::string functorSolver(SolverParam param, Game* game, SolverIterCallback iter_callback, std::function<Wrapper*(Wrapper*)> func) {
-  while (game->countUnWrapped() != 0) {
+  while (!game->isEnd()) {
     for (auto& w : game->wrappers) {
       func(w.get());
     }
