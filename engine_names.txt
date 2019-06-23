@@ -17,3 +17,4 @@ evaluate_base
 clone_fast
 clone_nonpara
 clone_strict_para
+pick
