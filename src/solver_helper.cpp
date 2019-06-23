@@ -1,5 +1,6 @@
 #include "solver_helper.h"
 #include <cassert>
+#include <queue>
 
 std::string wrapperEngineSolver(SolverParam param, Game* game, SolverIterCallback iter_callback, WrapperEngineBase::Ptr prototype) {
   std::vector<WrapperEngineBase::Ptr> engines;
@@ -50,4 +51,45 @@ void ManipulatorExtender::extend() {
     wrapper->addManipulator(Point(1, - 2 - num_attached_manipulators / 2));
   }
   num_attached_manipulators++;
+}
+
+std::vector<std::vector<Point>> disjointConnectedComponentsByMask(const Map2D& map, int mask, int bits) {
+  constexpr int BACKGROUND = 0;
+  constexpr int FOREGROUND = 1;
+  constexpr int VISITED = 2;
+  Map2D work(map.W, map.H, BACKGROUND);
+  for (int y = 0; y < map.H; ++y) {
+    for (int x = 0; x < map.W; ++x) {
+      if ((map(x, y) & mask) == bits) {
+        work(x, y) = FOREGROUND;
+      }
+    }
+  }
+
+  std::vector<std::vector<Point>> components;
+  for (int y = 0; y < work.H; ++y) {
+    for (int x = 0; x < work.W; ++x) {
+      if (work(x, y) == FOREGROUND) {
+        // start BFS fill
+        std::vector<Point> component;
+        std::queue<Point> que;
+        que.push({x, y});
+        work(x, y) = VISITED;
+        component.push_back({x, y});
+        while (!que.empty()) {
+          Point p = que.front(); que.pop();
+          for (auto offset : all_directions) {
+            Point n = p + Point(offset);
+            if (work.isInside(n) && work(n) == FOREGROUND) {
+              que.push(n);
+              work(n) = VISITED;
+              component.push_back(n);
+            }
+          }
+        }
+        components.push_back(component);
+      }
+    }
+  }
+  return components;
 }

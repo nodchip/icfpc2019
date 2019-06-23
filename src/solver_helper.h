@@ -45,3 +45,5 @@ private:
   Wrapper *wrapper;
   int num_attached_manipulators = 0;
 };
+
+std::vector<std::vector<Point>> disjointConnectedComponentsByMask(const Map2D& map, int mask, int bits);
