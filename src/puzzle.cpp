@@ -1,4 +1,5 @@
 #include "puzzle.h"
+#include <iostream>
 #include <sstream>
 #include <cassert>
 #include <cstdlib>
@@ -6,13 +7,97 @@
 #include <sstream>
 #include <cctype>
 
+#include "fill_polygon.h"
+
 constexpr int BLANK = 0;
 constexpr int IN = 1;
 constexpr int OUT = 2;
 
-bool Puzzle::validateSolution(const Map2D& solution_map) const {
-  assert (false);
-  return false;
+bool Puzzle::validateSolution(const PuzzleSolution& solution) const {
+  std::cerr << "validateSolution() is incomplete!!" << std::endl;
+  bool valid = true;
+  int xmax = 0, ymax = 0;
+  for (auto p : solution.wall) {
+    xmax = std::max(xmax, p.x);
+    ymax = std::max(ymax, p.y);
+  }
+  auto mark_invalid = [&](std::string msg) {
+    std::cerr << msg << std::endl;
+    valid = false;
+  };
+
+  // size.
+  if (xmax > tSize) {
+    mark_invalid("large W");
+  }
+  if (ymax > tSize) {
+    mark_invalid("large H");
+  }
+  if (xmax < tSize / 10) {
+    mark_invalid("small W");
+  }
+  if (ymax < tSize / 10) {
+    mark_invalid("small H");
+  }
+  // fill walls.
+  Map2D map(xmax + 1, ymax + 1, CellType::kObstacleBit);
+  if (!fillPolygon(map, solution.wall, CellType::kEmpty)) {
+    mark_invalid("unable to fill walls");
+  }
+  // area.
+  const int area = countCellsByMask(map, CellType::kObstacleBit, 0);
+  if (area >= (tSize * tSize * 2 + 10 - 1) / 10) {
+    mark_invalid("small area");
+  }
+  // in/out
+  for (auto p : iSqs) {
+    if (!map.isInside(p) || (map(p) & CellType::kObstacleBit) != 0) {
+      mark_invalid("inside point is out");
+    }
+  }
+  for (auto p : oSqs) {
+    if (!map.isInside(p) || (map(p) & CellType::kObstacleBit) == 0) {
+      mark_invalid("outside point is in");
+    }
+  }
+  // polygon vertices.
+  if (solution.wall.size() < vMin) {
+    mark_invalid("too few vertices");
+  }
+  if (solution.wall.size() > vMax) {
+    mark_invalid("too many vertices");
+  }
+  // wrapper pos
+  if (!map.isInside(solution.wrapper) || (map(solution.wrapper) & CellType::kObstacleBit) != 0) {
+    mark_invalid("invalid wrapper pos");
+  }
+  // boosters
+  if (solution.Bs.size() != mNum) { mark_invalid("booster B size mismatch"); }
+  if (solution.Fs.size() != mNum) { mark_invalid("booster F size mismatch"); }
+  if (solution.Ls.size() != mNum) { mark_invalid("booster L size mismatch"); }
+  if (solution.Rs.size() != mNum) { mark_invalid("booster R size mismatch"); }
+  if (solution.Cs.size() != mNum) { mark_invalid("booster C size mismatch"); }
+  if (solution.Xs.size() != mNum) { mark_invalid("booster X size mismatch"); }
+  std::vector<std::vector<Point>> boosters_list = {
+    solution.Bs,
+    solution.Fs,
+    solution.Ls,
+    solution.Rs,
+    solution.Cs,
+    solution.Xs,
+  };
+  std::vector<Point> boosters;
+  for (auto& ls : boosters_list) {
+    for (auto p : ls) {
+      if (std::find(boosters.begin(), boosters.end(), p) != boosters.end()) {
+        mark_invalid("multiple boosters at the same location");
+      }
+      if (!map.isInside(p) || (map(p) & CellType::kObstacleBit) != 0) {
+        mark_invalid("invalid booster pos");
+      }
+    }
+  }
+  return valid;
 }
 
 Map2D Puzzle::constraintsToMap() const {

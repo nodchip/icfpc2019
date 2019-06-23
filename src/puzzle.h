@@ -3,6 +3,7 @@
 #include "base.h"
 #include "map2d.h"
 
+struct PuzzleSolution;
 struct Puzzle {
   int bNum = 0; // block
   int eNum = 0; // epoch
@@ -39,7 +40,7 @@ struct Puzzle {
       iSqs == rhs.iSqs &&
       oSqs == rhs.oSqs;
   }
-  bool validateSolution(const Map2D& solution_map) const;
+  bool validateSolution(const PuzzleSolution& solution_map) const;
   Map2D constraintsToMap() const;
 };
 
