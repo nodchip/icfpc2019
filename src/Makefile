@@ -9,7 +9,7 @@ CXXFLAGS+=-I. -I$(GTEST_DIR) -I$(GTEST_DIR)/include -I$(LIB_PATH)/CLI11/include
 
 LDFLAGS=-lstdc++fs
 
-SRCS=base.cpp getch.cpp map2d.cpp booster.cpp wrapper.cpp game.cpp action.cpp solver_registry.cpp solver_helper.cpp
+SRCS=base.cpp getch.cpp map2d.cpp booster.cpp wrapper.cpp game.cpp action.cpp solver_registry.cpp solver_helper.cpp solver_utils.cpp
 SRCS+=puzzle.cpp
 SRCS+=manipulator_reach.cpp fill_polygon.cpp
 SRCS+=map_parse.cpp trajectory.cpp
