@@ -95,6 +95,7 @@ def main():
     parser.add_argument('--desc-dir')
     parser.add_argument('--sol-dir')
     parser.add_argument('--jobs', type=int, default=1)
+    parser.add_argument('--output')
     args = parser.parse_args()
 
     pairs = []
@@ -112,7 +113,8 @@ def main():
     results = [future.result() for future in result_futures]
     
     del v
-    print(json.dumps(results, indent=4))
+    print(json.dumps(results, indent=4), file=open(args.output, 'w'))
+
 
 if __name__ == '__main__':
     main()
