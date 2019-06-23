@@ -33,13 +33,43 @@ Action Wrapper::getScaffoldAction() {
   return a;
 }
 
-void Wrapper::move(char c) {
+bool Wrapper::move(char c) {
   Action a = getScaffoldAction();
   a.command = c;
 
-  int speed = (time_fast_wheels > 0) ? 2 : 1;
+  {
+    Point p {pos};
+    switch (c) {
+    case Action::UP:
+      p.y += 1;
+      break;
+    case Action::DOWN:
+      p.y -= 1;
+      break;
+    case Action::LEFT:
+      p.x -= 1;
+      break;
+    case Action::RIGHT:
+      p.x += 1;
+      break;
+    }
 
-  for (int i = 0; i < speed; ++i) {
+    if (!map2d.isInside(p)) {
+      assert (false);
+      return false;
+    }
+    if ((map2d(p) & CellType::kObstacleBit) == 0) {
+      moveAndPaint(p, a);
+    } else if (time_drill > 0) {
+      map2d(p) &= ~CellType::kObstacleBit;
+      moveAndPaint(p, a);
+    } else {
+      assert (false);
+      return false;
+    }
+  }
+
+  if (time_fast_wheels > 0) {
     Point p {pos};
     switch (c) {
     case Action::UP:
@@ -78,6 +108,7 @@ void Wrapper::move(char c) {
   a.new_position = pos;
   moveAndPaint(pos, a);
   doAction(a);
+  return true;
 }
 
 void Wrapper::nop() {
@@ -113,8 +144,11 @@ void Wrapper::turn(char c) {
   doAction(a);
 }
 
-void Wrapper::addManipulator(const Point& p) {
-  assert (canAddManipulator(p));
+bool Wrapper::addManipulator(const Point& p) {
+  if (!canAddManipulator(p)) {
+    assert (false);
+    return false;
+  }
 
   Action a = getScaffoldAction();
   assert (game->num_boosters[BoosterType::MANIPULATOR] > 0);
@@ -131,6 +165,7 @@ void Wrapper::addManipulator(const Point& p) {
   a.new_manipulator_offsets = manipulators;
   a.command = oss.str();
   doAction(a);
+  return true;
 }
 
 bool Wrapper::canAddManipulator(const Point& p) {
@@ -149,8 +184,12 @@ bool Wrapper::canAddManipulator(const Point& p) {
   return false;
 }
 
-void Wrapper::teleport(const Point& p) {
+bool Wrapper::teleport(const Point& p) {
   Action a = getScaffoldAction();
+  if ((map2d(p) & CellType::kTeleportTargetBit) == 0) {
+    assert(false);
+    return false;
+  }
 
   std::ostringstream oss;
   oss << "T(" << p.x << "," << p.y << ")";
@@ -159,6 +198,7 @@ void Wrapper::teleport(const Point& p) {
 
   a.command = oss.str();
   doAction(a);
+  return true;
 }
 
 void Wrapper::pick(Action& a) {
@@ -173,12 +213,15 @@ void Wrapper::moveAndPaint(Point p, Action& a) {
   game->paint(*this, &a);
 }
 
-void Wrapper::useBooster(char c) {
+bool Wrapper::useBooster(char c) {
   Action a = getScaffoldAction();
   a.command = c;
 
   const int b = boosterFromChar(c).booster_type;
-  assert (game->num_boosters[b] > 0);
+  if (game->num_boosters[b] <= 0) {
+    assert (false);
+    return false;
+  }
   --game->num_boosters[b];
   a.use_booster[b] += 1;
 
@@ -198,6 +241,7 @@ void Wrapper::useBooster(char c) {
   }
 
   doAction(a);
+  return true;
 }
 
 Wrapper* Wrapper::cloneWrapper() {

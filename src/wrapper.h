@@ -16,12 +16,12 @@ struct Wrapper {
   Wrapper(Game* game_, Point pos_, int wrapper_spawn_index_);
 
   // Control Wrappy
-  void move(char);  // input: WSAD
+  bool move(char);  // input: WSAD
   void nop();  // input: Z
   void turn(char);  // input: EQ
-  void addManipulator(const Point&);  // input: x,y relative to wrapper position.
-  void teleport(const Point&);  // input: x,y
-  void useBooster(char);  // input: FLR
+  bool addManipulator(const Point&);  // input: x,y relative to wrapper position.
+  bool teleport(const Point&);  // input: x,y
+  bool useBooster(char);  // input: FLR
   Wrapper* cloneWrapper(); 
 
   Action getScaffoldAction();

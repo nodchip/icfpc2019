@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>c01736d3-5982-48a1-9be3-088fd811939c</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>lambda_poller.py</StartupFile>
+    <StartupFile>execute_engines.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>C:\msys64\home\nodchip\icfpc2019</WorkingDirectory>
@@ -13,7 +13,7 @@
     <RootNamespace>python</RootNamespace>
     <IsWindowsApplication>False</IsWindowsApplication>
     <LaunchProvider>Standard Python launcher</LaunchProvider>
-    <CommandLineArguments>--puzzle_solver_file_path ls --jobs 1 </CommandLineArguments>
+    <CommandLineArguments>--solution_directory_path solutions/bfs5_3 --solver_name bfs5_3 --jobs 1</CommandLineArguments>
     <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -32,6 +32,7 @@
     <Compile Include="lambda_poller.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="official_validation.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
