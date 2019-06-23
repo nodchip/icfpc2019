@@ -63,7 +63,7 @@ struct WrapperEngine {
           auto small_cc = ccs.front();
           assert (!small_cc.empty());
           auto target = small_cc.front();
-        
+
           trajs = map_parse::findTrajectory(*m_game, m_wrapper->pos, target, DISTANCE_INF);
         } else {
           // なければbfs5_6と同じ
@@ -146,4 +146,4 @@ std::string evaluateSolver(SolverParam param, Game* game, SolverIterCallback ite
   return game->getCommand();
 }
 
-REGISTER_SOLVER("evaluate", evaluateSolver);
+REGISTER_SOLVER("evaluate_base", evaluateSolver);

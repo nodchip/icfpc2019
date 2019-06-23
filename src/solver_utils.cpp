@@ -74,7 +74,7 @@ namespace utils {
     static const int kMask2 = CellType::kObstacleBit;
     const int H = game.map2d.H;
     const int W = game.map2d.W;
-    static const int numIteration(std::min<int>((H + W) / 2, 10));
+    static const int numIteration(std::min<int>((H + W) / 2, 20));
     auto &map2d(game.map2d);
     vector<vector<vector<double>>> value(2, vector<vector<double>>(H, vector<double>(W, 0.0)));
     for (int y = 0; y < H; ++y) {
