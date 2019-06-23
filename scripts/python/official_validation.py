@@ -10,6 +10,7 @@ import time
 import re
 import json
 import tqdm
+import concurrent.futures
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -65,10 +66,35 @@ class Validator(object):
                 'message': t,
             }
 
+
+def validate(desc_path, sol_path):
+    v = Validator()
+    if not os.path.isfile(sol_path):
+        res = {
+            'succeeded': False,
+            'message': 'file not exist',
+        }
+    else:
+        res = v.validate(desc_path, sol_path)
+        
+    problem_index = -1
+    mo = re.match(r'prob-(\d+)\.desc', os.path.basename(desc_path))
+    if mo:
+        problem_index = int(mo.groups()[0])
+    print(desc_path, flush=True)
+    return {
+        'problem_index': problem_index,
+        'desc_path': desc_path,
+        'sol_path': sol_path,
+        'result': res,
+    }
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--desc-dir')
     parser.add_argument('--sol-dir')
+    parser.add_argument('--jobs', type=int, default=1)
     args = parser.parse_args()
 
     pairs = []
@@ -76,27 +102,14 @@ def main():
         sol_path = os.path.join(args.sol_dir, os.path.splitext(os.path.basename(desc_path))[0] + '.sol')
         pairs.append((desc_path, sol_path))
 
-    v = Validator()
-    results = []
-    for desc_path, sol_path in tqdm.tqdm(pairs):
-        if not os.path.isfile(sol_path):
-            res = {
-                'succeeded': False,
-                'message': 'file not exist',
-            }
-        else:
-            res = v.validate(desc_path, sol_path)
-        
-        problem_index = -1
-        mo = re.match(r'prob-(\d+)\.desc', os.path.basename(desc_path))
-        if mo:
-            problem_index = int(mo.groups()[0])
-        results.append({
-            'problem_index': problem_index,
-            'desc_path': desc_path,
-            'sol_path': sol_path,
-            'result': res,
-        })
+    result_futures = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as executor:
+        for desc_path, sol_path in tqdm.tqdm(pairs):
+            #validate(desc_path, sol_path)
+            future = executor.submit(validate, desc_path, sol_path)
+            result_futures.append(future)
+
+    results = [future.result() for future in result_futures]
     
     del v
     print(json.dumps(results, indent=4))
