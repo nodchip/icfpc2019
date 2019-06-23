@@ -23,7 +23,7 @@ SLEEP_TIME = 60.0
 PUBLIC_ID = '164'
 NEXT_BLOCK_FILE = os.path.abspath('next_block_file.txt')
 PUZZLE_INPUT_FILE_NAME = os.path.abspath('puzzle.input.txt')
-PUZZLE_OUTPUT_FILE_NAME = os.path.abspath('puzzle.output.txt')
+PUZZLE_OUTPUT_FILE_NAME = os.path.abspath('puzzle.output.desc')
 TASK_INPUT_FILE_NAME = os.path.abspath('task.input.txt')
 TASK_OUTPUT_FILE_NAME_FORMAT = os.path.abspath('task.output.{engine_name}.txt')
 
@@ -185,6 +185,7 @@ def main():
         
         if best_engine is None:
             sys.exit('no engines returned a valid result.')
+        print('choose best engine [{}] time={}'.format(best_engine, best_time))
 
         task_output_file_name = TASK_OUTPUT_FILE_NAME_FORMAT.format(engine_name=best_engine)
 
