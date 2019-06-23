@@ -175,12 +175,12 @@ def main():
         for engine_name in engine_names:
             task_output_file_name = TASK_OUTPUT_FILE_NAME_FORMAT.format(engine_name=engine_name)
             if os.path.isfile(task_output_file_name):
-                time = execute_engines.calculate_time(task_output_file_name)
+                engine_time = execute_engines.calculate_time(task_output_file_name)
                 print('engine_name={engine_name:>10} time={time:>10}'.format(
-                    engine_name=engine_name, time=time), flush=True)
-                if best_time <= time:
+                    engine_name=engine_name, time=engine_time), flush=True)
+                if best_time <= engine_time:
                     continue
-                best_time = time
+                best_time = engine_time
                 best_engine = engine_name
         
         if best_engine is None:
