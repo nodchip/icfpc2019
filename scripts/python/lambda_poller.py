@@ -217,9 +217,9 @@ def main():
         t_block_processing_1 = time.time()
 
         if completed_process.returncode:
-            sys.exit('Failed to execute lambda-cli.py submit. took {}s'.format(t_block_processing_1 - t_block_processing_1))
+            sys.exit('Failed to execute lambda-cli.py submit. took {}s'.format(t_block_processing_1 - t_block_processing_0))
 
-        print('Submission succeeded... took {}s'.format(t_block_processing_1 - t_block_processing_1), flush=True)
+        print('Submission succeeded... took {}s'.format(t_block_processing_1 - t_block_processing_0), flush=True)
 
         set_next_block(mininginfo['block'] + 1)
 
