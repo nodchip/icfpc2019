@@ -25,7 +25,7 @@ NEXT_BLOCK_FILE = os.path.abspath('next_block_file.txt')
 PUZZLE_INPUT_FILE_NAME = os.path.abspath('puzzle.input.txt')
 PUZZLE_OUTPUT_FILE_NAME = os.path.abspath('puzzle.output.desc')
 TASK_INPUT_FILE_NAME = os.path.abspath('task.input.txt')
-TASK_OUTPUT_FILE_NAME_FORMAT = os.path.abspath('task.output.{engine_name}.txt')
+TASK_OUTPUT_FILE_NAME_FORMAT = os.path.abspath('task.output.{engine_name}.sol')
 
 
 def solve_puzzle(args):
