@@ -8,5 +8,6 @@ bfs5_3
 bfs5_4
 bfs5_5
 bfs5_6
+bfs5_6_paranoid
 bfs3_plus_wipe
 bfs5_plus_wipe
