@@ -48,3 +48,14 @@ private:
 };
 
 std::vector<std::vector<Point>> disjointConnectedComponentsByMask(const Map2D& map, int mask, int bits);
+
+// since it is crutial to reach to C as soon as possible,
+// consider whether picking and using of F might be useful.
+// start -> F(use immediately) -> C
+// NOTE: incomplete. it may be difficult to control wrapper through narrow road...
+struct FindFCRouteResult {
+  Point F_pos;
+  Point C_pos;
+  int time_cost = 0; // approx.
+};
+std::unique_ptr<FindFCRouteResult> findGoodFCRoute(const Map2D& map, Point start);

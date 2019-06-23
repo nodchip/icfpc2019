@@ -36,3 +36,29 @@ TEST(SolverHelperTest, disjointConnectedComponentByMask) {
     std::cout << std::endl;
   }
 }
+
+TEST(SolverHelperTest, findFCRoute) {
+  constexpr int C = CellType::kBoosterCloningBit;
+  constexpr int F = CellType::kBoosterFastWheelBit;
+  constexpr int I = CellType::kObstacleBit;
+  Map2D map(10, 10, {
+    0, 0, I, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, I, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, I, 0, I, I, I, 0, 0, 0,
+    0, 0, I, 0, I, C, I, 0, 0, 0,
+    0, 0, I, 0, I, 0, I, 0, 0, 0,
+    0, 0, I, 0, 0, 0, I, 0, 0, 0,
+    0, 0, I, I, I, I, I, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, F, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  });
+  auto res = findGoodFCRoute(map, {1, 9});
+  EXPECT_TRUE(bool(res));
+
+  if (res) {
+    std::cout << res->F_pos << std::endl;
+    std::cout << res->C_pos << std::endl;
+    std::cout << res->time_cost << std::endl;
+  }
+}
