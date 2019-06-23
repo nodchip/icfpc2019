@@ -1,6 +1,8 @@
 #include "solver_helper.h"
+#include <iostream>
 #include <cassert>
 #include <queue>
+#include "solver_utils.h"
 
 std::string wrapperEngineSolver(SolverParam param, Game* game, SolverIterCallback iter_callback, WrapperEngineBase::Ptr prototype) {
   std::vector<WrapperEngineBase::Ptr> engines;
@@ -92,4 +94,61 @@ std::vector<std::vector<Point>> disjointConnectedComponentsByMask(const Map2D& m
     }
   }
   return components;
+}
+
+std::unique_ptr<FindFCRouteResult> findGoodFCRoute(const Map2D& map, Point start) {
+  auto Fs = enumerateCellsByMask(map, CellType::kBoosterFastWheelBit, CellType::kBoosterFastWheelBit);
+  auto Cs = enumerateCellsByMask(map, CellType::kBoosterCloningBit, CellType::kBoosterCloningBit);
+  std::cout << "Fs:" << Fs.size() << " Cs:" << Cs.size() << std::endl;
+  if (Fs.empty() || Cs.empty()) return {};
+
+  // start -> Fs[i] -> Cs[j]
+  std::vector<FindFCRouteResult> res;
+  // start -> Fs[i]
+  for (int i = 0; i < Fs.size(); ++i) {
+    auto path_to_F = nearestPathByMaskBFS(map, CellType::kObstacleBit, 0, start, {Fs[i]});
+    std::cout << "path_to_F:" << path_to_F.size() << std::endl;
+    for (auto p : path_to_F) std::cout << p; std::cout << std::endl;
+    if (!path_to_F.empty() && path_to_F.front() == start && path_to_F.back() == Fs[i]) {
+      // start -> Fs[i]
+      for (int j = 0; j < Cs.size(); ++j) {
+        auto path_to_C = nearestPathByMaskBFS(map, CellType::kObstacleBit, 0, Fs[i], {Cs[j]});
+        std::cout << "path_to_C:" << path_to_C.size() << std::endl;
+        for (auto p : path_to_C) std::cout << p; std::cout << std::endl;
+        if (!path_to_C.empty() && path_to_C.front() == Fs[i] && path_to_C.back() == Cs[j]) {
+          std::cout << "s-F:" << path_to_F.size() << " F-C:" << path_to_C.size() << std::endl;
+          FindFCRouteResult candidate;
+          candidate.F_pos = Fs[i];
+          candidate.C_pos = Cs[j];
+          candidate.time_cost += path_to_F.size() - 1; // start -> Fs[i]
+          candidate.time_cost += 1; // use F
+          // Fs[i] -> Cs[j]
+          const int lenC = path_to_C.size() - 1;
+          candidate.time_cost += std::max(lenC - 30, lenC / 2);
+          res.push_back(candidate);
+        }
+      }
+    }
+  }
+  // start -> Cs[j]
+  const Point invalid {-1, -1};
+  for (int j = 0; j < Cs.size(); ++j) {
+    auto path_to_C = nearestPathByMaskBFS(map, CellType::kObstacleBit, 0, start, {Cs[j]});
+    std::cout << "direct path_to_C:" << path_to_C.size() << std::endl;
+    for (auto p : path_to_C) std::cout << p; std::cout << std::endl;
+    if (!path_to_C.empty() && path_to_C.front() == start && path_to_C.back() == Fs[j]) {
+      FindFCRouteResult candidate;
+      candidate.F_pos = invalid;
+      candidate.C_pos = Cs[j];
+      candidate.time_cost += path_to_C.size() - 1; // start -> Cs[i]
+      res.push_back(candidate);
+    }
+  }
+  auto it_min = std::min_element(res.begin(), res.end(), [](auto lhs, auto rhs) { return lhs.time_cost < rhs.time_cost; });
+  if (it_min == res.end()) return {};
+  if (it_min->F_pos == invalid) return {};
+
+  std::unique_ptr<FindFCRouteResult> result(new FindFCRouteResult);
+  *result.get() = *it_min;
+  return result;
 }

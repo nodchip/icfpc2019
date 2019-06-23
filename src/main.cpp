@@ -13,6 +13,25 @@
 #include "fill_polygon.h"
 #include "solver_registry.h"
 
+std::string resolveDescPath(std::string desc_path_hint) {
+  // parse various input:
+  // ../dataset/problems/prob-001.desc
+  // prob-001
+  // 001
+  std::vector<std::string> candidates = {
+    desc_path_hint,
+    std::string("../dataset/problems/") + desc_path_hint,
+    std::string("../dataset/problems/") + desc_path_hint + std::string(".desc"),
+    std::string("../dataset/problems/prob-") + desc_path_hint + std::string(".desc"),
+  };
+  for (auto c : candidates) {
+    if (std::experimental::filesystem::is_regular_file(c)) {
+      return c;
+    }
+  }
+  return desc_path_hint;
+}
+
 int main(int argc, char* argv[]) {
   int return_code = 0;
   CLI::App app { "main module" };
@@ -31,11 +50,13 @@ int main(int argc, char* argv[]) {
 
   auto sub_run = app.add_subcommand("run");
   SolverParam solver_param;
+  std::string buy_database_dir;
   sub_run->add_option("solver", solver_name, "the solver name");
   sub_run->add_option("--desc", desc_filename, "*.desc file input");
   sub_run->add_option("--map", map_filename, "*.map file input");
   sub_run->add_option("--output", command_output_filename, "output commands to a file");
   sub_run->add_option("--meta", meta_output_filename, "output meta information to a JSON file");
+  sub_run->add_option("--buy", buy_database_dir, "use a buy directory");
   sub_run->add_option("--wait-ms", solver_param.wait_ms, "display and pause a while between frames");
 
   std::string cond_filename;
@@ -65,6 +86,7 @@ int main(int argc, char* argv[]) {
 
   // ================== convert
   if (sub_convert->parsed()) {
+    desc_filename = resolveDescPath(desc_filename);
     assert (std::experimental::filesystem::is_regular_file(desc_filename));
     std::ifstream ifs(desc_filename);
     std::string str((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
@@ -79,13 +101,17 @@ int main(int argc, char* argv[]) {
 
   // ================== run
   if (sub_run->parsed()) {
+    std::string stem;
     std::unique_ptr<Game> game; 
+    desc_filename = resolveDescPath(desc_filename);
     if (std::experimental::filesystem::is_regular_file(desc_filename)) {
+      stem = std::experimental::filesystem::path(desc_filename).stem();
       std::ifstream ifs(desc_filename);
       std::string str((std::istreambuf_iterator<char>(ifs)),
                       std::istreambuf_iterator<char>());
       game.reset(new Game(str));
     } else if (std::experimental::filesystem::is_regular_file(map_filename)) {
+      stem = std::experimental::filesystem::path(map_filename).stem();
       std::ifstream ifs(map_filename);
       std::vector<std::string> input;
       for (std::string l; std::getline(ifs, l);)
@@ -98,6 +124,17 @@ int main(int argc, char* argv[]) {
       for (std::string l; std::getline(std::cin, l);)
         input.emplace_back(l);
       game.reset(new Game(input));
+    }
+
+    if (!stem.empty() && std::experimental::filesystem::is_directory(buy_database_dir)) {
+      // read buy file.
+      std::string buy_path = buy_database_dir + "/" + stem + ".buy";
+      if (!std::experimental::filesystem::is_regular_file(buy_path)) {
+        std::cerr << "**** no buy file [" << buy_path << "] for " << stem << std::endl;
+      } else {
+        std::cerr << "**** use buy file [" << buy_path << "] for " << stem << std::endl;
+        game->buyBoosters(Buy::fromFile(buy_path));
+      }
     }
 
     // Do something
