@@ -9,6 +9,10 @@
 
 using namespace std;
 
+bool operator<(const Point& p0, const Point& p1) {
+  return p0.x != p1.x ? p0.x < p1.x : p1.x < p1.y;
+}
+
 namespace {
 struct WrapperEngine {
   WrapperEngine(Game *game, int id) : m_game(game), m_id(id), m_wrapper(game->wrappers[id].get()), m_num_manipulators(0) { m_total_wrappers++; };
@@ -105,9 +109,15 @@ struct WrapperEngine {
         std::vector<Trajectory> trajs;
 
         auto ccs = disjointConnectedComponentsByMask(m_game->map2d, 0b11, 0b00);
+        for (auto& connected_component : ccs) {
+          std::sort(connected_component.begin(), connected_component.end());
+        }
         if (ccs.size() > 1 && m_id == 0) {
           // 孤立領域があれば最小のものに向かう
-          std::sort(ccs.begin(), ccs.end(), [](const auto& lhs, const auto& rhs) { return lhs.size() < rhs.size(); });
+          std::sort(ccs.begin(), ccs.end(), [](const auto& lhs, const auto& rhs) {
+            return lhs.size() != rhs.size() ? lhs.size() < rhs.size()
+              : lhs < rhs;
+            });
           auto small_cc = ccs.front();
           assert (!small_cc.empty());
           auto target = small_cc.front();
@@ -152,7 +162,7 @@ static std::vector<std::vector<Trajectory>> getItemMatrixfast(Game* game, const 
   return output;
 }
 
-std::string clonefastSolver(SolverParam param, Game* game, SolverIterCallback iter_callback) {
+std::string cloneStrictPara(SolverParam param, Game* game, SolverIterCallback iter_callback) {
   int num_wrappers = 1;
   vector<WrapperEngine> ws;
   bool clone_mode = false;
@@ -214,4 +224,4 @@ std::string clonefastSolver(SolverParam param, Game* game, SolverIterCallback it
   return game->getCommand();
 }
 
-REGISTER_SOLVER("clone_fast", clonefastSolver);
+REGISTER_SOLVER("clone_strict_para", cloneStrictPara);
