@@ -110,6 +110,7 @@ Game& Game::operator=(const Game& rhs) {
     w->game = this;
     next_wrappers.emplace_back(std::move(w));
   }
+
   return *this;
 }
 
@@ -152,19 +153,24 @@ void Game::pick(const Wrapper& w, Action* a_optional) {
 }
 
 void Game::paint(const Wrapper& w, Action* a_optional) {
+  static constexpr int kUnwrappedMask = CellType::kWrappedBit | CellType::kObstacleBit;
   auto p = w.pos;
   assert (map2d.isInside(p));
 
-  // paint
+  // Paint cell at the wrapper. It can be in obstacle if drill is active.
   if ((map2d(p) & CellType::kWrappedBit) == 0) {
+    if ((map2d(p) & CellType::kObstacleBit) == 0) {
+      --map2d.num_unwrapped;
+      map2d(p) &= ~CellType::kObstacleBit;
+    }
     map2d(p) |= CellType::kWrappedBit;
-    --map2d.num_unwrapped;
     if (a_optional) a_optional->absolute_new_wrapped_positions.push_back(p);
   }
 
   // paint manipulator
   for (auto manip : absolutePositionOfReachableManipulators(map2d, p, w.manipulators)) {
-    if ((map2d(manip) & CellType::kWrappedBit) == 0) {
+    // Manipulators can't drill obstacles.
+    if ((map2d(manip) & kUnwrappedMask) == 0) {
       if (a_optional) a_optional->absolute_new_wrapped_positions.push_back(manip);
       map2d(manip) |= CellType::kWrappedBit;
       --map2d.num_unwrapped;

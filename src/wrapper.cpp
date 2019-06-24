@@ -92,10 +92,8 @@ bool Wrapper::move(char c) {
       assert (false);
       return false;
     }
-    if ((map2d(p) & CellType::kObstacleBit) == 0) {
-      moveAndPaint(p, a);
-    } else if (time_drill > 0) {
-      map2d(p) &= ~CellType::kObstacleBit;
+    if ((map2d(p) & CellType::kObstacleBit) == 0 ||
+        time_drill > 0) {
       moveAndPaint(p, a);
     } else {
       assert (false);
@@ -130,10 +128,8 @@ bool Wrapper::move(char c) {
       p.y = map2d.H - 1;
 
     if (map2d.isInside(p)) {
-      if ((map2d(p) & CellType::kObstacleBit) == 0) {
-        moveAndPaint(p, a);
-      } else if (time_drill > 0) {
-        map2d(p) &= ~CellType::kObstacleBit;
+      if ((map2d(p) & CellType::kObstacleBit) == 0 ||
+          time_drill > 0) {
         moveAndPaint(p, a);
       }
     }
