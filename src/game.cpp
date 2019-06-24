@@ -234,6 +234,41 @@ bool checkCommandString(std::string cmd) {
   return okay;
 }
 
+std::vector<std::string> dumpMapStringWithManipulators(const Map2D& map2d, const std::vector<std::unique_ptr<Wrapper>>& wrappers) {
+  std::vector<std::vector<char>> charmap;
+
+  for (int y = 0; y < map2d.H; ++y) {
+    std::vector<char> line(map2d.W, WALL);
+    for (int x = 0; x < map2d.W; ++x) {
+      line[x] = detail::getMapChar(map2d(x, y));
+    }
+    charmap.push_back(line);
+  }
+
+  for (int i = 0; i < wrappers.size(); ++i) {
+    auto& w = wrappers[i];
+    // paint wrapper
+    if (map2d.isInside(w->pos)) {
+      const char number = '0' + char(i % 10);
+      charmap[w->pos.y][w->pos.x] = wrappers.size() == 1 ? WRAPPY : number;
+    }
+    // paint manipulator
+    const char ATTACHED_MANIPULATOR = 'o';
+    for (auto manip : absolutePositionOfReachableManipulators(map2d, w->pos, w->manipulators)) {
+      charmap[manip.y][manip.x] = ATTACHED_MANIPULATOR;
+    }
+  }
+
+  std::reverse(charmap.begin(), charmap.end()); // now charmap[0] is the highest y.
+
+  std::vector<std::string> result;
+  for (auto& line : charmap) {
+    //line.push_back('\0');
+    result.push_back(std::string(line.begin(), line.end()));
+  }
+  return result;
+}
+
 std::ostream& operator<<(std::ostream& os, const Game& game) {
   os << "Time: " << game.time << "\n";
   const int W = game.map2d.W, H = game.map2d.H;
@@ -241,7 +276,7 @@ std::ostream& operator<<(std::ostream& os, const Game& game) {
   const int window_h = 30;
   if (W < window_w && H < window_h) {
     // whole map
-    for (auto& line : dumpMapString(game.map2d, game.getWrapperPositions())) {
+    for (auto& line : dumpMapStringWithManipulators(game.map2d, game.wrappers)) {
       os << line << "\n";
     }
   } else {
@@ -250,12 +285,17 @@ std::ostream& operator<<(std::ostream& os, const Game& game) {
     const int tx = std::min(W, game.wrappers[0]->pos.x + window_w);
     const int fy = std::max(0, game.wrappers[0]->pos.y - window_h);
     const int ty = std::min(H, game.wrappers[0]->pos.y + window_h);
-    std::vector<Point> wrappers_in_window;
-    for (auto p : game.getWrapperPositions()) {
-      wrappers_in_window.push_back({p.x - fx, p.y - fy});
+    // HACK: temporalily shift wrapper positions.
+    for (auto& w : game.wrappers) {
+      w->pos.x -= fx;
+      w->pos.y -= fy;
     }
-    for (auto& line : dumpMapString(game.map2d.slice(fx, tx, fy, ty), wrappers_in_window)) {
+    for (auto& line : dumpMapStringWithManipulators(game.map2d.slice(fx, tx, fy, ty), game.wrappers)) {
       os << line << "\n";
+    }
+    for (auto& w : game.wrappers) {
+      w->pos.x += fx;
+      w->pos.y += fy;
     }
   }
   os << "Unwrapped: " << game.map2d.num_unwrapped << "\n";

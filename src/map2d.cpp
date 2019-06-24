@@ -326,24 +326,30 @@ ParsedMap parseMapString(std::vector<std::string> map_strings_top_to_bottom) {
   return map;
 }
 
+namespace detail {
+char getMapChar(int map_bits) {
+  char c = NON_WRAPPED;
+  if (map_bits & CellType::kWrappedBit) { c = WRAPPED; }
+  if (map_bits & CellType::kBoosterManipulatorBit) { c = BOOSTER_MANIPULATOR; }
+  if (map_bits & CellType::kBoosterFastWheelBit) { c = BOOSTER_FAST_WHEEL; }
+  if (map_bits & CellType::kBoosterDrillBit) { c = BOOSTER_DRILL; }
+  if (map_bits & CellType::kBoosterCloningBit) { c = BOOSTER_CLONING; }
+  if (map_bits & CellType::kSpawnPointBit) { c = SPAWN_POINT; }
+  if (map_bits & CellType::kBoosterTeleportBit) { c = BOOSTER_TELEPORT; }
+  if (map_bits & CellType::kObstacleBit) { c = WALL; } // highest priority
+  if (std::isalpha(c) && (map_bits & CellType::kWrappedBit) == 0)
+    c = std::tolower(c);
+  return c;
+}
+}
+
 std::vector<std::string> dumpMapString(const Map2D& map2d, std::vector<Point> wrappy_list) {
   std::vector<std::vector<char>> charmap;
 
   for (int y = 0; y < map2d.H; ++y) {
     std::vector<char> line(map2d.W, WALL);
     for (int x = 0; x < map2d.W; ++x) {
-      char c = NON_WRAPPED;
-      if (map2d(x, y) & CellType::kWrappedBit) { c = WRAPPED; }
-      if (map2d(x, y) & CellType::kBoosterManipulatorBit) { c = BOOSTER_MANIPULATOR; }
-      if (map2d(x, y) & CellType::kBoosterFastWheelBit) { c = BOOSTER_FAST_WHEEL; }
-      if (map2d(x, y) & CellType::kBoosterDrillBit) { c = BOOSTER_DRILL; }
-      if (map2d(x, y) & CellType::kBoosterCloningBit) { c = BOOSTER_CLONING; }
-      if (map2d(x, y) & CellType::kSpawnPointBit) { c = SPAWN_POINT; }
-      if (map2d(x, y) & CellType::kBoosterTeleportBit) { c = BOOSTER_TELEPORT; }
-      if (map2d(x, y) & CellType::kObstacleBit) { c = WALL; } // highest priority
-      if (std::isalpha(c) && (map2d(x, y) & CellType::kWrappedBit) == 0)
-        c = std::tolower(c);
-      line[x] = c;
+      line[x] = detail::getMapChar(map2d(x, y));
     }
     charmap.push_back(line);
   }
@@ -363,6 +369,7 @@ std::vector<std::string> dumpMapString(const Map2D& map2d, std::vector<Point> wr
   }
   return result;
 }
+
 
 std::ostream& operator<<(std::ostream& os, const Map2D& map) {
   for (auto line : dumpMapString(map, {})) {
