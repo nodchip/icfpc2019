@@ -207,7 +207,7 @@ int main(int argc, char* argv[]) {
       std::ofstream ofs(meta_output_filename);
       ofs << "{\"name\":\"" << solver_name
           << "\",\"time_unit\":" << game->time
-          << "\",\"buy\":\"" << buy.toString() << "\""
+          << "\",\"buy\":\"" << buy.toString()
           << "\",\"wall_clock_time\":" << solve_s << "}\n";
     }
     std::cout << "Time step: " << game->time << "\n";
