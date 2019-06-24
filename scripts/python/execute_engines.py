@@ -40,7 +40,7 @@ def calculate_time(solution_file_path):
             life_times.append(life_times[wrappy_index])
 
     assert wrappy_index + 1 == len(life_times), 'Expected number of wrappies={num_wrappies} Actual number of actions={num_actions}'.format(
-        num_wrapies=len(life_times), num_actions=wrappy_index + 1)
+        num_wrappies=len(life_times), num_actions=wrappy_index + 1)
 
     return max(life_times)
 
@@ -52,7 +52,9 @@ def execute(problem_name, args):
 
     description_file_path = os.path.join(args.description_directory_path, problem_name + '.desc')
     solution_file_path = os.path.join(args.solution_directory_path, problem_name + '.sol')
+    buy_file_path = os.path.join(args.buy_directory_path, problem_name + '.buy')
     best_solution_file_path = os.path.join(args.best_solution_directory_path, problem_name + '.sol')
+    best_buy_file_path = os.path.join(args.best_solution_directory_path, problem_name + '.buy')
 
     if not os.path.isfile(description_file_path):
         print('!' * 80, flush=True)
@@ -62,7 +64,8 @@ def execute(problem_name, args):
         return 
 
     command = [args.engine_file_path, 'run', args.solver_name, '--desc', description_file_path,
-               '--output', solution_file_path]
+               '--output', solution_file_path, '--buy', args.buy_directory_path]
+
     print(command, flush=True)
     t0 = time.time()
     try:
@@ -102,7 +105,11 @@ def execute(problem_name, args):
     if new_time < best_time:
         if os.path.isfile(best_solution_file_path):
             os.remove(best_solution_file_path)
+        if os.path.isfile(best_buy_file_path):
+            os.remove(best_buy_file_path)
         shutil.copyfile(solution_file_path, best_solution_file_path)
+        if os.path.isfile(buy_file_path):
+            shutil.copyfile(buy_file_path, best_buy_file_path)
 
     return Result(problem_name, new_time, best_time)
 
@@ -115,6 +122,9 @@ def main():
                         default='dataset/problems')
     parser.add_argument('--solution_directory_path',
                         help='Parent directory path containing output solutions.',
+                        required=True)
+    parser.add_argument('--buy_directory_path',
+                        help='Parent directory path containing buy files.',
                         required=True)
     parser.add_argument('--best_solution_directory_path',
                         help='Directory path containing best output solutions.',
@@ -129,6 +139,7 @@ def main():
     os.makedirs(args.description_directory_path, exist_ok=True)
     os.makedirs(args.solution_directory_path, exist_ok=True)
     os.makedirs(args.best_solution_directory_path, exist_ok=True)
+    os.makedirs(args.buy_directory_path, exist_ok=True)
 
     FAILURE = False
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as executor:
