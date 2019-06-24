@@ -8,12 +8,13 @@ import shutil
 import subprocess
 import multiprocessing
 import sys
+import time
 
 
 Result = collections.namedtuple('Result', ('problem_name', 'new_time', 'best_time'))
 
 
-TIMEOUT = 600.0
+TIMEOUT = 1200.0
 INFINITE = 10**9
 FAILURE = False;
 
@@ -63,15 +64,18 @@ def execute(problem_name, args):
     command = [args.engine_file_path, 'run', args.solver_name, '--desc', description_file_path,
                '--output', solution_file_path]
     print(command, flush=True)
+    t0 = time.time()
     try:
         completed_process = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=TIMEOUT)
     except subprocess.TimeoutExpired:
+        t1 = time.time()
         print('!' * 80, flush=True)
-        print('Engine timeout... command={command} description_file_path={description_file_path} solution_file_path={solution_file_path}'.format(
-            command=command, description_file_path=description_file_path,
+        print('Engine timeout... time={elapsed_s}s. command={command} description_file_path={description_file_path} solution_file_path={solution_file_path}'.format(
+            elapsed_s=t1 - t0, command=command, description_file_path=description_file_path,
             solution_file_path=solution_file_path), flush=True)
         FAILURE = True
         return Result(problem_name, INFINITE, INFINITE)
+    t1 = time.time()
 
     if completed_process.returncode:
         print('!' * 80, flush=True)
@@ -88,6 +92,10 @@ def execute(problem_name, args):
             solution_file_path=solution_file_path), flush=True)
         FAILURE = True
         return Result(problem_name, INFINITE, INFINITE)
+
+    print('Succeeded to execute the engine in {elapsed_s}s. command={command} description_file_path={description_file_path} solution_file_path={solution_file_path}'.format(
+        elapsed_s=t1 - t0, command=command, description_file_path=description_file_path,
+        solution_file_path=solution_file_path), flush=True)
 
     new_time = calculate_time(solution_file_path)
     best_time = calculate_time(best_solution_file_path)
