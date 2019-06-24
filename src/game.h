@@ -15,6 +15,9 @@ struct Buy {
   Buy();
   Buy(const std::string& buy_desc);
   static Buy fromFile(const std::string& file_path);
+
+  bool empty() const;
+  std::string toString() const;
   std::array<int, BoosterType::N> boosters;
 };
 

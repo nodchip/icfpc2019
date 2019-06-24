@@ -45,6 +45,21 @@ Buy Buy::fromFile(const std::string& file_path) {
                   std::istreambuf_iterator<char>());
   return Buy(str);
 }
+bool Buy::empty() const {
+  for (int i = 0; i < BoosterType::N; ++i) {
+    if (boosters[i] != 0) return false;
+  }
+  return true;
+}
+std::string Buy::toString() const {
+  std::ostringstream oss;
+  for (int i = 0; i < boosters[BoosterType::MANIPULATOR]; ++i) oss << 'B';
+  for (int i = 0; i < boosters[BoosterType::FAST_WHEEL]; ++i) oss << 'F';
+  for (int i = 0; i < boosters[BoosterType::DRILL]; ++i) oss << 'L';
+  for (int i = 0; i < boosters[BoosterType::TELEPORT]; ++i) oss << 'R';
+  for (int i = 0; i < boosters[BoosterType::CLONING]; ++i) oss << 'C';
+  return oss.str();
+}
 
 Game::Game() {
   for (int i = 0; i < BoosterType::N; ++i) {
