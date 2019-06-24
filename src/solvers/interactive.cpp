@@ -26,8 +26,12 @@ std::string interactiveSolver(SolverParam param, Game* game, SolverIterCallback 
           break;
         }
         if (c == 'W' || c == 'S' || c == 'A' || c == 'D') {
-          w->move(c);
-          break;
+          if (w->isMoveable(c)) {
+            w->move(c);
+            break;
+          } else {
+            std::cout << "not moveable" << std::endl;
+          }
         }
         if (c == 'Z') {
           w->nop();
@@ -39,7 +43,7 @@ std::string interactiveSolver(SolverParam param, Game* game, SolverIterCallback 
         }
         if (c == 'F' && game->num_boosters[BoosterType::FAST_WHEEL] > 0) { w->useBooster(c); break; }
         if (c == 'L' && game->num_boosters[BoosterType::DRILL] > 0) { w->useBooster(c); break; }
-        if (c == 'R' && game->num_boosters[BoosterType::TELEPORT] > 0) { w->useBooster(c); break; }
+        if (c == 'R' && game->num_boosters[BoosterType::TELEPORT] > 0 && (game->map2d(w->pos) & CellType::kTeleportTargetBit) == 0) { w->useBooster(c); break; }
         if (c == 'C' && game->num_boosters[BoosterType::CLONING] > 0 && (game->map2d(w->pos) & CellType::kSpawnPointBit) != 0) {
            w->cloneWrapper(); break;
         }
@@ -51,12 +55,18 @@ std::string interactiveSolver(SolverParam param, Game* game, SolverIterCallback 
           break;
         }
         if (c == 'T') {
-          int x, y;
-          std::cout << "(X, Y) >" << std::flush;
-          std::cin >> x >> y;
-          if (game->map2d.isInside({x, y}) && (game->map2d({x, y}) & CellType::kTeleportTargetBit) != 0) {
-            w->teleport({x, y});
-            break;
+          auto targets = enumerateCellsByMask(game->map2d, CellType::kTeleportTargetBit, CellType::kTeleportTargetBit);
+          if (!targets.empty()) {
+            std::cout << "targets:";
+            for (auto t : targets) std::cout << t << " ";
+            std::cout << ".";
+            int x, y;
+            std::cout << "(X, Y) >" << std::flush;
+            std::cin >> x >> y;
+            if (game->map2d.isInside({x, y}) && (game->map2d({x, y}) & CellType::kTeleportTargetBit) != 0) {
+              w->teleport({x, y});
+              break;
+            }
           }
         }
         if (c == 'U' && game->time > 0) {

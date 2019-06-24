@@ -83,5 +83,7 @@ private:
 
 bool checkCommandString(std::string);
 
+std::vector<std::string> dumpMapStringWithManipulators(const Map2D& map2d, const std::vector<std::unique_ptr<Wrapper>>& wrappers);
+
 // Outputs game status
 std::ostream& operator<<(std::ostream&, const Game&);

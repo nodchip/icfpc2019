@@ -28,6 +28,7 @@ static const char BOOSTER_TELEPORT = 'R';
 static const char BOOSTER_CLONING = 'C';
 static const char WALL = '#';
 static const char SPAWN_POINT = 'X';
+static const char TELEPORT_TARGET = 'T';
 
 struct Map2D {
     using T = int;
@@ -132,6 +133,10 @@ ParsedMap parseDescString(std::string desc_string);
 // parse *.map string to construct Map2D and obtain other info.
 // map_strings_top_to_bottom[H - 1 - y] corresponds to the y-line.
 ParsedMap parseMapString(std::vector<std::string> map_strings_top_to_bottom);
+
+namespace detail {
+char getMapChar(int map_bits);
+}
 
 // dump map string for display. the first row corresponds to the highest y.
 // do not contain line terminator at the end of lines.
