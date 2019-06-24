@@ -23,24 +23,15 @@ def calculate_time(solution_file_path):
         return INFINITE
 
     with open(solution_file_path, 'r') as f:
-        body = f.read()
+        body = str(f.read()).strip()
 
     # life_times[i] = life time of the i-th wrappy.
     life_times = [0]
     wrappy_index = 0
-    for ch in body:
-        if not ch.isupper():
-            if ch == '#':
-                wrappy_index += 1;
-            continue
-
-        life_times[wrappy_index] += 1
-        
-        if ch == 'C':
-            life_times.append(life_times[wrappy_index])
-
-    assert wrappy_index + 1 == len(life_times), 'Expected number of wrappies={num_wrappies} Actual number of actions={num_actions}'.format(
-        num_wrappies=len(life_times), num_actions=wrappy_index + 1)
+    life_times = [len([c for c in w if c.isupper()]) for w in body.split('#') ]
+    assert body.count('C') + 1 == len(life_times), (
+        'Expected number of wrappies={num_wrappies} Actual number of actions={num_actions}'.format(
+            num_wrappies=len(life_times), num_actions=body.count('C') + 1))
 
     return max(life_times)
 
