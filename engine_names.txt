@@ -14,3 +14,4 @@ pick_strict_paranoids
 mst
 multispawn
 distspawn
+multispawn2
