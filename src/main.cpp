@@ -197,9 +197,9 @@ int main(int argc, char* argv[]) {
     // command output
     if (!command_output_filename.empty()) {
       std::ofstream ofs(command_output_filename);
-      if (!buy.empty()) { // to distinguish from non-buy solutions.
-        ofs << "buy:" << buy.toString() << "\n";
-      }
+      // if (!buy.empty()) { // to distinguish from non-buy solutions.
+      //   ofs << "buy:" << buy.toString() << "\n";
+      // }
       ofs << game->getCommand();
     }
     // meta information output
