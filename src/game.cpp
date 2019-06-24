@@ -72,7 +72,7 @@ Game::Game(const std::string& task) : Game() {
   map2d = parsed.map2d;
 
   auto w = std::make_unique<Wrapper>(this, parsed.wrappy, 0);
-  pick(*w, nullptr);
+  pick(w->pos, nullptr);
   paint(*w, nullptr);
   wrappers.push_back(std::move(w));
 }
@@ -82,7 +82,7 @@ Game::Game(const std::vector<std::string>& mp) : Game() {
   map2d = parsed.map2d;
 
   auto w = std::make_unique<Wrapper>(this, parsed.wrappy, 0);
-  pick(*w, nullptr);
+  pick(w->pos, nullptr);
   paint(*w, nullptr);
   wrappers.push_back(std::move(w));
 }
@@ -137,28 +137,17 @@ bool Game::tick() {
   return true;
 }
 
-void Game::pick(const Wrapper& w, Action* a_optional) {
+void Game::pick(const Point& pos, Action* a_optional) {
   // automatically pick up boosters with no additional time cost.
   for (auto booster : boosters) {
-    if (map2d(w.pos) & booster.map_bit) {
+    if (map2d(pos) & booster.map_bit) {
       if (a_optional) {
         assert (booster.booster_type < a_optional->pick_boosters.size());
-        a_optional->pick_boosters[booster.booster_type].push_back(w.pos);
+        a_optional->pick_boosters[booster.booster_type].push_back(pos);
       }
       assert (booster.booster_type < num_boosters.size());
       ++num_boosters[booster.booster_type];
-      map2d(w.pos) &= ~booster.map_bit;
-    }
-    if (a_optional && a_optional->fast_wheels_active) {
-      Point& p = a_optional->old_position;
-      if (map2d(p) & booster.map_bit) {
-        assert (booster.booster_type < a_optional->pick_boosters.size());
-        a_optional->pick_boosters[booster.booster_type].push_back(p);
-
-        assert (booster.booster_type < num_boosters.size());
-        ++num_boosters[booster.booster_type];
-        map2d(p) &= ~booster.map_bit;
-      }
+      map2d(pos) &= ~booster.map_bit;
     }
   }
 }

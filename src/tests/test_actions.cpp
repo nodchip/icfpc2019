@@ -163,7 +163,7 @@ TEST(ActionTest, FastWheel) {
   wrapper->move(Action::UP); game.tick();
   wrapper->useBooster(Action::FAST); game.tick();
   wrapper->move(Action::UP); game.tick();
+  wrapper->turn(Action::CW); game.tick();
   EXPECT_EQ(Point(0, 3), wrapper->pos);
   EXPECT_FALSE(game.map2d(0, 2) & CellType::kBoosterDrillBit);
-  std::cout << game << "\n";
 }

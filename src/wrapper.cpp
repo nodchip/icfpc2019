@@ -29,7 +29,21 @@ Wrapper::Wrapper(Game* game_, Point pos_, int wrapper_spawn_index_)
 Action Wrapper::getScaffoldAction() {
   // +1 for next action.
   Action a = {game->time + 1, time_fast_wheels > 0, time_drill > 0, pos, direction, manipulators};
-  pick(a); // pick boosters before move!
+  // pick boosters before move!
+  pick(a);
+
+  // If the last action is a fast move, pick a booster on its way.
+  if (actions.size()) {
+    // Last action.
+    const Action& la = actions.back();
+    if (la.fast_wheels_active &&
+        la.old_position != la.new_position &&
+        la.use_booster[BoosterType::TELEPORT] == 0) {
+      const Point& op = la.old_position;
+      const Point& np = la.new_position;
+      game->pick(Point((op.x + np.x) / 2, (op.y + np.y) / 2), &a); // pick boosters before move!
+    }
+  }
   return a;
 }
 
@@ -235,7 +249,7 @@ bool Wrapper::teleport(const Point& p) {
 void Wrapper::pick(Action& a) {
   auto& map2d = game->map2d;
   assert (map2d.isInside(pos));
-  game->pick(*this, &a);
+  game->pick(pos, &a);
 }
 
 void Wrapper::moveAndPaint(Point p, Action& a) {
