@@ -12,3 +12,4 @@ pick
 pick_strict_para
 pick_strict_paranoids
 mst
+multispawn
