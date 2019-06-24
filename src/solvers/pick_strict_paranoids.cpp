@@ -94,7 +94,8 @@ static std::vector<std::vector<Trajectory>> getItemMatrixpick(Game* game, const 
 std::string pickStrictParanoidsSolver(SolverParam param, Game* game, SolverIterCallback iter_callback) {
   int num_wrappers = 1;
   vector<WrapperEngine> ws;
-  bool clone_mode = false;
+  bool clone_mode = (game->num_boosters[BoosterType::CLONING] > 0);
+  bool spawn_exist = (enumerateCellsByMask(game->map2d, CellType::kSpawnPointBit, CellType::kSpawnPointBit).size() > 0);
   ws.emplace_back(WrapperEngine(game, 0));
   int epoch(0);
   bool clone_exist = (enumerateCellsByMask(game->map2d, CellType::kBoosterCloningBit, CellType::kBoosterCloningBit).size() > 0);
@@ -120,8 +121,9 @@ std::string pickStrictParanoidsSolver(SolverParam param, Game* game, SolverIterC
     if(cmat.size() < game->wrappers.size()){
       cmat.resize(game->wrappers.size());
     }
-      
-    if(clone_mode && game->num_boosters[BoosterType::CLONING] > 0){
+
+    // spawnがなければ探さない
+    if(clone_mode && game->num_boosters[BoosterType::CLONING] > 0 && spawn_exist){
       clone_mode = false;
       //cout<<"route gen for spawn"<<endl;
       cmat = getItemMatrixpick(game,  CellType::kSpawnPointBit);
