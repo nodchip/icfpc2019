@@ -232,11 +232,11 @@ bool Wrapper::useBooster(char c) {
 
   switch (c) {
   case Action::FAST: {
-    time_fast_wheels += 50 + (time_fast_wheels ? 1 : 0); // rule specification has updated.
+    time_fast_wheels += 50 + (time_fast_wheels ? 0 : 1); // rule specification has updated.
     break;
   }
   case Action::DRILL: {
-    time_drill += 30 + (time_drill ? 1 : 0); // rule specification has updated.
+    time_drill += 30 + (time_drill ? 0 : 1); // rule specification has updated.
     break;
   }
   case Action::BEACON: {
