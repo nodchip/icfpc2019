@@ -149,6 +149,17 @@ void Game::pick(const Wrapper& w, Action* a_optional) {
       ++num_boosters[booster.booster_type];
       map2d(w.pos) &= ~booster.map_bit;
     }
+    if (a_optional && a_optional->fast_wheels_active) {
+      Point& p = a_optional->old_position;
+      if (map2d(p) & booster.map_bit) {
+        assert (booster.booster_type < a_optional->pick_boosters.size());
+        a_optional->pick_boosters[booster.booster_type].push_back(p);
+
+        assert (booster.booster_type < num_boosters.size());
+        ++num_boosters[booster.booster_type];
+        map2d(p) &= ~booster.map_bit;
+      }
+    }
   }
 }
 
@@ -159,9 +170,10 @@ void Game::paint(const Wrapper& w, Action* a_optional) {
 
   // Paint cell at the wrapper. It can be in obstacle if drill is active.
   if ((map2d(p) & CellType::kWrappedBit) == 0) {
-    if ((map2d(p) & CellType::kObstacleBit) == 0) {
-      --map2d.num_unwrapped;
+    if (map2d(p) & CellType::kObstacleBit) {
       map2d(p) &= ~CellType::kObstacleBit;
+    } else {
+      --map2d.num_unwrapped;
     }
     map2d(p) |= CellType::kWrappedBit;
     if (a_optional) a_optional->absolute_new_wrapped_positions.push_back(p);

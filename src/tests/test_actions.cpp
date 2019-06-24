@@ -134,11 +134,11 @@ TEST(ActionTest, Manipulator) {
 }
 
 TEST(ActionTest, Drill) {
-  Game game("(0,0),(2,0),(2,3),(0,3)#(0,0)#(1,1),(2,1),(2,2),(1,2)#L(0,1)");
-  // .. 2
-  // L# 1
-  // @. 0
-  // 01
+  Game game("(0,0),(3,0),(3,3),(0,3)#(0,0)#(1,1),(2,1),(2,2),(1,2)#L(0,1)");
+  // ... 2
+  // L#. 1
+  // @.. 0
+  // 012
 
   Wrapper* wrapper = game.wrappers[0].get();
   wrapper->move(Action::UP); game.tick();
@@ -148,6 +148,7 @@ TEST(ActionTest, Drill) {
   EXPECT_FALSE(game.map2d(1,1) & CellType::kObstacleBit);
   wrapper->move(Action::RIGHT); game.tick();
   EXPECT_FALSE(game.map2d(2,1) & CellType::kObstacleBit);
+  EXPECT_EQ(1, game.map2d.num_unwrapped);
 }
 
 TEST(ActionTest, DISABLED_FastWheel) {
