@@ -200,7 +200,7 @@ std::string pickStrictParanoidsSolver(SolverParam param, Game* game_org, SolverI
   std::unique_ptr<Game> best_game;
   int best_time = std::numeric_limits<int>::max();
 
-  for (int iter = 0; iter < 4; ++iter) {
+  for (int iter = 0; iter < 2; ++iter) {
     auto copied_game = std::make_unique<Game>(*game_org);
     pickStrictParanoidsSolverSub(param, copied_game.get(), iter_callback, iter);
     if (copied_game->isEnd()) {
