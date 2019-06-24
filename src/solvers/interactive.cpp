@@ -14,7 +14,11 @@ std::string interactiveSolver(SolverParam param, Game* game, SolverIterCallback 
     bool did_undo = false;
     for (int i = 0; !did_undo && !terminate && i < game->wrappers.size(); ++i) {
       while (true) {
-        std::cout << "# " << i << ": Command [!]quit [U]undo [W/A/S/D/Z]move [E/Q]turn [F/L/R/C]boost [M]manipulate [T]teleport >" << std::flush;
+        if (i == 0) {
+          std::cout << "# " << i << ": Command [!]quit [U]undo [W/A/S/D/Z]move [E/Q]turn [F/L/R/C]boost [M]manipulate [T]teleport >" << std::flush;
+        } else {
+          std::cout << "# " << i << ": Command [!]quit [W/A/S/D/Z]move [E/Q]turn [F/L/R/C]boost [M]manipulate [T]teleport >" << std::flush;
+        }
         Wrapper* w = game->wrappers[i].get();
 #if defined(_MSC_VER)
 #define getch _getch
@@ -63,12 +67,8 @@ std::string interactiveSolver(SolverParam param, Game* game, SolverIterCallback 
             break;
           }
         }
-        if (c == 'U' && game->time > 0) {
-          // first, undo [0, i)
-          // then, undo the whole previous frame.
-          for (int j = 0; j < i; ++j) {
-            game->wrappers[j]->undoAction();
-          }
+        if (c == 'U' && game->time > 0 && i == 0) {
+          // Undo the whole previous frame.
           game->undo();
           did_undo = true;
           break;
