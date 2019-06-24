@@ -63,6 +63,7 @@ struct Game {
   void paint(const Wrapper& w, Action* a_optional); // helper func used by Wrapper
 
   // State of Game
+  int problem_no = -1;
   int time = 0;
 
   // shared & updated map
