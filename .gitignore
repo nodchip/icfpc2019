@@ -5,3 +5,4 @@ solver
 test
 gmon.out
 test_result.xml
+/dataset/lambda-client/blocks
