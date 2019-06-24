@@ -33,6 +33,39 @@ Action Wrapper::getScaffoldAction() {
   return a;
 }
 
+bool Wrapper::isMoveable(char c) {
+  auto& map2d = game->map2d;
+
+  {
+    Point p {pos};
+    switch (c) {
+    case Action::UP:
+      p.y += 1;
+      break;
+    case Action::DOWN:
+      p.y -= 1;
+      break;
+    case Action::LEFT:
+      p.x -= 1;
+      break;
+    case Action::RIGHT:
+      p.x += 1;
+      break;
+    }
+
+    if (!map2d.isInside(p)) {
+      return false;
+    }
+    if ((map2d(p) & CellType::kObstacleBit) == 0) {
+      return true;
+    } else if (time_drill > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+}
+
 bool Wrapper::move(char c) {
   auto& map2d = game->map2d;
   Action a = getScaffoldAction();

@@ -26,8 +26,12 @@ std::string interactiveSolver(SolverParam param, Game* game, SolverIterCallback 
           break;
         }
         if (c == 'W' || c == 'S' || c == 'A' || c == 'D') {
-          w->move(c);
-          break;
+          if (w->isMoveable(c)) {
+            w->move(c);
+            break;
+          } else {
+            std::cout << "not moveable" << std::endl;
+          }
         }
         if (c == 'Z') {
           w->nop();

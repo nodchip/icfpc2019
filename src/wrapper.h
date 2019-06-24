@@ -28,6 +28,7 @@ struct Wrapper {
   std::string getCommand() const; // command for this wrapper.
   bool undoAction(); // if no actions are stacked, fail and return false.
 
+  bool isMoveable(char);
   bool canAddManipulator(const Point&);
   int getLastNumWrapped() {
     return actions.empty() ? 0 : actions.back().absolute_new_wrapped_positions.size();
