@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>c01736d3-5982-48a1-9be3-088fd811939c</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>execute_engines.py</StartupFile>
+    <StartupFile>generate_buy.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>C:\msys64\home\nodchip\icfpc2019</WorkingDirectory>
@@ -29,6 +29,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="execute_engines.py" />
+    <Compile Include="generate_buy.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="lambda_poller.py">
       <SubType>Code</SubType>
     </Compile>
