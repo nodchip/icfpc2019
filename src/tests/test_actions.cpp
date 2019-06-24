@@ -151,8 +151,7 @@ TEST(ActionTest, Drill) {
   EXPECT_EQ(1, game.map2d.num_unwrapped);
 }
 
-TEST(ActionTest, DISABLED_FastWheel) {
-  // example-01.desc
+TEST(ActionTest, FastWheel) {
   Game game("(0,0),(2,0),(2,4),(0,4)#(0,0)##F(0,1);L(0,2)");
   // .. 3
   // l. 2
@@ -160,46 +159,11 @@ TEST(ActionTest, DISABLED_FastWheel) {
   // @. 0
   // 01
 
-  // Wrapper* wrapper = game.wrappers[0].get();
-  // EXPECT_TRUE((game.map2d(0, 1) & CellType::kWrappedBit) == 0);
-  // wrapper->move(Action::UP); game.tick();
-  // EXPECT_TRUE((game.map2d(0, 2) & CellType::kWrappedBit) == 0);
-  // wrapper->turn(Action::CCW); game.tick();
-  // EXPECT_EQ(1, game.num_boosters[BoosterType::MANIPULATOR]);
-  // EXPECT_FALSE((game.map2d(0, 2) & CellType::kWrappedBit) == 0);
-  // wrapper->turn(Action::CW); game.tick();
-
-  // wrapper->move(Action::UP); game.tick();
-
-  // wrapper->move(Action::UP); game.tick();
-  // EXPECT_EQ(1, game.num_boosters[BoosterType::FAST_WHEEL]);
-
-  // wrapper->move(Action::UP); game.tick();
-  // EXPECT_EQ(1, game.num_boosters[BoosterType::DRILL]);
-  // wrapper->move(Action::UP); game.tick();
-  // wrapper->move(Action::UP); game.tick();
-  // wrapper->move(Action::UP); game.tick();
-  // wrapper->move(Action::UP); game.tick();
-  // wrapper->move(Action::UP); game.tick();
-  // EXPECT_EQ(Point(0, 9), wrapper->pos);
-
-  // wrapper->move(Action::RIGHT); game.tick();
-  // wrapper->move(Action::RIGHT); game.tick();
-  // wrapper->move(Action::RIGHT); game.tick();
-  // wrapper->move(Action::DOWN); game.tick();
-  // wrapper->move(Action::DOWN); game.tick();
-  // wrapper->move(Action::DOWN); game.tick();
-  // EXPECT_EQ(Point(3, 6), wrapper->pos);
-
-  // int num_unwrapped = game.map2d.num_unwrapped;
-  // wrapper->useBooster(Action::DRILL); game.tick();
-  // EXPECT_EQ(0, game.num_boosters[BoosterType::DRILL]);
-
-  // wrapper->move(Action::RIGHT); game.tick();
-  // EXPECT_EQ(num_unwrapped - 1, game.map2d.num_unwrapped);  // (5,6) is newly wrapped.
-
-  // wrapper->addManipulator({-1, 0}); game.tick();
-  // EXPECT_EQ(0, game.num_boosters[BoosterType::MANIPULATOR]);
-  // wrapper->useBooster(Action::FAST); game.tick();
-  // EXPECT_EQ(0, game.num_boosters[BoosterType::FAST_WHEEL]);
+  Wrapper* wrapper = game.wrappers[0].get();
+  wrapper->move(Action::UP); game.tick();
+  wrapper->useBooster(Action::FAST); game.tick();
+  wrapper->move(Action::UP); game.tick();
+  EXPECT_EQ(Point(0, 3), wrapper->pos);
+  EXPECT_FALSE(game.map2d(0, 2) & CellType::kBoosterDrillBit);
+  std::cout << game << "\n";
 }
