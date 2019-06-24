@@ -58,7 +58,6 @@ bool fillPolygon(Map2D& map, const Polygon& polygon, int value) {
         last_x = line.x;
       }
       inside = !inside;
-
     }
   }
 
