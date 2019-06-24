@@ -15,12 +15,17 @@ struct Buy {
   Buy();
   Buy(const std::string& buy_desc);
   static Buy fromFile(const std::string& file_path);
+
+  bool empty() const;
+  std::string toString() const;
   std::array<int, BoosterType::N> boosters;
 };
 
 struct Game {
   Game(const std::string& desc); // initialize using a task description string from *.desc file.
   Game(const std::vector<std::string>& map); // initialize by a raster *.map file.
+  Game(const Game& another);
+  Game& operator=(const Game& another);
 
   void buyBoosters(const Buy& buy);
 

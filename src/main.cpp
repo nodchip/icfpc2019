@@ -60,12 +60,14 @@ int main(int argc, char* argv[]) {
   auto sub_run = app.add_subcommand("run");
   SolverParam solver_param;
   std::string buy_database_dir;
+  std::string buy_str;
   sub_run->add_option("solver", solver_name, "the solver name");
   sub_run->add_option("--desc", desc_filename, "*.desc file input");
   sub_run->add_option("--map", map_filename, "*.map file input");
   sub_run->add_option("--output", command_output_filename, "output commands to a file");
   sub_run->add_option("--meta", meta_output_filename, "output meta information to a JSON file");
   sub_run->add_option("--buy", buy_database_dir, "use a buy directory");
+  sub_run->add_option("--buy-str", buy_str, "buy string. e.g.) BBBRRLFC");
   sub_run->add_option("--wait-ms", solver_param.wait_ms, "display and pause a while between frames");
 
   auto sub_check_command = app.add_subcommand("check_command");
@@ -142,6 +144,8 @@ int main(int argc, char* argv[]) {
       game.reset(new Game(input));
     }
 
+    assert (buy_database_dir.empty() || buy_str.empty()); // mutially exclusive options.
+    Buy buy;
     if (!stem.empty() && std::experimental::filesystem::is_directory(buy_database_dir)) {
       // read buy file.
       std::string buy_path = buy_database_dir + "/" + stem + ".buy";
@@ -149,8 +153,15 @@ int main(int argc, char* argv[]) {
         std::cerr << "**** no buy file [" << buy_path << "] for " << stem << std::endl;
       } else {
         std::cerr << "**** use buy file [" << buy_path << "] for " << stem << std::endl;
-        game->buyBoosters(Buy::fromFile(buy_path));
+        buy = Buy::fromFile(buy_path);
       }
+    }
+    if (!buy_str.empty()) {
+      std::cerr << "**** use buy str [" << buy_str << "]" << std::endl;
+      buy = Buy(buy_str);
+    }
+    if (!buy.empty()) {
+      game->buyBoosters(buy);
     }
 
     // solve the task.
@@ -171,6 +182,9 @@ int main(int argc, char* argv[]) {
     // command output
     if (!command_output_filename.empty()) {
       std::ofstream ofs(command_output_filename);
+      if (!buy.empty()) { // to distinguish from non-buy solutions.
+        ofs << "buy:" << buy.toString() << "\n";
+      }
       ofs << game->getCommand();
     }
     // meta information output
@@ -178,6 +192,7 @@ int main(int argc, char* argv[]) {
       std::ofstream ofs(meta_output_filename);
       ofs << "{\"name\":\"" << solver_name
           << "\",\"time_unit\":" << game->time
+          << "\",\"buy\":" << buy.toString()
           << "\",\"wall_clock_time\":" << solve_s << "}\n";
     }
     std::cout << "Time step: " << game->time << "\n";

@@ -15,7 +15,11 @@ using namespace std;
 namespace {
 
 struct WrapperEngine {
-  WrapperEngine(Game *game, int id) : m_game(game), m_id(id), m_wrapper(game->wrappers[id].get()), m_num_manipulators(0) { m_total_wrappers++; };
+  WrapperEngine(Game *game, int id, int iter) : m_game(game), m_id(id), m_wrapper(game->wrappers[id].get()), m_num_manipulators(0) { 
+    m_dstart = rand() % 2 == 0;
+    m_astart = rand() % 2 == 0;
+    m_total_wrappers++; 
+  }
   Wrapper *action(double x, double y, std::vector<Trajectory> &to_go, ConnectedComponentAssignmentForParanoid& cc_assignment) {
     if (m_game->num_boosters[BoosterType::MANIPULATOR] > 0 && (m_game->num_boosters[BoosterType::MANIPULATOR] + m_total_manipulators > m_total_wrappers * m_num_manipulators)) {
       if (m_num_manipulators % 2 == 0) {
@@ -52,7 +56,7 @@ struct WrapperEngine {
       }
       if (trajs.empty()) {
         // なければbfs5_6と同じ
-        trajs = map_parse::findNearestUnwrapped(*m_game, pos, DISTANCE_INF, false, false);
+        trajs = map_parse::findNearestUnwrapped(*m_game, pos, DISTANCE_INF, m_dstart, m_astart);
       }
       if (trajs.size() == 0) {
         m_wrapper->nop();
@@ -68,6 +72,8 @@ struct WrapperEngine {
   int m_id;
   Wrapper *m_wrapper;
   int m_num_manipulators;
+  bool m_dstart = false;
+  bool m_astart = false;
   static int m_total_manipulators;
   static int m_total_wrappers;
 };
@@ -76,7 +82,7 @@ int WrapperEngine::m_total_manipulators = 0;
 int WrapperEngine::m_total_wrappers = 0;
 };
 
-static std::vector<std::vector<Trajectory>> getItemMatrixpick(Game* game, const int mask, const int max_dist = DISTANCE_INF, bool onlyzero = true){
+static std::vector<std::vector<Trajectory>> getItemMatrixpick(Game* game, std::vector<WrapperEngine>& ws, const int mask, const int max_dist = DISTANCE_INF, bool onlyzero = true){
   std::vector<std::vector<Trajectory>> output;
   const int wsize = game->wrappers.size();
   output.resize(wsize);
@@ -85,18 +91,19 @@ static std::vector<std::vector<Trajectory>> getItemMatrixpick(Game* game, const 
     if(onlyzero && j!=0){
       break;
     }
-    std::vector<Trajectory> trajs = map_parse::findNearestByBit(*game, game->wrappers[j]->pos, max_dist, mask);
+    std::vector<Trajectory> trajs = map_parse::findNearestByBit(*game, game->wrappers[j]->pos, max_dist, mask, ws[j].m_dstart, ws[j].m_astart);
     output[j] = trajs;
   }
   return output;
 }
 
-std::string pickStrictParanoidsSolver(SolverParam param, Game* game, SolverIterCallback iter_callback) {
+std::string pickStrictParanoidsSolverSub(SolverParam param, Game* game, SolverIterCallback iter_callback, int iter) {
   int num_wrappers = 1;
   vector<WrapperEngine> ws;
+  
   bool clone_mode = (game->num_boosters[BoosterType::CLONING] > 0);
-  bool spawn_exist = (enumerateCellsByMask(game->map2d, CellType::kSpawnPointBit, CellType::kSpawnPointBit).size() > 0);
-  ws.emplace_back(WrapperEngine(game, 0));
+  ws.emplace_back(WrapperEngine(game, 0, iter));
+  
   int epoch(0);
   bool clone_exist = (enumerateCellsByMask(game->map2d, CellType::kBoosterCloningBit, CellType::kBoosterCloningBit).size() > 0);
   std::vector<std::vector<Trajectory>> cmat;
@@ -123,21 +130,21 @@ std::string pickStrictParanoidsSolver(SolverParam param, Game* game, SolverIterC
     }
 
     // spawnがなければ探さない
-    if(clone_mode && game->num_boosters[BoosterType::CLONING] > 0 && spawn_exist){
+    if(clone_mode && game->num_boosters[BoosterType::CLONING] > 0){
       clone_mode = false;
       //cout<<"route gen for spawn"<<endl;
-      cmat = getItemMatrixpick(game,  CellType::kSpawnPointBit);
+      cmat = getItemMatrixpick(game, ws, CellType::kSpawnPointBit);
     }else if(!clone_mode && cmat[0].size() == 0 && clone_exist){
       //cout<<"route gen for clone"<<endl;
       clone_mode = true;
-      cmat = getItemMatrixpick(game, CellType::kBoosterCloningBit);
+      cmat = getItemMatrixpick(game, ws, CellType::kBoosterCloningBit);
     }
 
 
     // neighbor item search
     {
       std::vector<std::vector<Trajectory>> bmat;
-      bmat = getItemMatrixpick(game, CellType::kBoosterManipulatorBit, 3, false);
+      bmat = getItemMatrixpick(game, ws, CellType::kBoosterManipulatorBit, 3, false);
       for(int i=0; i<game->wrappers.size();++i){
         if(bmat[i].size()!=0 && cmat[i].size()==0){
           /*
@@ -183,10 +190,35 @@ std::string pickStrictParanoidsSolver(SolverParam param, Game* game, SolverIterC
     displayAndWait(param, game);
     if (iter_callback && !iter_callback(game)) return game->getCommand();
     for (auto id : cloned) {
-      ws.emplace_back(game, id);
+      ws.emplace_back(game, id, iter);
     }
   }
+
   return game->getCommand();
+}
+
+std::string pickStrictParanoidsSolver(SolverParam param, Game* game_org, SolverIterCallback iter_callback) {
+  srand(3333);
+
+  std::unique_ptr<Game> best_game;
+  int best_time = std::numeric_limits<int>::max();
+
+  for (int iter = 0; iter < 2; ++iter) {
+    auto copied_game = std::make_unique<Game>(*game_org);
+    pickStrictParanoidsSolverSub(param, copied_game.get(), iter_callback, iter);
+    if (copied_game->isEnd()) {
+      std::cerr << "ITER " << iter << " => " << copied_game->time << std::endl;
+      if (copied_game->time < best_time) {
+        best_time = copied_game->time;
+        best_game = std::move(copied_game);
+      }
+    }
+  }
+
+  if (best_game) {
+    *game_org = *best_game.get();
+  }
+  return game_org->getCommand();
 }
 
 REGISTER_SOLVER("pick_strict_paranoids", pickStrictParanoidsSolver);

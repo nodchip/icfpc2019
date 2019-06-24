@@ -45,6 +45,21 @@ Buy Buy::fromFile(const std::string& file_path) {
                   std::istreambuf_iterator<char>());
   return Buy(str);
 }
+bool Buy::empty() const {
+  for (int i = 0; i < BoosterType::N; ++i) {
+    if (boosters[i] != 0) return false;
+  }
+  return true;
+}
+std::string Buy::toString() const {
+  std::ostringstream oss;
+  for (int i = 0; i < boosters[BoosterType::MANIPULATOR]; ++i) oss << 'B';
+  for (int i = 0; i < boosters[BoosterType::FAST_WHEEL]; ++i) oss << 'F';
+  for (int i = 0; i < boosters[BoosterType::DRILL]; ++i) oss << 'L';
+  for (int i = 0; i < boosters[BoosterType::TELEPORT]; ++i) oss << 'R';
+  for (int i = 0; i < boosters[BoosterType::CLONING]; ++i) oss << 'C';
+  return oss.str();
+}
 
 Game::Game() {
   for (int i = 0; i < BoosterType::N; ++i) {
@@ -70,6 +85,29 @@ Game::Game(const std::vector<std::string>& mp) : Game() {
   pick(*w, nullptr);
   paint(*w, nullptr);
   wrappers.push_back(std::move(w));
+}
+
+Game::Game(const Game& another) : Game() {
+  operator=(another);
+}
+
+Game& Game::operator=(const Game& rhs) {
+  time = rhs.time;
+  map2d = rhs.map2d;
+  num_boosters = rhs.num_boosters;
+  debug_keyvalues = rhs.debug_keyvalues;
+  for (auto& rhs : rhs.wrappers) {
+    auto w = std::make_unique<Wrapper>(this, rhs->pos, rhs->index);
+    *(w.get()) = *(rhs.get());
+    w->game = this;
+    wrappers.emplace_back(std::move(w));
+  }
+  for (auto& rhs : rhs.next_wrappers) {
+    auto w = std::make_unique<Wrapper>(this, rhs->pos, rhs->index);
+    *(w.get()) = *(rhs.get());
+    w->game = this;
+    next_wrappers.emplace_back(std::move(w));
+  }
 }
 
 void Game::buyBoosters(const Buy& buy) {
