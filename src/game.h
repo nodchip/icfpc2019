@@ -21,6 +21,8 @@ struct Buy {
 struct Game {
   Game(const std::string& desc); // initialize using a task description string from *.desc file.
   Game(const std::vector<std::string>& map); // initialize by a raster *.map file.
+  Game(const Game& another);
+  Game& operator=(const Game& another);
 
   void buyBoosters(const Buy& buy);
 
