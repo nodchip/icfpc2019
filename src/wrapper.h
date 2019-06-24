@@ -34,7 +34,6 @@ struct Wrapper {
   }
 
   Game* game;
-  Map2D& map2d;
   Point pos;
   int index;
   Direction direction;

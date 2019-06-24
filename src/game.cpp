@@ -72,6 +72,29 @@ Game::Game(const std::vector<std::string>& mp) : Game() {
   wrappers.push_back(std::move(w));
 }
 
+Game::Game(const Game& another) : Game() {
+  operator=(another);
+}
+
+Game& Game::operator=(const Game& rhs) {
+  time = rhs.time;
+  map2d = rhs.map2d;
+  num_boosters = rhs.num_boosters;
+  debug_keyvalues = rhs.debug_keyvalues;
+  for (auto& rhs : rhs.wrappers) {
+    auto w = std::make_unique<Wrapper>(this, rhs->pos, rhs->index);
+    *(w.get()) = *(rhs.get());
+    w->game = this;
+    wrappers.emplace_back(std::move(w));
+  }
+  for (auto& rhs : rhs.next_wrappers) {
+    auto w = std::make_unique<Wrapper>(this, rhs->pos, rhs->index);
+    *(w.get()) = *(rhs.get());
+    w->game = this;
+    next_wrappers.emplace_back(std::move(w));
+  }
+}
+
 void Game::buyBoosters(const Buy& buy) {
   for (int i = 0; i < BoosterType::N; ++i) {
     num_boosters[i] += buy.boosters[i];

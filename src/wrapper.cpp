@@ -16,7 +16,7 @@
 #include "game.h"
 
 Wrapper::Wrapper(Game* game_, Point pos_, int wrapper_spawn_index_)
-  : game(game_), map2d(game_->map2d), pos(pos_), index(wrapper_spawn_index_), direction(Direction::D) {
+  : game(game_), pos(pos_), index(wrapper_spawn_index_), direction(Direction::D) {
   // initial manipulator position. it looks like the wrapper is facing right (D).
   //   *
   // @ *
@@ -34,6 +34,7 @@ Action Wrapper::getScaffoldAction() {
 }
 
 bool Wrapper::move(char c) {
+  auto& map2d = game->map2d;
   Action a = getScaffoldAction();
   a.command = c;
 
@@ -185,6 +186,7 @@ bool Wrapper::canAddManipulator(const Point& p) {
 }
 
 bool Wrapper::teleport(const Point& p) {
+  auto& map2d = game->map2d;
   Action a = getScaffoldAction();
   if ((map2d(p) & CellType::kTeleportTargetBit) == 0) {
     assert(false);
@@ -202,11 +204,13 @@ bool Wrapper::teleport(const Point& p) {
 }
 
 void Wrapper::pick(Action& a) {
+  auto& map2d = game->map2d;
   assert (map2d.isInside(pos));
   game->pick(*this, &a);
 }
 
 void Wrapper::moveAndPaint(Point p, Action& a) {
+  auto& map2d = game->map2d;
   assert (map2d.isInside(p));
 
   pos = p;
@@ -214,6 +218,7 @@ void Wrapper::moveAndPaint(Point p, Action& a) {
 }
 
 bool Wrapper::useBooster(char c) {
+  auto& map2d = game->map2d;
   Action a = getScaffoldAction();
   a.command = c;
 
@@ -271,6 +276,7 @@ std::string Wrapper::getCommand() const {
 }
 
 bool Wrapper::undoAction() {
+  auto& map2d = game->map2d;
   assert (!actions.empty());
   if (actions.empty()) return false;
 
