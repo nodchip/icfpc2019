@@ -43,7 +43,7 @@ std::string interactiveSolver(SolverParam param, Game* game, SolverIterCallback 
         }
         if (c == 'F' && game->num_boosters[BoosterType::FAST_WHEEL] > 0) { w->useBooster(c); break; }
         if (c == 'L' && game->num_boosters[BoosterType::DRILL] > 0) { w->useBooster(c); break; }
-        if (c == 'R' && game->num_boosters[BoosterType::TELEPORT] > 0) { w->useBooster(c); break; }
+        if (c == 'R' && game->num_boosters[BoosterType::TELEPORT] > 0 && (game->map2d(w->pos) & CellType::kTeleportTargetBit) == 0) { w->useBooster(c); break; }
         if (c == 'C' && game->num_boosters[BoosterType::CLONING] > 0 && (game->map2d(w->pos) & CellType::kSpawnPointBit) != 0) {
            w->cloneWrapper(); break;
         }
