@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <regex>
 #include <experimental/filesystem>
 
 #include <CLI/CLI.hpp>
@@ -12,6 +13,16 @@
 #include "puzzle.h"
 #include "fill_polygon.h"
 #include "solver_registry.h"
+
+int parseProblemNumber(std::string desc_or_map_file_path) {
+  std::regex re(R"(prob-(\d{3}))");
+  std::smatch m;
+  if (std::regex_search(desc_or_map_file_path, m, re)) {
+    assert (m.size() == 2);
+    return std::stoi(m[1].str());
+  }
+  return -1;
+}
 
 std::string resolveDescPath(std::string desc_path_hint) {
   // parse various input:
@@ -119,8 +130,10 @@ int main(int argc, char* argv[]) {
     std::string stem;
     std::unique_ptr<Game> game; 
     desc_filename = resolveDescPath(desc_filename);
+    int problem_no = -1;
     if (std::experimental::filesystem::is_regular_file(desc_filename)) {
       std::cerr << "Input: " << desc_filename << "\n";
+      problem_no = parseProblemNumber(desc_filename);
       stem = toString(std::experimental::filesystem::path(desc_filename).stem());
       std::ifstream ifs(desc_filename);
       std::string str((std::istreambuf_iterator<char>(ifs)),
@@ -128,6 +141,7 @@ int main(int argc, char* argv[]) {
       game.reset(new Game(str));
     } else if (std::experimental::filesystem::is_regular_file(map_filename)) {
       std::cerr << "Input: " << map_filename << "\n";
+      problem_no = parseProblemNumber(map_filename);
       stem = toString(std::experimental::filesystem::path(map_filename).stem());
       std::ifstream ifs(map_filename);
       std::vector<std::string> input;
@@ -143,6 +157,7 @@ int main(int argc, char* argv[]) {
         input.emplace_back(l);
       game.reset(new Game(input));
     }
+    game->problem_no = problem_no;
 
     assert (buy_database_dir.empty() || buy_str.empty()); // mutially exclusive options.
     Buy buy;
@@ -192,7 +207,7 @@ int main(int argc, char* argv[]) {
       std::ofstream ofs(meta_output_filename);
       ofs << "{\"name\":\"" << solver_name
           << "\",\"time_unit\":" << game->time
-          << "\",\"buy\":" << buy.toString()
+          << ",\"buy\":\"" << buy.toString()
           << "\",\"wall_clock_time\":" << solve_s << "}\n";
     }
     std::cout << "Time step: " << game->time << "\n";

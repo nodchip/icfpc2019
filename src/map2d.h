@@ -98,6 +98,7 @@ using Booster = std::pair<char, Point>;
 // return all points (x, y) with (map(x, y) & mask) == bits
 std::vector<Point> enumerateCellsByMask(const Map2D& map, int mask, int bits);
 inline int countCellsByMask(const Map2D& map, int mask, int bits) { return enumerateCellsByMask(map, mask, bits).size(); }
+std::vector<Point> findNearestPoints(const std::vector<Point>& haystack, Point needle);
 
 // return true if there are no 8-connected pixel pairs which are not 4-connected.
 // e.g.)

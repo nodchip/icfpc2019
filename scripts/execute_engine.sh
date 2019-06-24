@@ -3,6 +3,7 @@ rm -Rf solutions/${ENGINE_NAME}
 ./scripts/python/execute_engines.py \
 --description_directory_path dataset/problems \
 --solution_directory_path solutions/${ENGINE_NAME} \
+--buy_directory_path buy \
 --best_solution_directory_path best_solutions \
 --engine_file_path src/solver \
 --jobs `grep processor /proc/cpuinfo | wc -l` \

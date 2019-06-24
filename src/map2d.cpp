@@ -172,6 +172,21 @@ std::vector<Point> shortestPathByMaskBFS(const Map2D& map,
   return shortestPathByMaskBFS(work, FOREGROUND, FOREGROUND, start, TARGET, TARGET, max_distance);
 }
 
+std::vector<Point> findNearestPoints(const std::vector<Point>& haystack, Point needle) {
+  int best_dist = std::numeric_limits<int>::max();
+  std::vector<Point> best_points;
+  for (auto h : haystack) {
+    const int dist = (h - needle).lengthManhattan();
+    if (dist == best_dist) {
+      best_points.push_back(h);
+    } else if (dist < best_dist) {
+      best_dist = dist;
+      best_points = {h};
+    }
+  }
+  return best_points;
+}
+
 namespace {
 Point ParsePoint(char*& p) {
   assert (*p == '(');

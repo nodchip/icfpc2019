@@ -226,10 +226,23 @@ std::string distspawnSolverSub(SolverParam param, Game* game, SolverIterCallback
     
     // dist
     {
-      if ( game->num_boosters[BoosterType::CLONING] == 0 && (enumerateCellsByMask(game->map2d, CellType::kBoosterCloningBit, CellType::kBoosterCloningBit).size() == 0) && !dist_done){
+      if ( game->num_boosters[BoosterType::CLONING] == 0 && (enumerateCellsByMask(game->map2d, CellType::kBoosterCloningBit, CellType::kBoosterCloningBit).size() == 0) && cmat.size()>1 && !dist_done){
 	// distribute wrappers
-	
-	
+	cout<<"dist start"<<cmat.size()<<", "<<game->map2d.W<<","<<game->map2d.H<<","<<endl;
+	for(int i=0;i<cmat.size();++i){
+	  while(1){
+	    int x = rand() % game->map2d.W;
+	    int y = rand() % game->map2d.H;
+	    cout<<x<<","<<y<<endl;
+	    if(!(game->map2d(x, y) & CellType::kObstacleBit)){
+	      cout<<"inside"<<endl;
+	      cmat[i] = map_parse::findTrajectory(*game, game->wrappers[i]->pos, Point(x, y), DISTANCE_INF, false, false);
+	      break;
+	    }
+	  }
+	}
+	cout<<"dist done"<<endl;
+	dist_done = true;	
       }
     }
     for(int i=0; i<game->wrappers.size();++i){

@@ -72,7 +72,7 @@ Game::Game(const std::string& task) : Game() {
   map2d = parsed.map2d;
 
   auto w = std::make_unique<Wrapper>(this, parsed.wrappy, 0);
-  pick(*w, nullptr);
+  pick(w->pos, nullptr);
   paint(*w, nullptr);
   wrappers.push_back(std::move(w));
 }
@@ -82,7 +82,7 @@ Game::Game(const std::vector<std::string>& mp) : Game() {
   map2d = parsed.map2d;
 
   auto w = std::make_unique<Wrapper>(this, parsed.wrappy, 0);
-  pick(*w, nullptr);
+  pick(w->pos, nullptr);
   paint(*w, nullptr);
   wrappers.push_back(std::move(w));
 }
@@ -92,6 +92,7 @@ Game::Game(const Game& another) {
 }
 
 Game& Game::operator=(const Game& rhs) {
+  problem_no = rhs.problem_no;
   time = rhs.time;
   map2d = rhs.map2d;
   num_boosters = rhs.num_boosters;
@@ -137,17 +138,17 @@ bool Game::tick() {
   return true;
 }
 
-void Game::pick(const Wrapper& w, Action* a_optional) {
+void Game::pick(const Point& pos, Action* a_optional) {
   // automatically pick up boosters with no additional time cost.
   for (auto booster : boosters) {
-    if (map2d(w.pos) & booster.map_bit) {
+    if (map2d(pos) & booster.map_bit) {
       if (a_optional) {
         assert (booster.booster_type < a_optional->pick_boosters.size());
-        a_optional->pick_boosters[booster.booster_type].push_back(w.pos);
+        a_optional->pick_boosters[booster.booster_type].push_back(pos);
       }
       assert (booster.booster_type < num_boosters.size());
       ++num_boosters[booster.booster_type];
-      map2d(w.pos) &= ~booster.map_bit;
+      map2d(pos) &= ~booster.map_bit;
     }
   }
 }
@@ -159,9 +160,10 @@ void Game::paint(const Wrapper& w, Action* a_optional) {
 
   // Paint cell at the wrapper. It can be in obstacle if drill is active.
   if ((map2d(p) & CellType::kWrappedBit) == 0) {
-    if ((map2d(p) & CellType::kObstacleBit) == 0) {
-      --map2d.num_unwrapped;
+    if (map2d(p) & CellType::kObstacleBit) {
       map2d(p) &= ~CellType::kObstacleBit;
+    } else {
+      --map2d.num_unwrapped;
     }
     map2d(p) |= CellType::kWrappedBit;
     if (a_optional) a_optional->absolute_new_wrapped_positions.push_back(p);

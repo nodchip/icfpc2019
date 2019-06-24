@@ -319,18 +319,3 @@ Point ConnectedComponentAssignmentForParanoid::approximateCenter(const std::vect
   for (auto p : points) x += p.x, y += p.y;
   return {int(x / points.size()), int(y / points.size())};
 }
-
-std::vector<Point> ConnectedComponentAssignmentForParanoid::findNearestPoints(const std::vector<Point>& haystack, Point needle) {
-  int best_dist = std::numeric_limits<int>::max();
-  std::vector<Point> best_points;
-  for (auto h : haystack) {
-    const int dist = (h - needle).lengthManhattan();
-    if (dist == best_dist) {
-      best_points.push_back(h);
-    } else if (dist < best_dist) {
-      best_dist = dist;
-      best_points = {h};
-    }
-  }
-  return best_points;
-}

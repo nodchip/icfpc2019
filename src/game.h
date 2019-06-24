@@ -59,10 +59,11 @@ struct Game {
   // for i in [0..N]
   //   1. wrapper[i] picks anything in the cell
   //   2. wrapper[i] moves (e.g. use any boosters collected)
-  void pick(const Wrapper& w, Action* a_optional); // helper func used by Wrapper
+  void pick(const Point& p, Action* a_optional); // helper func used by Wrapper
   void paint(const Wrapper& w, Action* a_optional); // helper func used by Wrapper
 
   // State of Game
+  int problem_no = -1;
   int time = 0;
 
   // shared & updated map
