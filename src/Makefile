@@ -2,9 +2,9 @@ LIB_PATH=../libs
 BUILD_PATH=build
 GTEST_DIR=$(LIB_PATH)/googletest/googletest
 
-CXXFLAGS+=-O2 -Wall -Wno-sign-compare -std=c++14 -march=native
+CXXFLAGS+=-O0 -Wall -Wno-sign-compare -std=c++14 -march=native
 CXXFLAGS+=-I. -I$(GTEST_DIR) -I$(GTEST_DIR)/include -I$(LIB_PATH)/CLI11/include
-#CXXFLAGS+=-g
+CXXFLAGS+=-g
 #CXXFLAGS+=-DNDEBUG
 
 LDFLAGS=-lstdc++fs
