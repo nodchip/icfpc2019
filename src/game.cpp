@@ -92,6 +92,7 @@ Game::Game(const Game& another) {
 }
 
 Game& Game::operator=(const Game& rhs) {
+  problem_no = rhs.problem_no;
   time = rhs.time;
   map2d = rhs.map2d;
   num_boosters = rhs.num_boosters;
