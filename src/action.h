@@ -7,9 +7,17 @@
 #include "base.h"
 #include "booster.h"
 
+struct WrapperStat {
+  int num_unwaped_move;
+  int time_spawn;
+  int time_last_unwrap;
+};
+
 struct Action {
-  Action(int timestamp_, bool fast_wheels_active_, bool drill_active_, Point before_pos, Direction before_dir, const std::vector<Point>& before_manipulator_offsets)
+  Action(int timestamp_, bool fast_wheels_active_, bool drill_active_, Point before_pos, Direction before_dir, const std::vector<Point>& before_manipulator_offsets, WrapperStat before_wrapper_stat)
     : timestamp(timestamp_)
+    , old_wrapper_stat(before_wrapper_stat)
+    , new_wrapper_stat(before_wrapper_stat)
     , fast_wheels_active(fast_wheels_active_)
     , drill_active(drill_active_) {
     old_position = before_pos;
@@ -24,6 +32,8 @@ struct Action {
     }
   }
   int timestamp;
+  WrapperStat old_wrapper_stat;
+  WrapperStat new_wrapper_stat;
   // old state
   Point old_position;
   Direction old_direction;

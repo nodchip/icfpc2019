@@ -24,11 +24,14 @@ Wrapper::Wrapper(Game* game_, Point pos_, int wrapper_spawn_index_)
   manipulators.push_back(Point {1, 0});
   manipulators.push_back(Point {1, 1});
   manipulators.push_back(Point {1, -1});
+  wrapper_stat.num_unwaped_move = 0;
+  wrapper_stat.time_spawn = game->time;
+  wrapper_stat.time_last_unwrap = 0;
 }
 
 Action Wrapper::getScaffoldAction() {
   // +1 for next action.
-  Action a = {game->time + 1, time_fast_wheels > 0, time_drill > 0, pos, direction, manipulators};
+  Action a = {game->time + 1, time_fast_wheels > 0, time_drill > 0, pos, direction, manipulators, wrapper_stat};
   // pick boosters before move!
   pick(a);
 
@@ -84,6 +87,7 @@ bool Wrapper::move(char c) {
   auto& map2d = game->map2d;
   Action a = getScaffoldAction();
   a.command = c;
+  auto prev_num_unrapped(map2d.num_unwrapped);
 
   {
     Point p {pos};
@@ -151,6 +155,12 @@ bool Wrapper::move(char c) {
 
   a.new_position = pos;
   moveAndPaint(pos, a);
+  if (prev_num_unrapped == map2d.num_unwrapped) {
+    a.new_wrapper_stat.num_unwaped_move++;
+  } else {
+    a.new_wrapper_stat.time_last_unwrap = game->time;
+  }
+  wrapper_stat = a.new_wrapper_stat;
   doAction(a);
   return true;
 }
@@ -164,6 +174,7 @@ void Wrapper::nop() {
 void Wrapper::turn(char c) {
   Action a = getScaffoldAction();
   a.command = c;
+  auto prev_num_unrapped(game->map2d.num_unwrapped);
 
   if (c == Action::CW) {
     direction = turnCW(direction);
@@ -185,6 +196,12 @@ void Wrapper::turn(char c) {
 
   a.new_manipulator_offsets = manipulators;
   a.new_direction = direction;
+  if (prev_num_unrapped == game->map2d.num_unwrapped) {
+    a.new_wrapper_stat.num_unwaped_move++;
+  } else {
+    a.new_wrapper_stat.time_last_unwrap = game->time;
+  }
+  wrapper_stat = a.new_wrapper_stat;
   doAction(a);
 }
 
@@ -264,6 +281,7 @@ bool Wrapper::useBooster(char c) {
   auto& map2d = game->map2d;
   Action a = getScaffoldAction();
   a.command = c;
+  auto prev_num_unrapped(map2d.num_unwrapped);
 
   const int b = boosterFromChar(c).booster_type;
   if (game->num_boosters[b] <= 0) {
@@ -288,6 +306,12 @@ bool Wrapper::useBooster(char c) {
   }
   }
 
+  if (prev_num_unrapped == map2d.num_unwrapped) {
+    a.new_wrapper_stat.num_unwaped_move++;
+  } else {
+    a.new_wrapper_stat.time_last_unwrap = game->time;
+  }
+  wrapper_stat = a.new_wrapper_stat;
   doAction(a);
   return true;
 }
@@ -331,6 +355,8 @@ bool Wrapper::undoAction() {
   direction = a.old_direction;
   // undo rotation and manipulator addition
   manipulators = a.old_manipulator_offsets;
+  // undo wrapper stat information
+  wrapper_stat = a.old_wrapper_stat;
   // undo paint
   for (auto p : a.absolute_new_wrapped_positions) {
     assert (map2d.isInside(p) && (map2d(p) & CellType::kWrappedBit) != 0);

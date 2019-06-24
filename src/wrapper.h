@@ -45,6 +45,8 @@ struct Wrapper {
   int time_fast_wheels = 0;
   // remained time of 'L'. While this is >0, wrappy can go through obstacles.
   int time_drill = 0;
+  // Gather wrappre stat information
+  WrapperStat wrapper_stat;
 
 private:
   void pick(Action& a);

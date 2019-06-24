@@ -208,10 +208,30 @@ int main(int argc, char* argv[]) {
       ofs << "{\"name\":\"" << solver_name
           << "\",\"time_unit\":" << game->time
           << ",\"buy\":\"" << buy.toString()
-          << "\",\"wall_clock_time\":" << solve_s << "}\n";
+          << "\",\"wall_clock_time\":" << solve_s
+          << "\",\"wrapper_infos\": [";
+          bool first(true);
+          for (auto &w : game->wrappers) {
+            if (!first) ofs << ",";
+            ofs << "{\"id\":" << w->index
+                << ",\"num_not_unwrap_move\":" << w->wrapper_stat.num_unwaped_move
+                << ",\"time_spawn\":" << w->wrapper_stat.time_spawn
+                << ",\"last_wrap\":" << w->wrapper_stat.time_last_unwrap << "}";
+          }
+          ofs << "]}\n";
     }
     std::cout << "Time step: " << game->time << "\n";
     std::cout << "Elapsed  : " << solve_s << " s\n";
+    std::cout << "Wrapper:\n";
+    for (auto &w : game->wrappers) {
+      if (w) {
+        auto &a(w->wrapper_stat);
+        std::cout << "  Id: " << w->index << "\n";
+        std::cout << "  NumUnwrapMove: " << a.num_unwaped_move << "\n";
+        std::cout << "  TimeSpawn: " << a.time_spawn << "\n";
+        std::cout << "  TimeLastWrap: " << a.time_last_unwrap << "\n";
+      }
+    }
   }
 
   if (sub_check_command->parsed()) {
