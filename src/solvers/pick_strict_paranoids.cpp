@@ -202,9 +202,12 @@ std::string pickStrictParanoidsSolver(SolverParam param, Game* game_org, SolverI
 
   for (int iter = 0; iter < 2; ++iter) {
     auto copied_game = std::make_unique<Game>(*game_org);
+    //std::cerr << iter << " " << copied_game->wrappers.size() << std::endl;
     pickStrictParanoidsSolverSub(param, copied_game.get(), iter_callback, iter);
     if (copied_game->isEnd()) {
-      std::cerr << "ITER " << iter << " => " << copied_game->time << std::endl;
+      //std::cerr << "ITER " << iter << " => " << copied_game->time << std::endl;
+      //std::cerr << "Command: " << copied_game->getCommand() << std::endl;
+      //std::cerr << iter << " " << copied_game->wrappers.size() << std::endl;
       if (copied_game->time < best_time) {
         best_time = copied_game->time;
         best_game = std::move(copied_game);
@@ -214,6 +217,8 @@ std::string pickStrictParanoidsSolver(SolverParam param, Game* game_org, SolverI
 
   if (best_game) {
     *game_org = *best_game.get();
+    //std::cerr << "Command: " << game_org->getCommand() << std::endl;
+    //std::cerr << game_org->wrappers.size() << std::endl;
   }
   return game_org->getCommand();
 }
