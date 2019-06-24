@@ -4,6 +4,7 @@
 # and place it into the same directory of the script.
 
 import os
+import random
 import argparse
 import glob
 import time
@@ -39,7 +40,7 @@ class Validator(object):
         sol_file = self.driver.find_element_by_id('submit_solution')
         sol_file.send_keys(os.path.abspath(sol_path))
 
-        if buy_path is not None and len(open(buy_path).read()) > 0:
+        if buy_path is not None and os.path.isfile(buy_path) and len(open(buy_path).read()) > 0:
             print('use buy file')
             buy_file = self.driver.find_element_by_id('submit_boosters')
             buy_file.send_keys(os.path.abspath(buy_path))
@@ -82,6 +83,8 @@ def main():
         sol_path = os.path.join(args.sol_dir, os.path.splitext(os.path.basename(desc_path))[0] + '.sol')
         buy_path = os.path.join(args.buy_dir, os.path.splitext(os.path.basename(desc_path))[0] + '.buy')
         pairs.append((desc_path, sol_path, buy_path))
+
+    random.shuffle(pairs)
 
     v = Validator()
     results = []
