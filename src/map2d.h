@@ -28,6 +28,7 @@ static const char BOOSTER_TELEPORT = 'R';
 static const char BOOSTER_CLONING = 'C';
 static const char WALL = '#';
 static const char SPAWN_POINT = 'X';
+static const char TELEPORT_TARGET = 'T';
 
 struct Map2D {
     using T = int;

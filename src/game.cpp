@@ -308,6 +308,7 @@ std::ostream& operator<<(std::ostream& os, const Game& game) {
   os << "Wrappers: " << game.wrappers.size() << "\n";
   for (auto& w : game.wrappers) {
     os << w->index << " : ";
+    os << w->pos << " : ";
     os << "Dir[";
     switch (w->direction) {
       case Direction::W: os << "↑"; break;

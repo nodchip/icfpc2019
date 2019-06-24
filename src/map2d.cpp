@@ -336,6 +336,7 @@ char getMapChar(int map_bits) {
   if (map_bits & CellType::kBoosterCloningBit) { c = BOOSTER_CLONING; }
   if (map_bits & CellType::kSpawnPointBit) { c = SPAWN_POINT; }
   if (map_bits & CellType::kBoosterTeleportBit) { c = BOOSTER_TELEPORT; }
+  if (map_bits & CellType::kTeleportTargetBit) { c = TELEPORT_TARGET; }
   if (map_bits & CellType::kObstacleBit) { c = WALL; } // highest priority
   if (std::isalpha(c) && (map_bits & CellType::kWrappedBit) == 0)
     c = std::tolower(c);
